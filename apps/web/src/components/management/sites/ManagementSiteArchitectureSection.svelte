@@ -16,6 +16,7 @@
   export let options: SiteSubmissionOptions;
   export let disabled = false;
   export let idPrefix = 'site-management-fields';
+  export let fieldAlerts: Partial<Record<string, { label: string; value: string }>> = {};
 
   type ProgramSelectionFormState = Parameters<typeof applyProgramOptionToForm>[0];
 
@@ -104,6 +105,16 @@
 <div class="space-y-4 border-t border-(--color-line) pt-5">
   <div class="grid gap-4 md:grid-cols-2">
     <div class="space-y-2 md:col-span-2">
+      {#if fieldAlerts.architecture}
+        <div
+          class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_32%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_8%,transparent)] px-3 py-2"
+        >
+          <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
+          <p class="mt-1 whitespace-pre-wrap text-xs text-(--color-fg)">
+            {fieldAlerts.architecture.value}
+          </p>
+        </div>
+      {/if}
       <label class="block text-sm" for={`${idPrefix}-architecture-program`}>程序</label>
       <SingleSelectCombobox
         inputId={`${idPrefix}-architecture-program`}

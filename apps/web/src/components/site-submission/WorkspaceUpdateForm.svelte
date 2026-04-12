@@ -104,14 +104,12 @@
   <div class="space-y-4 border-t border-(--color-line) pt-5">
     <p class="text-xs tracking-[0.16em] text-(--color-fg-3)">提交信息与通知</p>
     <div class="space-y-2">
-      <label class="block text-sm" for="update-reason"
-        >修改原因<span class="ml-1 text-(--color-fail)" aria-hidden="true">✱</span></label
-      >
+      <label class="block text-sm" for="update-reason">修改原因（可选）</label>
       <textarea
         id="update-reason"
         class={textAreaClass}
         bind:value={updateForm.submit_reason}
-        placeholder="说明修改原因，例如信息错误、站点改版、迁移更新等。"
+        placeholder="可补充说明修改背景，例如信息错误、站点改版、迁移更新等。"
       ></textarea>
       {#if updateErrors.submit_reason}
         <p class="text-xs text-(--color-fail)">{updateErrors.submit_reason}</p>

@@ -496,16 +496,22 @@ export const siteAuditSelectSchema = createSelectSchema(SiteAudits, {
   current_snapshot: siteAuditSnapshotSchema.nullable(),
   proposed_snapshot: siteAuditSnapshotSchema.nullable(),
   diff: z.array(siteAuditDiffItemSchema),
+  review_override_snapshot: siteAuditSnapshotSchema.nullable(),
+  review_override_diff: z.array(siteAuditDiffItemSchema).nullable(),
 });
 export const siteAuditInsertSchema = createInsertSchema(SiteAudits, {
   current_snapshot: siteAuditSnapshotInputSchema.optional(),
   proposed_snapshot: siteAuditSnapshotInputSchema.optional(),
   diff: z.array(siteAuditDiffItemSchema).optional(),
+  review_override_snapshot: siteAuditSnapshotInputSchema.optional(),
+  review_override_diff: z.array(siteAuditDiffItemSchema).optional(),
 });
 export const siteAuditUpdateSchema = createUpdateSchema(SiteAudits, {
   current_snapshot: siteAuditSnapshotInputSchema.optional(),
   proposed_snapshot: siteAuditSnapshotInputSchema.optional(),
   diff: z.array(siteAuditDiffItemSchema).optional(),
+  review_override_snapshot: siteAuditSnapshotInputSchema.optional(),
+  review_override_diff: z.array(siteAuditDiffItemSchema).optional(),
 });
 
 export const articleFeedbackAuditSelectSchema = createSelectSchema(ArticleFeedbackAudits);

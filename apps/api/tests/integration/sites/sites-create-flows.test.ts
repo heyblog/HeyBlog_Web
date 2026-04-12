@@ -1,4 +1,4 @@
-import { Sites, TagDefinitions, TechnologyCatalogs } from '@zhblogs/db';
+import { SiteAudits, Sites, TagDefinitions, TechnologyCatalogs } from '@zhblogs/db';
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -34,6 +34,10 @@ describe('site submission routes', () => {
     await app.ready();
 
     mockReadSelect(app, [
+      {
+        table: SiteAudits,
+        rows: [],
+      },
       {
         table: TagDefinitions,
         rows: [
@@ -158,6 +162,10 @@ describe('site submission routes', () => {
 
     mockReadSelect(app, [
       {
+        table: SiteAudits,
+        rows: [],
+      },
+      {
         table: TagDefinitions,
         rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
       },
@@ -206,6 +214,66 @@ describe('site submission routes', () => {
     });
   });
 
+  it('accepts a blank create reason and stores it as an empty string', async () => {
+    app = createTestApp({
+      disableExternalServices: true,
+    });
+
+    await app.ready();
+
+    mockReadSelect(app, [
+      {
+        table: SiteAudits,
+        rows: [],
+      },
+      {
+        table: TagDefinitions,
+        rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
+      },
+      {
+        table: TagDefinitions,
+        rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
+      },
+      {
+        table: TechnologyCatalogs,
+        rows: [],
+      },
+      {
+        table: Sites,
+        rows: [],
+      },
+    ]);
+
+    const writeMock = mockWriteInsertSuccess(app, [
+      {
+        id: 'audit-create-empty-reason-id',
+        status: 'PENDING',
+      },
+    ]);
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/sites',
+      payload: {
+        submitter_name: 'Alice',
+        submitter_email: 'alice@example.com',
+        submit_reason: '',
+        notify_by_email: false,
+        site: {
+          name: 'Example Blog',
+          url: 'https://example.com',
+          sign: 'A blog about software',
+          main_tag_id: mainTagId,
+        },
+      },
+    });
+
+    expect(response.statusCode).toBe(201);
+    expect(writeMock.getInsertedValues()).toMatchObject({
+      submit_reason: '',
+    });
+  });
+
   it('keeps architecture repo and stacks in create snapshot', async () => {
     app = createTestApp({
       disableExternalServices: true,
@@ -214,6 +282,10 @@ describe('site submission routes', () => {
     await app.ready();
 
     mockReadSelect(app, [
+      {
+        table: SiteAudits,
+        rows: [],
+      },
       {
         table: TagDefinitions,
         rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
@@ -302,6 +374,66 @@ describe('site submission routes', () => {
               name_normalized: 'astro',
             },
           ],
+        },
+      },
+    });
+  });
+
+  it('returns the active pending create submission when the same site is already awaiting review', async () => {
+    app = createTestApp({
+      disableExternalServices: true,
+    });
+
+    await app.ready();
+
+    mockReadSelect(app, [
+      {
+        table: SiteAudits,
+        rows: [
+          {
+            id: 'audit-create-pending-id',
+            action: 'CREATE',
+            status: 'PENDING',
+            site_id: null,
+            created_time: new Date('2026-04-12T08:00:00.000Z'),
+            proposed_snapshot: {
+              url: 'https://example.com',
+              bid: 'example-blog',
+            },
+          },
+        ],
+      },
+    ]);
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/sites',
+      payload: {
+        submitter_name: 'Alice',
+        submitter_email: 'alice@example.com',
+        submit_reason: 'Request inclusion for my site.',
+        notify_by_email: false,
+        site: {
+          name: 'Example Blog',
+          url: 'https://example.com',
+          sign: 'A blog about software',
+          main_tag_id: mainTagId,
+        },
+      },
+    });
+
+    expect(response.statusCode).toBe(409);
+    expect(response.json()).toEqual({
+      ok: false,
+      error: {
+        code: 'PENDING_AUDIT_EXISTS',
+        message: 'There is already a pending submission for the target site.',
+        active_submission: {
+          audit_id: 'audit-create-pending-id',
+          action: 'CREATE',
+          status: 'PENDING',
+          created_time: '2026-04-12T08:00:00.000Z',
+          site_id: null,
         },
       },
     });
@@ -398,6 +530,10 @@ describe('site submission routes', () => {
 
     mockReadSelect(app, [
       {
+        table: SiteAudits,
+        rows: [],
+      },
+      {
         table: TagDefinitions,
         rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
       },
@@ -463,6 +599,10 @@ describe('site submission routes', () => {
     await app.ready();
 
     mockReadSelect(app, [
+      {
+        table: SiteAudits,
+        rows: [],
+      },
       {
         table: TagDefinitions,
         rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
@@ -534,8 +674,16 @@ describe('site submission routes', () => {
 
     mockReadSelect(app, [
       {
+        table: SiteAudits,
+        rows: [],
+      },
+      {
         table: TagDefinitions,
         rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
+      },
+      {
+        table: SiteAudits,
+        rows: [],
       },
       {
         table: Sites,
@@ -564,6 +712,10 @@ describe('site submission routes', () => {
             is_show: true,
           },
         ],
+      },
+      {
+        table: SiteAudits,
+        rows: [],
       },
       {
         table: TagDefinitions,
@@ -652,6 +804,10 @@ describe('site submission routes', () => {
     await app.ready();
 
     mockReadSelect(app, [
+      {
+        table: SiteAudits,
+        rows: [],
+      },
       {
         table: TagDefinitions,
         rows: [{ id: mainTagId }],

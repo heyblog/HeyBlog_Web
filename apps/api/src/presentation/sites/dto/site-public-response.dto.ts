@@ -1,4 +1,5 @@
 import {
+  activeSubmissionResultSchema,
   architectureResultSchema,
   feedCandidateResultSchema,
   optionItemResultSchema,
@@ -220,6 +221,7 @@ const errorResponseSchema = {
           items: { type: 'string' },
         },
         duplicate_review: duplicateReviewSchema,
+        active_submission: activeSubmissionResultSchema,
       },
       required: ['code', 'message'],
     },

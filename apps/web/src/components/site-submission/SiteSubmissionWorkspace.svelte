@@ -17,8 +17,11 @@
     createInitialCreateForm,
     createInitialDeleteForm,
     createInitialQueryForm,
+    createInitialRestoreForm,
     createInitialUpdateForm,
     type FieldErrors,
+    formatAuditTime,
+    type RestoreTargetResult,
     type SiteResolveResult,
     type SiteSearchItem,
     type SiteSubmissionOptionsResult,
@@ -35,7 +38,10 @@
     WORKSPACE_SELECT_CLASS,
     WORKSPACE_TEXTAREA_CLASS,
   } from './site-submission-workspace.constants';
-  import type { CreateSubmissionDuplicateDialogState } from './site-submission-workspace.types';
+  import type {
+    BlockedSubmissionNoticeState,
+    CreateSubmissionDuplicateDialogState,
+  } from './site-submission-workspace.types';
   import {
     createSiteSubmissionWorkspaceController,
     type ValueState,
@@ -46,6 +52,7 @@
   export let activePage: SubmissionPage = 'create';
   export let initialIdentifier = '';
   export let initialAuditId = '';
+  export let initialRestoreTarget: RestoreTargetResult | null = null;
 
   let options: SiteSubmissionOptionsResult = {
     main_tags: [],
@@ -58,6 +65,7 @@
   let createForm = createInitialCreateForm();
   let updateForm = createInitialUpdateForm();
   let deleteForm = createInitialDeleteForm();
+  let restoreForm = createInitialRestoreForm();
   let queryForm = createInitialQueryForm({
     audit_id: initialAuditId,
   });
@@ -65,6 +73,7 @@
   let createErrors: FieldErrors = {};
   let updateErrors: FieldErrors = {};
   let deleteErrors: FieldErrors = {};
+  let restoreErrors: FieldErrors = {};
   let queryErrors: FieldErrors = {};
 
   let queryError: string | null = null;
@@ -72,12 +81,15 @@
   let createSuccess: SubmissionResult | null = null;
   let updateSuccess: SubmissionResult | null = null;
   let deleteSuccess: SubmissionResult | null = null;
+  let restoreSuccess: SubmissionResult | null = null;
   let querySuccess: SubmissionStatusResult | null = null;
   let createDuplicateDialog: CreateSubmissionDuplicateDialogState | null = null;
+  let blockedSubmission: BlockedSubmissionNoticeState | null = null;
 
   let createPending = false;
   let updatePending = false;
   let deletePending = false;
+  let restorePending = false;
   let queryPending = false;
   let searchPending = false;
   let resolvePending = false;
@@ -90,6 +102,7 @@
   let searchResults: SiteSearchItem[] = [];
   let searchError: string | null = null;
   let selectedSite: SiteResolveResult | null = null;
+  let restoreTarget: RestoreTargetResult | null = initialRestoreTarget;
   let createProgramPickerValue = '';
   let updateProgramPickerValue = '';
   let copiedAuditId = '';
@@ -134,6 +147,12 @@
           deleteForm = value;
         },
       ),
+      restore: state(
+        () => restoreForm,
+        (value) => {
+          restoreForm = value;
+        },
+      ),
       query: state(
         () => queryForm,
         (value) => {
@@ -158,6 +177,12 @@
         () => deleteErrors,
         (value) => {
           deleteErrors = value;
+        },
+      ),
+      restore: state(
+        () => restoreErrors,
+        (value) => {
+          restoreErrors = value;
         },
       ),
       query: state(
@@ -192,6 +217,12 @@
           deleteSuccess = value;
         },
       ),
+      restore: state(
+        () => restoreSuccess,
+        (value) => {
+          restoreSuccess = value;
+        },
+      ),
       query: state(
         () => querySuccess,
         (value) => {
@@ -207,6 +238,12 @@
         },
       ),
     },
+    blockedSubmission: state(
+      () => blockedSubmission,
+      (value) => {
+        blockedSubmission = value;
+      },
+    ),
     pending: {
       create: state(
         () => createPending,
@@ -224,6 +261,12 @@
         () => deletePending,
         (value) => {
           deletePending = value;
+        },
+      ),
+      restore: state(
+        () => restorePending,
+        (value) => {
+          restorePending = value;
         },
       ),
       query: state(
@@ -283,6 +326,14 @@
         },
       ),
     },
+    restore: {
+      target: state(
+        () => restoreTarget,
+        (value) => {
+          restoreTarget = value;
+        },
+      ),
+    },
     autoFillMissing: {
       create: state(
         () => createAutoFillMissing,
@@ -334,8 +385,10 @@
     visibility: 'VISIBLE' | 'HIDDEN';
     reason: string;
   } | null;
+  let blockedSubmissionQueryHref;
 
-  $: activeSubmissionResult = createSuccess ?? updateSuccess ?? deleteSuccess ?? null;
+  $: activeSubmissionResult =
+    createSuccess ?? updateSuccess ?? deleteSuccess ?? restoreSuccess ?? null;
   $: activeSubmissionTitle = activeSubmissionResult
     ? (successTitleMap[activeSubmissionResult.action as keyof typeof successTitleMap] ??
       '提交申请已进入审核')
@@ -349,6 +402,9 @@
           ? '检测到重复站点'
           : '';
   $: primaryStrongDuplicate = createDuplicateDialog?.review.strong[0] ?? null;
+  $: blockedSubmissionQueryHref = blockedSubmission
+    ? buildSubmissionQueryHref(blockedSubmission.submission.audit_id)
+    : '';
 
   const {
     withInputStateClass,
@@ -375,11 +431,12 @@
     dismissCreateDuplicateReview,
     submitUpdate,
     submitDelete,
+    submitRestore,
     submitQuery,
   } = controller;
 
   onMount(async () => {
-    await controller.initialize({ initialIdentifier, initialAuditId });
+    await controller.initialize({ initialIdentifier, initialAuditId, initialRestoreTarget });
   });
 
   async function handleCopyAuditId(auditId: string) {
@@ -391,11 +448,26 @@
     createSuccess = null;
     updateSuccess = null;
     deleteSuccess = null;
+    restoreSuccess = null;
     copiedAuditId = '';
   }
 
   function closeCreateDuplicateDialog() {
     dismissCreateDuplicateReview();
+  }
+
+  function closeBlockedSubmissionDialog() {
+    blockedSubmission = null;
+  }
+
+  function goToBlockedSubmissionQuery() {
+    if (!blockedSubmission) {
+      return;
+    }
+
+    const targetHref = buildSubmissionQueryHref(blockedSubmission.submission.audit_id);
+    blockedSubmission = null;
+    window.location.assign(targetHref);
   }
 </script>
 
@@ -415,6 +487,10 @@
     {deleteForm}
     {deleteErrors}
     {deletePending}
+    {restoreForm}
+    {restoreErrors}
+    {restorePending}
+    {restoreTarget}
     {fieldNeedsRefinement}
     {inputClass}
     {isAutoFillMissing}
@@ -451,6 +527,7 @@
     {selectProgramOption}
     {submitCreate}
     {submitDelete}
+    {submitRestore}
     {submitQuery}
     {submitUpdate}
     {updateCreateUrl}
@@ -464,6 +541,34 @@
     <WorkspaceAside {activePage} />
   {/if}
 </div>
+
+<ModalSurface
+  open={Boolean(blockedSubmission)}
+  title="已有待审核申请"
+  description={blockedSubmission?.message ?? ''}
+  tone="warning"
+  confirmLabel="前往查询页"
+  cancelLabel="关闭"
+  showCancel={true}
+  showHeaderClose={true}
+  headerCloseAriaLabel="关闭待审核提示"
+  onConfirm={goToBlockedSubmissionQuery}
+  onCancel={closeBlockedSubmissionDialog}
+>
+  {#if blockedSubmission}
+    <div class="space-y-2 text-sm">
+      <p>查询编号：{blockedSubmission.submission.audit_id}</p>
+      <p>提交动作：{blockedSubmission.submission.action}</p>
+      <p>提交时间：{formatAuditTime(blockedSubmission.submission.created_time)}</p>
+      <a
+        class="inline-flex items-center rounded-md border border-(--color-line-med) px-3 py-1.5 text-xs text-(--color-fg) transition hover:border-(--color-line-strong)"
+        href={blockedSubmissionQueryHref}
+      >
+        打开查询页
+      </a>
+    </div>
+  {/if}
+</ModalSurface>
 
 <ModalSurface
   open={Boolean(createDuplicateDialog)}

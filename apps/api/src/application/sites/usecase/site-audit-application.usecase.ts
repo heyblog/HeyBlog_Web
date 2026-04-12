@@ -3,6 +3,8 @@ import { Jobs, SiteAudits, type SiteAuditSnapshot, Sites } from '@zhblogs/db';
 import { eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 
+import { normalizeManagementSiteSnapshot } from '@/domain/sites/service/site-management-snapshot.service';
+
 type AuditAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'RESTORE';
 
 type AuditPayload = {
@@ -13,6 +15,7 @@ type AuditPayload = {
   reviewer_comment: string | null;
   proposed_snapshot: SiteAuditSnapshot | null;
   current_snapshot: SiteAuditSnapshot | null;
+  snapshot_override?: SiteAuditSnapshot | null;
 };
 
 type ApplyDeps = {
@@ -81,7 +84,10 @@ export async function applyApprovedAudit(
   audit: AuditPayload,
   deps: ApplyDeps,
 ) {
-  const snapshot = (audit.proposed_snapshot ?? audit.current_snapshot) as SiteAuditSnapshot | null;
+  const snapshotSource = (audit.snapshot_override ??
+    audit.proposed_snapshot ??
+    audit.current_snapshot) as SiteAuditSnapshot | null;
+  const snapshot = snapshotSource ? normalizeManagementSiteSnapshot(snapshotSource) : null;
 
   if (!snapshot) {
     throw new Error('audit snapshot is missing');
@@ -104,10 +110,11 @@ export async function applyApprovedAudit(
         icon_base64: snapshot.icon_base64 ?? null,
         feed: snapshot.feed ?? [],
         from: snapshot.from ?? ['WEB_SUBMIT'],
-        classification_status: snapshot.main_tag_id ? 'COMPLETE' : 'NEEDS_REVIEW',
+        classification_status: snapshot.main_tag?.tag_id ? 'COMPLETE' : 'NEEDS_REVIEW',
         sitemap: snapshot.sitemap ?? null,
         link_page: snapshot.link_page ?? null,
         access_scope: snapshot.access_scope ?? 'BOTH',
+        status: snapshot.status ?? 'OK',
         is_show: true,
         recommend: snapshot.recommend ?? false,
         reason: null,
@@ -147,10 +154,11 @@ export async function applyApprovedAudit(
         icon_base64: snapshot.icon_base64 ?? null,
         feed: snapshot.feed ?? [],
         from: snapshot.from ?? ['WEB_SUBMIT'],
-        classification_status: snapshot.main_tag_id ? 'COMPLETE' : 'NEEDS_REVIEW',
+        classification_status: snapshot.main_tag?.tag_id ? 'COMPLETE' : 'NEEDS_REVIEW',
         sitemap: snapshot.sitemap ?? null,
         link_page: snapshot.link_page ?? null,
         access_scope: snapshot.access_scope ?? 'BOTH',
+        status: snapshot.status ?? 'OK',
         is_show: snapshot.is_show ?? true,
         recommend: snapshot.recommend ?? false,
         reason: snapshot.reason ?? null,

@@ -2,7 +2,6 @@ import { trimText } from './site-submission.core';
 import {
   areEqualJson,
   buildArchitectureFromForm,
-  buildDefaultCreateReason,
   buildFeedInputs,
   isSameAsSiteUrl,
   normalizeArchitectureInput,
@@ -77,7 +76,7 @@ export function buildCreateSubmissionPayload(
     data: {
       submitter_name: normalizeSubmitterName(form.submitter_name),
       submitter_email: normalizeOptionalSubmitterEmail(form.submitter_email),
-      submit_reason: trimText(form.submit_reason) || buildDefaultCreateReason(name, url),
+      submit_reason: trimText(form.submit_reason),
       notify_by_email: form.notify_by_email,
       site: {
         name,
@@ -100,7 +99,7 @@ export function buildUpdateSubmissionPayload(
 ): ValidationResult<SiteSubmissionUpdateRequest> {
   const fieldErrors: FieldErrors = {};
   validateContactFields(form, fieldErrors, {
-    requireReason: true,
+    requireReason: false,
     reasonMessage: '请填写修改原因。',
   });
 

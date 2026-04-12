@@ -61,7 +61,9 @@
   export let options: SiteSubmissionOptions;
   export let disabled = false;
   export let idPrefix = 'site-snapshot';
+  export let showManagement = true;
   export let showReadonly = true;
+  export let fieldAlerts: Partial<Record<string, { label: string; value: string }>> = {};
 
   const updateDraft = (patch: Partial<SiteSnapshotDraft>) => {
     draft = {
@@ -84,52 +86,76 @@
 
 <div class="space-y-6">
   <section class="space-y-4">
-    <ManagementSiteEditableFields bind:draft {options} {disabled} {idPrefix} />
+    <ManagementSiteEditableFields bind:draft {options} {disabled} {idPrefix} {fieldAlerts} />
   </section>
 
-  <section class="space-y-4 border-t border-(--color-line) pt-5">
-    <div class="space-y-1">
-      <p class="text-xs tracking-[0.16em] text-(--color-fg-3)">管理信息</p>
-    </div>
+  {#if showManagement}
+    <section class="space-y-4 border-t border-(--color-line) pt-5">
+      <div class="space-y-1">
+        <p class="text-xs tracking-[0.16em] text-(--color-fg-3)">管理信息</p>
+      </div>
 
-    <div class="grid gap-4 md:grid-cols-2">
-      {#each MANAGEMENT_SELECT_FIELDS as field (field.key)}
-        <div class="space-y-2">
-          <label class="block text-sm" for={`${idPrefix}-${field.idSuffix}`}>{field.label}</label>
-          <select
-            id={`${idPrefix}-${field.idSuffix}`}
-            class={WORKSPACE_SELECT_CLASS}
-            style={WORKSPACE_SELECT_CHEVRON_STYLE}
-            {disabled}
-            value={draft[field.key]}
-            on:change={(event) => handleManagementSelectChange(field.key, event)}
-          >
-            {#each field.options as item (item.value)}
-              <option value={item.value}>{item.label}</option>
-            {/each}
-          </select>
-        </div>
-      {/each}
-    </div>
+      <div class="grid gap-4 md:grid-cols-2">
+        {#each MANAGEMENT_SELECT_FIELDS as field (field.key)}
+          <div class="space-y-2">
+            {#if fieldAlerts[field.key]}
+              <div
+                class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_32%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_8%,transparent)] px-3 py-2"
+              >
+                <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
+                <p class="mt-1 whitespace-pre-wrap text-xs text-(--color-fg)">
+                  {fieldAlerts[field.key]?.value || '—'}
+                </p>
+              </div>
+            {/if}
+            <label class="block text-sm" for={`${idPrefix}-${field.idSuffix}`}>{field.label}</label>
+            <select
+              id={`${idPrefix}-${field.idSuffix}`}
+              class={WORKSPACE_SELECT_CLASS}
+              style={WORKSPACE_SELECT_CHEVRON_STYLE}
+              {disabled}
+              value={draft[field.key]}
+              on:change={(event) => handleManagementSelectChange(field.key, event)}
+            >
+              {#each field.options as item (item.value)}
+                <option value={item.value}>{item.label}</option>
+              {/each}
+            </select>
+          </div>
+        {/each}
+      </div>
 
-    <div class="grid gap-3 md:grid-cols-2">
-      {#each MANAGEMENT_TOGGLE_FIELDS as field (field.key)}
-        <label class="toggle-check">
-          <input
-            type="checkbox"
-            checked={draft[field.key]}
-            {disabled}
-            on:change={(event) => handleManagementToggleChange(field.key, event)}
-          />
-          <span class="toggle-check-box" aria-hidden="true"></span>
-          <span class="toggle-check-copy">
-            <strong>{field.label}</strong>
-            <small>{field.description}</small>
-          </span>
-        </label>
-      {/each}
-    </div>
-  </section>
+      <div class="grid gap-3 md:grid-cols-2">
+        {#each MANAGEMENT_TOGGLE_FIELDS as field (field.key)}
+          <div class="space-y-2">
+            {#if fieldAlerts[field.key]}
+              <div
+                class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_32%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_8%,transparent)] px-3 py-2"
+              >
+                <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
+                <p class="mt-1 whitespace-pre-wrap text-xs text-(--color-fg)">
+                  {fieldAlerts[field.key]?.value || '—'}
+                </p>
+              </div>
+            {/if}
+            <label class="toggle-check">
+              <input
+                type="checkbox"
+                checked={draft[field.key]}
+                {disabled}
+                on:change={(event) => handleManagementToggleChange(field.key, event)}
+              />
+              <span class="toggle-check-box" aria-hidden="true"></span>
+              <span class="toggle-check-copy">
+                <strong>{field.label}</strong>
+                <small>{field.description}</small>
+              </span>
+            </label>
+          </div>
+        {/each}
+      </div>
+    </section>
+  {/if}
 
   {#if showReadonly}
     <ManagementReadonlyFieldsPanel {draft} />

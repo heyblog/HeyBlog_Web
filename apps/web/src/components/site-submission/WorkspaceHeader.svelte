@@ -4,9 +4,7 @@
   export let activePage: SubmissionPage = 'create';
 </script>
 
-<div
-  class="flex flex-wrap items-start justify-between gap-4 border-b border-[color:var(--color-line)] pb-5"
->
+<div class="flex flex-wrap items-start justify-between gap-4 border-b border-(--color-line) pb-5">
   <div class="space-y-2">
     <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-red-700 dark:text-red-400">
       公开提交流程
@@ -18,6 +16,8 @@
         修订站点资料
       {:else if activePage === 'delete'}
         提交删除申请
+      {:else if activePage === 'restore'}
+        恢复已下线站点
       {:else}
         查询审核结果
       {/if}
@@ -28,8 +28,8 @@
     <a
       class={`rounded-[4px] border px-3 py-2 transition ${
         activePage === 'create'
-          ? 'border-[color:var(--color-line-med)] text-[color:var(--color-fg)]'
-          : 'border-[color:var(--color-line)] text-[color:var(--color-fg-2)] hover:text-[color:var(--color-fg)]'
+          ? 'border-(--color-line-med) text-(--color-fg)'
+          : 'border-(--color-line) text-(--color-fg-2) hover:text-(--color-fg)'
       }`}
       href="/site/submit/"
     >
@@ -38,8 +38,8 @@
     <a
       class={`rounded-[4px] border px-3 py-2 transition ${
         activePage === 'update'
-          ? 'border-[color:var(--color-line-med)] text-[color:var(--color-fg)]'
-          : 'border-[color:var(--color-line)] text-[color:var(--color-fg-2)] hover:text-[color:var(--color-fg)]'
+          ? 'border-(--color-line-med) text-(--color-fg)'
+          : 'border-(--color-line) text-(--color-fg-2) hover:text-(--color-fg)'
       }`}
       href="/site/submit/update"
     >
@@ -48,8 +48,8 @@
     <a
       class={`rounded-[4px] border px-3 py-2 transition ${
         activePage === 'delete'
-          ? 'border-[color:var(--color-line-med)] text-[color:var(--color-fg)]'
-          : 'border-[color:var(--color-line)] text-[color:var(--color-fg-2)] hover:text-[color:var(--color-fg)]'
+          ? 'border-(--color-line-med) text-(--color-fg)'
+          : 'border-(--color-line) text-(--color-fg-2) hover:text-(--color-fg)'
       }`}
       href="/site/submit/delete"
     >
@@ -57,9 +57,19 @@
     </a>
     <a
       class={`rounded-[4px] border px-3 py-2 transition ${
+        activePage === 'restore'
+          ? 'border-(--color-line-med) text-(--color-fg)'
+          : 'border-(--color-line) text-(--color-fg-2) hover:text-(--color-fg)'
+      }`}
+      href="/site/submit/restore"
+    >
+      恢复
+    </a>
+    <a
+      class={`rounded-[4px] border px-3 py-2 transition ${
         activePage === 'query'
-          ? 'border-[color:var(--color-line-med)] text-[color:var(--color-fg)]'
-          : 'border-[color:var(--color-line)] text-[color:var(--color-fg-2)] hover:text-[color:var(--color-fg)]'
+          ? 'border-(--color-line-med) text-(--color-fg)'
+          : 'border-(--color-line) text-(--color-fg-2) hover:text-(--color-fg)'
       }`}
       href="/site/submit/query"
     >

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { createEmptyAutoFillMissingState } from '@/application/site-submission/site-submission.browser-workspace';
 import type {
+  RestoreTargetResult,
   SiteResolveResult,
   SiteSearchItem,
   SiteSubmissionOptionsResult,
@@ -12,9 +13,11 @@ import {
   createInitialCreateForm,
   createInitialDeleteForm,
   createInitialQueryForm,
+  createInitialRestoreForm,
   createInitialUpdateForm,
 } from '@/application/site-submission/site-submission.service';
 import type {
+  BlockedSubmissionNoticeState,
   CreateSubmissionDuplicateDialogState,
   SiteSubmissionWorkspaceControllerContext,
   ValueState,
@@ -46,12 +49,14 @@ function createController() {
       create: createState(createInitialCreateForm()),
       update: createState(createInitialUpdateForm()),
       delete: createState(createInitialDeleteForm()),
+      restore: createState(createInitialRestoreForm()),
       query: createState(createInitialQueryForm()),
     },
     errors: {
       create: createState({}),
       update: createState({}),
       delete: createState({}),
+      restore: createState({}),
       query: createState({}),
       queryError: createState<string | null>(null),
     },
@@ -59,15 +64,18 @@ function createController() {
       create: createState<SubmissionResult | null>(null),
       update: createState<SubmissionResult | null>(null),
       delete: createState<SubmissionResult | null>(null),
+      restore: createState<SubmissionResult | null>(null),
       query: createState<SubmissionStatusResult | null>(null),
     },
     duplicate: {
       create: createState<CreateSubmissionDuplicateDialogState | null>(null),
     },
+    blockedSubmission: createState<BlockedSubmissionNoticeState | null>(null),
     pending: {
       create: createState(false),
       update: createState(false),
       delete: createState(false),
+      restore: createState(false),
       query: createState(false),
       search: createState(false),
       resolve: createState(false),
@@ -79,6 +87,9 @@ function createController() {
       results: createState<SiteSearchItem[]>([]),
       error: createState<string | null>(null),
       selectedSite: createState<SiteResolveResult | null>(null),
+    },
+    restore: {
+      target: createState<RestoreTargetResult | null>(null),
     },
     autoFillMissing: {
       create: createState(createEmptyAutoFillMissingState()),

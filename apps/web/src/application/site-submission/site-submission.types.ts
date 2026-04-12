@@ -1,5 +1,5 @@
 export type FeedType = 'RSS' | 'ATOM' | 'JSON';
-export type SubmissionPage = 'create' | 'update' | 'delete' | 'query';
+export type SubmissionPage = 'create' | 'update' | 'delete' | 'restore' | 'query';
 
 export interface FeedInput {
   name: string;
@@ -180,6 +180,14 @@ export interface SubmissionDuplicateReviewPayload {
   weak: SubmissionDuplicateCandidate[];
 }
 
+export interface ActiveSubmissionSummary {
+  audit_id: string;
+  action: string;
+  status: string;
+  created_time: string;
+  site_id: string | null;
+}
+
 export interface RestoreTargetResult {
   site_id: string;
   bid: string | null;
@@ -195,6 +203,7 @@ export interface ApiErrorPayload {
     message: string;
     fields?: string[];
     duplicate_review?: SubmissionDuplicateReviewPayload;
+    active_submission?: ActiveSubmissionSummary;
   };
 }
 

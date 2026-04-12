@@ -3,14 +3,14 @@ import {
   siteAuditArchitectureSchema,
   siteAuditInsertSchema,
   siteAuditSnapshotSchema,
-  siteAuditSubTagSchema,
+  siteAuditTagSchema,
 } from '@zhblogs/db';
 
 import { z } from 'zod';
 
 const siteSnapshotExtrasSchema = z.object({
   main_tag_id: z.uuid().nullable().optional(),
-  sub_tags: z.array(siteAuditSubTagSchema).nullable().optional(),
+  sub_tags: z.array(siteAuditTagSchema).nullable().optional(),
   architecture: siteAuditArchitectureSchema.nullable().optional(),
 });
 
@@ -34,17 +34,36 @@ export const auditListQuerySchema = z.object({
   pageSize: z.coerce.number().int().min(1).max(50).optional(),
 });
 
-export const auditReviewSchema = z.object({
-  decision: z.enum(['APPROVED', 'REJECTED']),
-  reviewer_comment: z.string().trim().max(2000).nullable().optional(),
-  snapshot_override: siteAuditSnapshotSchema.nullable().optional(),
-});
+const auditReviewCommentSchema = z.string().trim().max(2000).nullable().optional();
 
-export const submissionContactSchema = z.object({
+export const auditReviewSchema = z
+  .object({
+    decision: z.enum(['APPROVED', 'REJECTED']),
+    reviewer_comment: auditReviewCommentSchema,
+    snapshot_override: siteAuditSnapshotSchema.nullable().optional(),
+  })
+  .superRefine((payload, ctx) => {
+    if (
+      payload.decision === 'REJECTED' &&
+      (!payload.reviewer_comment || payload.reviewer_comment.trim().length === 0)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['reviewer_comment'],
+        message: 'reviewer_comment is required when decision is REJECTED.',
+      });
+    }
+  });
+
+const optionalReasonSubmissionContactSchema = z.object({
   submitter_name: z.string().trim().nullable(),
   submitter_email: z.string().trim().nullable(),
-  submit_reason: z.string().trim().min(1),
+  submit_reason: z.string().trim(),
   notify_by_email: z.boolean(),
+});
+
+export const submissionContactSchema = optionalReasonSubmissionContactSchema.extend({
+  submit_reason: z.string().trim().min(1),
 });
 
 export const submissionQuerySchema = z.object({
@@ -63,7 +82,7 @@ const duplicateReviewSchema = z.object({
   confirmed_site_ids: z.array(z.uuid()).max(6),
 });
 
-export const createSiteSubmissionSchema = submissionContactSchema.extend({
+export const createSiteSubmissionSchema = optionalReasonSubmissionContactSchema.extend({
   duplicate_review: duplicateReviewSchema.optional(),
   site: z.object({
     name: z.string().trim().min(1),
@@ -87,7 +106,7 @@ export const restoreSiteSubmissionSchema = z.object({
   notify_by_email: z.boolean(),
 });
 
-export const updateSiteSubmissionSchema = submissionContactSchema
+export const updateSiteSubmissionSchema = optionalReasonSubmissionContactSchema
   .extend({
     changes: z.object({
       name: z.string().trim().min(1).optional(),

@@ -20,6 +20,7 @@ type ErrorResponder = (
   code: string,
   message: string,
   fields?: string[],
+  details?: Record<string, unknown>,
 ) => unknown;
 
 type UpdatedAudit = {
@@ -182,6 +183,20 @@ export function registerAdminAuditReviewRoute(app: FastifyInstance, deps: Review
         let siteId = audit.site_id;
         const currentSnapshot = audit.current_snapshot as SiteAuditSnapshot | null;
         const proposedSnapshot = audit.proposed_snapshot as SiteAuditSnapshot | null;
+        const allowsSnapshotOverride = audit.action === 'CREATE' || audit.action === 'UPDATE';
+
+        if (
+          parsedBody.data.decision === 'APPROVED' &&
+          snapshotOverride &&
+          !allowsSnapshotOverride
+        ) {
+          return deps.sendApiError(
+            reply,
+            400,
+            'INVALID_BODY',
+            'snapshot_override is only allowed for CREATE or UPDATE audits.',
+          );
+        }
 
         if (parsedBody.data.decision === 'APPROVED' && snapshotOverride) {
           const forbiddenFields = listManualReadOnlySiteManagementFieldChanges(
@@ -232,44 +247,33 @@ export function registerAdminAuditReviewRoute(app: FastifyInstance, deps: Review
         const approvedSiteId = updatedAudit.site_id;
 
         if (parsedBody.data.decision === 'APPROVED' && appliedSnapshot && approvedSiteId) {
-          if (snapshotOverride) {
-            const originalTargetSnapshot = proposedSnapshot
-              ? await deps.materializeSiteAuditSnapshot(app, proposedSnapshot)
-              : null;
+          const materializedSubmittedSnapshot = proposedSnapshot
+            ? await deps.materializeSiteAuditSnapshot(app, proposedSnapshot)
+            : null;
+          const finalDiff = buildSnapshotDiff(currentSnapshot, appliedSnapshot);
+          const overrideDiff =
+            snapshotOverride && materializedSubmittedSnapshot
+              ? buildSnapshotDiff(materializedSubmittedSnapshot, appliedSnapshot)
+              : [];
 
-            if (buildSnapshotDiff(originalTargetSnapshot, appliedSnapshot).length > 0) {
-              await app.db.write.insert(SiteAudits).values({
-                site_id: approvedSiteId,
-                action: audit.action,
-                status: 'APPROVED',
-                current_snapshot: currentSnapshot,
-                proposed_snapshot: appliedSnapshot,
-                diff: buildSnapshotDiff(currentSnapshot, appliedSnapshot),
-                submit_reason: reviewerComment,
-                reviewer_comment: reviewerComment,
-                reviewed_by: actor.id,
-                submitter_name: actor.nickname,
-                submitter_email: actor.email,
-                notify_by_email: false,
-                reviewed_time: new Date(),
-              });
+          await app.db.write
+            .update(SiteAudits)
+            .set({
+              current_snapshot: currentSnapshot,
+              proposed_snapshot: materializedSubmittedSnapshot ?? proposedSnapshot,
+              diff: finalDiff,
+              review_override_snapshot: overrideDiff.length > 0 ? appliedSnapshot : null,
+              review_override_diff: overrideDiff.length > 0 ? overrideDiff : null,
+            })
+            .where(eq(SiteAudits.id, updatedAudit.id));
 
-              await deps.enqueueFeedDetectionJobs(
-                app,
-                approvedSiteId,
-                appliedSnapshot,
-                `site-audit:${updatedAudit.id}`,
-              );
-            }
-          } else {
-            await app.db.write
-              .update(SiteAudits)
-              .set({
-                current_snapshot: currentSnapshot,
-                proposed_snapshot: appliedSnapshot,
-                diff: buildSnapshotDiff(currentSnapshot, appliedSnapshot),
-              })
-              .where(eq(SiteAudits.id, updatedAudit.id));
+          if (snapshotOverride && overrideDiff.length > 0) {
+            await deps.enqueueFeedDetectionJobs(
+              app,
+              approvedSiteId,
+              appliedSnapshot,
+              `site-audit:${updatedAudit.id}`,
+            );
           }
         }
 
@@ -280,8 +284,10 @@ export function registerAdminAuditReviewRoute(app: FastifyInstance, deps: Review
         ) {
           const siteName =
             deps.resolveAuditSiteName(
-              updatedAudit.proposed_snapshot as SiteAuditSnapshot | null | undefined,
-              updatedAudit.current_snapshot as SiteAuditSnapshot | null | undefined,
+              appliedSnapshot ??
+                (updatedAudit.proposed_snapshot as SiteAuditSnapshot | null | undefined),
+              currentSnapshot ??
+                (updatedAudit.current_snapshot as SiteAuditSnapshot | null | undefined),
             ) ?? '未命名站点';
           const queryUrl = `${app.config.API_WEB_BASE_URL}/site/submit/query?audit_id=${updatedAudit.id}`;
 

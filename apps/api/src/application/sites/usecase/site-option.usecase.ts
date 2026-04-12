@@ -1,9 +1,62 @@
-import { Programs, SiteAudits, Sites, TagDefinitions, TechnologyCatalogs } from '@zhblogs/db';
+import {
+  Programs,
+  SiteAudits,
+  type SiteAuditSnapshot,
+  Sites,
+  TagDefinitions,
+  TechnologyCatalogs,
+} from '@zhblogs/db';
 
-import { and, eq, ilike, or } from 'drizzle-orm';
+import { and, desc, eq, ilike, or } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 
 import type { SiteAutoFillHints } from '@/domain/sites/types/site-auto-fill.types';
+
+export interface ActiveSubmissionSummary {
+  audit_id: string;
+  action: string;
+  status: string;
+  created_time: string;
+  site_id: string | null;
+}
+
+type PendingAuditSummaryRow = {
+  id: string;
+  action: string;
+  status: string;
+  created_time: Date;
+  site_id: string | null;
+};
+
+const toActiveSubmissionSummary = (audit: PendingAuditSummaryRow): ActiveSubmissionSummary => ({
+  audit_id: audit.id,
+  action: audit.action,
+  status: audit.status,
+  created_time: audit.created_time.toISOString(),
+  site_id: audit.site_id,
+});
+
+const normalizeIdentifierText = (value: string | null | undefined): string | null => {
+  const normalized = value?.trim();
+  return normalized ? normalized : null;
+};
+
+const matchesPendingCreateSubmission = (
+  snapshot: SiteAuditSnapshot | null | undefined,
+  target: Pick<SiteAuditSnapshot, 'url' | 'bid'>,
+): boolean => {
+  const url = normalizeIdentifierText(target.url);
+  const bid = normalizeIdentifierText(target.bid);
+
+  if (!url && !bid) {
+    return false;
+  }
+
+  return (
+    (url !== null && normalizeIdentifierText(snapshot?.url) === url) ||
+    (bid !== null && normalizeIdentifierText(snapshot?.bid) === bid)
+  );
+};
 
 export async function hasPendingSiteAudit(app: FastifyInstance, siteId: string): Promise<boolean> {
   const [audit] = await app.db.read
@@ -19,6 +72,64 @@ export async function hasPendingSiteAudit(app: FastifyInstance, siteId: string):
     .limit(1);
 
   return Boolean(audit);
+}
+
+export async function loadPendingSiteAuditSummary(
+  app: FastifyInstance,
+  siteId: string,
+): Promise<ActiveSubmissionSummary | null> {
+  const [audit] = await app.db.read
+    .select({
+      id: SiteAudits.id,
+      action: SiteAudits.action,
+      status: SiteAudits.status,
+      created_time: SiteAudits.created_time,
+      site_id: SiteAudits.site_id,
+    })
+    .from(SiteAudits)
+    .where(
+      and(
+        eq(SiteAudits.site_id, siteId),
+        eq(SiteAudits.status, 'PENDING'),
+        or(
+          eq(SiteAudits.action, 'UPDATE'),
+          eq(SiteAudits.action, 'DELETE'),
+          eq(SiteAudits.action, 'RESTORE'),
+        ),
+      ),
+    )
+    .orderBy(desc(SiteAudits.created_time))
+    .limit(1);
+
+  return audit ? toActiveSubmissionSummary(audit) : null;
+}
+
+export async function loadPendingCreateAuditSummary(
+  app: FastifyInstance,
+  snapshot: Pick<SiteAuditSnapshot, 'url' | 'bid'>,
+): Promise<ActiveSubmissionSummary | null> {
+  const rows = await app.db.read
+    .select({
+      id: SiteAudits.id,
+      action: SiteAudits.action,
+      status: SiteAudits.status,
+      created_time: SiteAudits.created_time,
+      site_id: SiteAudits.site_id,
+      proposed_snapshot: SiteAudits.proposed_snapshot,
+    })
+    .from(SiteAudits)
+    .where(and(eq(SiteAudits.status, 'PENDING'), eq(SiteAudits.action, 'CREATE')))
+    .orderBy(desc(SiteAudits.created_time))
+    .limit(40);
+
+  const matched = rows.find((row) =>
+    matchesPendingCreateSubmission(
+      row.proposed_snapshot as SiteAuditSnapshot | null | undefined,
+      snapshot,
+    ),
+  );
+
+  return matched ? toActiveSubmissionSummary(matched) : null;
 }
 
 export async function loadSiteSearchResults(app: FastifyInstance, query: string) {

@@ -15,6 +15,7 @@ type ErrorResponder = (
   code: string,
   message: string,
   fields?: string[],
+  details?: Record<string, unknown>,
 ) => unknown;
 
 type CreateSubmissionInput = {
@@ -84,6 +85,16 @@ type CreateRouteDeps = {
       reason: string;
     }>;
   }>;
+  loadPendingCreateAuditSummary: (
+    app: FastifyInstance,
+    snapshot: Pick<SiteAuditSnapshot, 'url' | 'bid'>,
+  ) => Promise<{
+    audit_id: string;
+    action: string;
+    status: string;
+    created_time: string;
+    site_id: string | null;
+  } | null>;
   hasConfirmedWeakDuplicateReview: (
     weakCandidates: Array<{
       site_id: string;
@@ -158,6 +169,24 @@ export function registerCreateSubmissionRoute(app: FastifyInstance, deps: Create
             'INVALID_BODY',
             'Request body contains empty or malformed fields.',
             feedFields,
+          );
+        }
+
+        const pendingSubmission = await deps.loadPendingCreateAuditSummary(
+          app,
+          rawProposedSnapshot,
+        );
+
+        if (pendingSubmission) {
+          return deps.sendApiError(
+            reply,
+            409,
+            'PENDING_AUDIT_EXISTS',
+            'There is already a pending submission for the target site.',
+            undefined,
+            {
+              active_submission: pendingSubmission,
+            },
           );
         }
 

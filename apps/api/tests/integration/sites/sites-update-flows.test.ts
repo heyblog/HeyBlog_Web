@@ -245,6 +245,88 @@ describe('site submission routes', () => {
     });
   });
 
+  it('accepts a blank update reason and stores it as an empty string', async () => {
+    app = createTestApp({
+      disableExternalServices: true,
+    });
+
+    await app.ready();
+
+    const siteId = '11111111-1111-4111-8111-111111111111';
+
+    mockReadSelect(app, [
+      {
+        table: Sites,
+        rows: [
+          {
+            id: siteId,
+            bid: 'example-blog',
+            name: 'Example Blog',
+            url: 'https://example.com',
+            sign: 'Old sign',
+            icon_base64: null,
+            feed: [],
+            from: ['WEB_SUBMIT'],
+            classification_status: 'COMPLETE',
+            sitemap: 'https://example.com/sitemap.xml',
+            link_page: 'https://example.com/friends',
+            access_scope: 'BOTH',
+            status: 'OK',
+            is_show: true,
+            recommend: false,
+            reason: null,
+          },
+        ],
+      },
+      {
+        table: SiteTags,
+        rows: [],
+      },
+      {
+        table: SiteArchitectures,
+        rows: [],
+      },
+      {
+        table: ProgramTechnologyStacks,
+        rows: [],
+      },
+      {
+        table: SiteAudits,
+        rows: [],
+      },
+      {
+        table: Sites,
+        rows: [],
+      },
+    ]);
+
+    const writeMock = mockWriteInsertSuccess(app, [
+      {
+        id: 'audit-update-empty-reason-id',
+        status: 'PENDING',
+      },
+    ]);
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/api/sites/${siteId}/updates`,
+      payload: {
+        submitter_name: 'Alice',
+        submitter_email: 'alice@example.com',
+        submit_reason: '',
+        notify_by_email: false,
+        changes: {
+          sign: 'New sign',
+        },
+      },
+    });
+
+    expect(response.statusCode).toBe(201);
+    expect(writeMock.getInsertedValues()).toMatchObject({
+      submit_reason: '',
+    });
+  });
+
   it('keeps architecture stacks in update snapshot', async () => {
     app = createTestApp({
       disableExternalServices: true,
@@ -384,6 +466,104 @@ describe('site submission routes', () => {
           }),
         }),
       ]),
+    });
+  });
+
+  it('returns the active pending submission when the site already has an unfinished update flow', async () => {
+    app = createTestApp({
+      disableExternalServices: true,
+    });
+
+    await app.ready();
+
+    const siteId = '11111111-1111-4111-8111-111111111111';
+
+    mockReadSelect(app, [
+      {
+        table: Sites,
+        rows: [
+          {
+            id: siteId,
+            bid: 'example-blog',
+            name: 'Example Blog',
+            url: 'https://example.com',
+            sign: 'Old sign',
+            icon_base64: null,
+            feed: [],
+            from: ['WEB_SUBMIT'],
+            classification_status: 'COMPLETE',
+            sitemap: null,
+            link_page: null,
+            access_scope: 'BOTH',
+            status: 'OK',
+            is_show: true,
+            recommend: false,
+            reason: null,
+          },
+        ],
+      },
+      {
+        table: SiteTags,
+        rows: [],
+      },
+      {
+        table: SiteArchitectures,
+        rows: [],
+      },
+      {
+        table: ProgramTechnologyStacks,
+        rows: [],
+      },
+      {
+        table: SiteAudits,
+        rows: [
+          {
+            id: 'audit-pending-existing',
+          },
+        ],
+      },
+      {
+        table: SiteAudits,
+        rows: [
+          {
+            id: 'audit-pending-existing',
+            action: 'UPDATE',
+            status: 'PENDING',
+            site_id: siteId,
+            created_time: new Date('2026-04-12T08:30:00.000Z'),
+          },
+        ],
+      },
+    ]);
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/api/sites/${siteId}/updates`,
+      payload: {
+        submitter_name: 'Alice',
+        submitter_email: 'alice@example.com',
+        submit_reason: 'Please refresh the site profile.',
+        notify_by_email: false,
+        changes: {
+          sign: 'New sign',
+        },
+      },
+    });
+
+    expect(response.statusCode).toBe(409);
+    expect(response.json()).toEqual({
+      ok: false,
+      error: {
+        code: 'PENDING_AUDIT_EXISTS',
+        message: 'There is already a pending submission for the target site.',
+        active_submission: {
+          audit_id: 'audit-pending-existing',
+          action: 'UPDATE',
+          status: 'PENDING',
+          created_time: '2026-04-12T08:30:00.000Z',
+          site_id: siteId,
+        },
+      },
     });
   });
 

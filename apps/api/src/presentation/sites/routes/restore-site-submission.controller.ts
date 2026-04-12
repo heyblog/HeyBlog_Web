@@ -14,6 +14,7 @@ type ErrorResponder = (
   code: string,
   message: string,
   fields?: string[],
+  details?: Record<string, unknown>,
 ) => unknown;
 
 type RestoreSubmissionInput = {
@@ -50,6 +51,16 @@ type RestoreRouteDeps = {
     app: FastifyInstance,
     siteId: string,
   ) => Promise<SiteAuditSnapshot | null>;
+  loadPendingSiteAuditSummary: (
+    app: FastifyInstance,
+    siteId: string,
+  ) => Promise<{
+    audit_id: string;
+    action: string;
+    status: string;
+    created_time: string;
+    site_id: string | null;
+  } | null>;
   buildRestoreSnapshot: (currentSnapshot: SiteAuditSnapshot) => SiteAuditSnapshot;
   buildSnapshotDiff: (
     before: SiteAuditSnapshot | null,
@@ -183,6 +194,24 @@ export function registerRestoreSubmissionRoute(app: FastifyInstance, deps: Resto
             404,
             'RESTORE_TARGET_NOT_FOUND',
             'The requested restore target does not exist or is already public.',
+          );
+        }
+
+        const activeSubmission = await deps.loadPendingSiteAuditSummary(
+          app,
+          parsedParams.data.site_id,
+        );
+
+        if (activeSubmission) {
+          return deps.sendApiError(
+            reply,
+            409,
+            'PENDING_AUDIT_EXISTS',
+            'There is already a pending submission for the target site.',
+            undefined,
+            {
+              active_submission: activeSubmission,
+            },
           );
         }
 

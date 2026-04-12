@@ -12,10 +12,11 @@
   export let options: SiteSubmissionOptions;
   export let disabled = false;
   export let idPrefix = 'site-management-fields';
+  export let fieldAlerts: Partial<Record<string, { label: string; value: string }>> = {};
 </script>
 
 <div class="space-y-6">
-  <ManagementSiteBasicSection bind:draft {options} {disabled} {idPrefix} />
-  <ManagementSiteFeedSection bind:draft {disabled} {idPrefix} />
-  <ManagementSiteArchitectureSection bind:draft {options} {disabled} {idPrefix} />
+  <ManagementSiteBasicSection bind:draft {options} {disabled} {idPrefix} {fieldAlerts} />
+  <ManagementSiteFeedSection bind:draft {disabled} {idPrefix} {fieldAlerts} />
+  <ManagementSiteArchitectureSection bind:draft {options} {disabled} {idPrefix} {fieldAlerts} />
 </div>

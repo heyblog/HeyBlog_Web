@@ -1,13 +1,12 @@
-import type {
-  MultiFeed,
-  SiteAuditArchitectureSnapshot,
-  SiteAuditSnapshot,
-  SiteAuditSubTagSnapshot,
-} from '@zhblogs/db';
+import type { MultiFeed, SiteAuditArchitectureSnapshot, SiteAuditSnapshot } from '@zhblogs/db';
 
 import {
+  type EditableArchitectureInput,
+  type EditableSubTagInput,
+  type EditableTagInput,
   normalizeArchitectureSnapshot,
   normalizeSubTagSnapshots,
+  normalizeTagSnapshot,
 } from './site-snapshot-diff.service';
 import {
   hasOwn,
@@ -20,22 +19,6 @@ export {
   normalizeSubTagSnapshots,
   normalizeSubTagToken,
 } from './site-snapshot-diff.service';
-
-type EditableArchitectureInput = {
-  program_id?: string | null;
-  program_name?: string | null;
-  program_is_open_source?: boolean | null;
-  stacks?: Array<{
-    category: 'FRAMEWORK' | 'LANGUAGE';
-    catalog_id?: string | null;
-    name?: string | null;
-    name_normalized?: string | null;
-  }> | null;
-  website_url?: string | null;
-  repo_url?: string | null;
-};
-
-type EditableSubTagInput = SiteAuditSubTagSnapshot;
 
 type CreateSiteInput = {
   name: string;
@@ -64,11 +47,11 @@ type UpdateSiteChanges = {
 };
 
 export function buildSelectedTagIds(
-  mainTagId: string | null | undefined,
+  mainTag: string | EditableTagInput | null | undefined,
   subTags: EditableSubTagInput[] | null | undefined,
 ): string[] | null {
   const values = [
-    mainTagId?.trim() ?? '',
+    typeof mainTag === 'string' ? (mainTag.trim() ?? '') : (mainTag?.tag_id?.trim() ?? ''),
     ...(normalizeSubTagSnapshots(subTags) ?? [])
       .map((item) => item.tag_id?.trim() ?? '')
       .filter(Boolean),
@@ -93,7 +76,7 @@ export function buildCreateSnapshot(site: CreateSiteInput): SiteAuditSnapshot {
     sitemap: site.sitemap ?? null,
     link_page: site.link_page ?? null,
     access_scope: 'BOTH',
-    main_tag_id: site.main_tag_id ?? null,
+    main_tag: normalizeTagSnapshot({ tag_id: site.main_tag_id ?? null }),
     sub_tags: normalizeSubTagSnapshots(site.sub_tags),
     architecture,
   };
@@ -176,7 +159,7 @@ export function buildUpdatedSnapshot(
   }
 
   if (hasOwn(changes, 'main_tag_id')) {
-    proposedSnapshot.main_tag_id = changes.main_tag_id ?? null;
+    proposedSnapshot.main_tag = normalizeTagSnapshot({ tag_id: changes.main_tag_id ?? null });
   }
 
   if (hasOwn(changes, 'sub_tags')) {
@@ -184,7 +167,7 @@ export function buildUpdatedSnapshot(
   }
 
   if (hasOwn(changes, 'main_tag_id')) {
-    proposedSnapshot.classification_status = proposedSnapshot.main_tag_id
+    proposedSnapshot.classification_status = proposedSnapshot.main_tag?.tag_id
       ? 'COMPLETE'
       : 'NEEDS_REVIEW';
   }

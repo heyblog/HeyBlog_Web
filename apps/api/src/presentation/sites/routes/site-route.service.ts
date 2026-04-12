@@ -15,6 +15,7 @@ export function sendApiError(
   code: string,
   message: string,
   fields?: string[],
+  details?: Record<string, unknown>,
 ) {
   return reply.code(statusCode).send({
     ok: false,
@@ -22,6 +23,7 @@ export function sendApiError(
       code,
       message,
       ...(fields?.length ? { fields } : {}),
+      ...(details ?? {}),
     },
   });
 }

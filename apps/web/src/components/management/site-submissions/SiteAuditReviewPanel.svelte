@@ -4,6 +4,7 @@
     createDraftFromSnapshot,
     toSnapshotPayload,
   } from '@/application/management/site-management.snapshot';
+  import { formatAuditTime } from '@/application/site-submission/site-submission.service';
   import { openAlertDialog, openConfirmDialog } from '@/shared/browser/dialog.service';
   import { openToast } from '@/shared/browser/toast.service';
 
@@ -27,7 +28,6 @@
     initialMessage?: string | null;
   } = $props();
 
-  let decision = $state<'APPROVED' | 'REJECTED'>('APPROVED');
   let manualComment = $state('');
   let correctionDraft = $state(createDraftFromSnapshot(null));
   let pending = $state(false);
@@ -35,11 +35,28 @@
   let announcedInitialFeedback = $state(false);
   let hydratedAuditId = $state<string | null>(null);
 
+  const actionLabelMap: Record<string, string> = {
+    CREATE: '新增',
+    UPDATE: '修改',
+    DELETE: '删除',
+    RESTORE: '恢复',
+  };
+
+  const statusLabelMap: Record<string, string> = {
+    PENDING: '待审核',
+    APPROVED: '已通过',
+    REJECTED: '已驳回',
+    CANCELED: '已取消',
+  };
+
   const isPending = $derived(detail.status === 'PENDING');
   const isCreateOrUpdate = $derived(detail.action === 'CREATE' || detail.action === 'UPDATE');
   const canEditSnapshot = $derived(mode === 'process' && isPending && isCreateOrUpdate);
-  const canReviewHere = $derived(
-    isPending && (mode === 'detail' || (mode === 'process' && isCreateOrUpdate)),
+  const correctionHref = $derived(
+    isPending && isCreateOrUpdate ? `/management/site-submissions/${auditId}/process` : null,
+  );
+  const showSummaryReason = $derived(
+    detail.action === 'UPDATE' && Boolean(detail.submit_reason?.trim()),
   );
 
   $effect(() => {
@@ -52,29 +69,33 @@
     correctionDraft = createDraftFromSnapshot(detail.editable_snapshot);
   });
 
-  const handleReview = async () => {
+  const handleReview = async (decision: 'APPROVED' | 'REJECTED') => {
     formError = '';
+    const normalizedComment = manualComment.trim();
 
     if (!isPending) {
       openToast({ tone: 'warning', title: '不可重复审核', message: '当前申请已处理。' });
       return;
     }
 
-    if (!canReviewHere) {
-      openToast({
-        tone: 'warning',
-        title: '请前往对应页面处理',
-        message: mode === 'process' ? '当前申请请在详情页处理。' : '当前申请不可在此页面处理。',
-      });
+    if (decision === 'REJECTED' && !normalizedComment) {
+      formError = '驳回时请填写审核意见。';
       return;
     }
 
     const confirmed = await openConfirmDialog({
-      title: decision === 'APPROVED' ? '确认通过该申请？' : '确认驳回该申请？',
+      title:
+        decision === 'APPROVED' && canEditSnapshot
+          ? '确认按纠正后的信息通过该申请？'
+          : decision === 'APPROVED'
+            ? '确认通过该申请？'
+            : '确认驳回该申请？',
       description:
-        decision === 'APPROVED'
-          ? '通过后会立即写入正式站点数据。'
-          : '驳回后将保留申请记录，不会改动正式站点数据。',
+        decision === 'APPROVED' && canEditSnapshot
+          ? '将按当前纠正页中的内容覆盖本次申请的最终通过结果。'
+          : decision === 'APPROVED'
+            ? '通过后会立即写入正式站点数据。'
+            : '驳回后将保留申请记录，不会改动正式站点数据。',
       tone: decision === 'APPROVED' ? 'warning' : 'danger',
       confirmLabel: decision === 'APPROVED' ? '确认通过' : '确认驳回',
       cancelLabel: '取消',
@@ -87,7 +108,7 @@
     pending = true;
     const result = await submitAuditReviewAction(auditId, {
       decision,
-      reviewer_comment: manualComment.trim() || null,
+      reviewer_comment: normalizedComment || null,
       ...(decision === 'APPROVED' && canEditSnapshot
         ? {
             snapshot_override: toSnapshotPayload(correctionDraft),
@@ -120,10 +141,7 @@
     });
 
     window.setTimeout(() => {
-      const target =
-        mode === 'process'
-          ? new URL(`/management/site-submissions/${auditId}`, window.location.origin)
-          : new URL(window.location.href);
+      const target = new URL(`/management/site-submissions/${auditId}`, window.location.origin);
       target.searchParams.set('status', 'reviewed');
       window.location.assign(`${target.pathname}${target.search}`);
     }, 420);
@@ -155,28 +173,57 @@
   });
 </script>
 
-<div class="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_24rem]">
+<div class="space-y-4">
+  <section class="page-section space-y-4">
+    <div class="grid gap-3 md:grid-cols-2">
+      <div>
+        <p class="text-xs text-(--color-fg-3)">审核编号</p>
+        <p class="mt-2 font-mono text-sm">{detail.id}</p>
+      </div>
+      <div>
+        <p class="text-xs text-(--color-fg-3)">动作状态</p>
+        <p class="mt-2 text-sm">
+          {actionLabelMap[detail.action] ?? detail.action} / {statusLabelMap[detail.status] ??
+            detail.status}
+        </p>
+      </div>
+      <div>
+        <p class="text-xs text-(--color-fg-3)">提交者</p>
+        <p class="mt-2 text-sm">{detail.submitter_name ?? '匿名'}</p>
+        <p class="mt-1 text-xs text-(--color-fg-3)">{detail.submitter_email ?? '无邮箱'}</p>
+      </div>
+      <div>
+        <p class="text-xs text-(--color-fg-3)">申请时间</p>
+        <p class="mt-2 text-sm">{formatAuditTime(detail.created_time)}</p>
+      </div>
+    </div>
+
+    {#if showSummaryReason}
+      <div>
+        <p class="text-xs text-(--color-fg-3)">提交原因</p>
+        <p class="mt-2 whitespace-pre-wrap text-sm leading-7">{detail.submit_reason}</p>
+      </div>
+    {/if}
+  </section>
+
   <SiteAuditActionViewPanel
     {detail}
     {mode}
     {canEditSnapshot}
     {pending}
-    {decision}
     bind:correctionDraft
     {options}
   />
 
   <SiteAuditReviewSidebar
-    {auditId}
-    {detail}
     {mode}
     {isCreateOrUpdate}
     {isPending}
-    {canReviewHere}
     {pending}
     {formError}
-    bind:decision
     bind:manualComment
-    onReview={handleReview}
+    {correctionHref}
+    onApprove={() => handleReview('APPROVED')}
+    onReject={() => handleReview('REJECTED')}
   />
 </div>

@@ -159,10 +159,6 @@ export function validateContactFields(
   }
 }
 
-export function buildDefaultCreateReason(name: string, url: string): string {
-  return `公开新增收录申请：${name}（${url}）`;
-}
-
 export function normalizeSubmitterName(value: string): string | null {
   return trimText(value) || null;
 }

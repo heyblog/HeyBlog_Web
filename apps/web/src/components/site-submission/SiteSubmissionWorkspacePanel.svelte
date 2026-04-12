@@ -6,6 +6,8 @@
     type DeleteSubmissionFormState,
     type FieldErrors,
     type QuerySubmissionFormState,
+    type RestoreSubmissionFormState,
+    type RestoreTargetResult,
     type SiteResolveRequest,
     type SiteResolveResult,
     type SiteSearchItem,
@@ -20,6 +22,7 @@
   import WorkspaceDeleteForm from './WorkspaceDeleteForm.svelte';
   import WorkspaceHeader from './WorkspaceHeader.svelte';
   import WorkspaceQueryForm from './WorkspaceQueryForm.svelte';
+  import WorkspaceRestoreForm from './WorkspaceRestoreForm.svelte';
   import WorkspaceSiteResolver from './WorkspaceSiteResolver.svelte';
   import WorkspaceUpdateForm from './WorkspaceUpdateForm.svelte';
 
@@ -33,6 +36,10 @@
   export let deleteForm: DeleteSubmissionFormState;
   export let deleteErrors: FieldErrors = {};
   export let deletePending = false;
+  export let restoreForm: RestoreSubmissionFormState;
+  export let restoreErrors: FieldErrors = {};
+  export let restorePending = false;
+  export let restoreTarget: RestoreTargetResult | null = null;
   export let fieldNeedsRefinement: (kind: 'create' | 'update', value: string) => boolean;
   export let inputClass = '';
   export let isAutoFillMissing: (kind: 'create' | 'update', field: AutoFillFieldKey) => boolean;
@@ -74,6 +81,7 @@
   export let submitCreate: () => Promise<void>;
   export let submitDelete: () => Promise<void>;
   export let submitQuery: () => Promise<void>;
+  export let submitRestore: () => Promise<void>;
   export let submitUpdate: () => Promise<void>;
   export let updateCreateUrl: (value: string) => void;
   export let updateFeedName: (kind: 'create' | 'update', id: string, value: string) => void;
@@ -92,37 +100,39 @@
   <WorkspaceHeader {activePage} />
 
   {#if activePage === 'create'}
-    <WorkspaceCreateForm
-      {autoFillPending}
-      {autoFillTarget}
-      {submitCreate}
-      {createForm}
-      {createErrors}
-      {createPending}
-      {inputClass}
-      {textAreaClass}
-      {selectClass}
-      {selectChevronStyle}
-      {withInputStateClass}
-      {isAutoFillMissing}
-      {clearAutoFillMissing}
-      {fieldNeedsRefinement}
-      {updateCreateUrl}
-      {applyAddressInference}
-      {runAutoFill}
-      {addFeed}
-      {removeFeed}
-      {updateFeedName}
-      {updateFeedType}
-      {updateFeedUrl}
-      {selectDefaultFeed}
-      {optionsPending}
-      {options}
-      {createProgramSelectedId}
-      selectProgramForCreate={(id) => selectProgramOption('create', id)}
-      applyProgramCustomDraftForCreate={(draft) => applyProgramCustomDraft('create', draft)}
-      {trimText}
-    />
+    <div class="mt-6">
+      <WorkspaceCreateForm
+        {autoFillPending}
+        {autoFillTarget}
+        {submitCreate}
+        {createForm}
+        {createErrors}
+        {createPending}
+        {inputClass}
+        {textAreaClass}
+        {selectClass}
+        {selectChevronStyle}
+        {withInputStateClass}
+        {isAutoFillMissing}
+        {clearAutoFillMissing}
+        {fieldNeedsRefinement}
+        {updateCreateUrl}
+        {applyAddressInference}
+        {runAutoFill}
+        {addFeed}
+        {removeFeed}
+        {updateFeedName}
+        {updateFeedType}
+        {updateFeedUrl}
+        {selectDefaultFeed}
+        {optionsPending}
+        {options}
+        {createProgramSelectedId}
+        selectProgramForCreate={(id) => selectProgramOption('create', id)}
+        applyProgramCustomDraftForCreate={(draft) => applyProgramCustomDraft('create', draft)}
+        {trimText}
+      />
+    </div>
   {:else if activePage === 'update' || activePage === 'delete'}
     <div class="mt-6 space-y-6">
       <WorkspaceSiteResolver
@@ -169,6 +179,12 @@
           applyProgramCustomDraftForUpdate={(draft) => applyProgramCustomDraft('update', draft)}
           {trimText}
         />
+      {:else if activePage === 'update'}
+        <section
+          class="rounded-md border border-dashed border-(--color-line-med) p-5 text-sm text-(--color-fg-3)"
+        >
+          请先在上方搜索并选择需要修改的站点，加载后即可填写修订信息。
+        </section>
       {/if}
 
       {#if activePage === 'delete' && selectedSite}
@@ -181,6 +197,18 @@
           {textAreaClass}
         />
       {/if}
+    </div>
+  {:else if activePage === 'restore'}
+    <div class="mt-6">
+      <WorkspaceRestoreForm
+        {submitRestore}
+        target={restoreTarget}
+        form={restoreForm}
+        errors={restoreErrors}
+        pending={restorePending}
+        {inputClass}
+        {textAreaClass}
+      />
     </div>
   {:else}
     <WorkspaceQueryForm

@@ -1,31 +1,60 @@
-const feedItemResultSchema = {
-  type: 'object',
-  properties: {
+const createObjectSchema = <
+  TProperties extends Record<string, unknown>,
+  TRequired extends readonly string[],
+>(
+  properties: TProperties,
+  required: TRequired,
+) =>
+  ({
+    type: 'object',
+    properties,
+    required,
+  }) as const;
+
+const feedCandidateResultSchema = createObjectSchema(
+  {
     name: { type: 'string' },
     url: { type: 'string' },
     type: { type: 'string' },
   },
-  required: ['name', 'url'],
-} as const;
+  ['name', 'url'] as const,
+);
 
-const optionItemResultSchema = {
-  type: 'object',
-  properties: {
+const selectedFeedItemResultSchema = createObjectSchema(
+  {
+    name: { type: 'string' },
+    url: { type: 'string' },
+    type: { type: 'string' },
+    isDefault: { type: 'boolean' },
+  },
+  ['name', 'url', 'isDefault'] as const,
+);
+
+const optionItemResultSchema = createObjectSchema(
+  {
     id: { type: 'string' },
     name: { type: 'string' },
   },
-  required: ['id', 'name'],
-} as const;
+  ['id', 'name'] as const,
+);
 
-const techStackOptionItemResultSchema = {
-  type: 'object',
-  properties: {
+const subTagSnapshotItemResultSchema = createObjectSchema(
+  {
+    tag_id: { type: ['string', 'null'] },
+    name: { type: ['string', 'null'] },
+    name_normalized: { type: ['string', 'null'] },
+  },
+  ['tag_id', 'name', 'name_normalized'] as const,
+);
+
+const techStackOptionItemResultSchema = createObjectSchema(
+  {
     id: { type: 'string' },
     name: { type: 'string' },
     category: { type: 'string', enum: ['FRAMEWORK', 'LANGUAGE'] },
   },
-  required: ['id', 'name', 'category'],
-} as const;
+  ['id', 'name', 'category'] as const,
+);
 
 const architectureResultSchema = {
   type: ['object', 'null'],
@@ -59,9 +88,23 @@ const architectureResultSchema = {
   ],
 } as const;
 
+const activeSubmissionResultSchema = createObjectSchema(
+  {
+    audit_id: { type: 'string' },
+    action: { type: 'string' },
+    status: { type: 'string' },
+    created_time: { type: 'string' },
+    site_id: { type: ['string', 'null'] },
+  },
+  ['audit_id', 'action', 'status', 'created_time', 'site_id'] as const,
+);
+
 export {
+  activeSubmissionResultSchema,
   architectureResultSchema,
-  feedItemResultSchema,
+  feedCandidateResultSchema,
   optionItemResultSchema,
+  selectedFeedItemResultSchema,
+  subTagSnapshotItemResultSchema,
   techStackOptionItemResultSchema,
 };

@@ -15,6 +15,7 @@ type ErrorResponder = (
   code: string,
   message: string,
   fields?: string[],
+  details?: Record<string, unknown>,
 ) => unknown;
 
 type UpdateSubmissionInput = {
@@ -41,6 +42,16 @@ type UpdateRouteDeps = {
     siteId: string,
   ) => Promise<SiteAuditSnapshot | null>;
   hasPendingSiteAudit: (app: FastifyInstance, siteId: string) => Promise<boolean>;
+  loadPendingSiteAuditSummary: (
+    app: FastifyInstance,
+    siteId: string,
+  ) => Promise<{
+    audit_id: string;
+    action: string;
+    status: string;
+    created_time: string;
+    site_id: string | null;
+  } | null>;
   buildUpdatedSnapshot: (
     currentSnapshot: SiteAuditSnapshot,
     changes: Record<string, unknown>,
@@ -141,11 +152,18 @@ export function registerUpdateSubmissionRoute(app: FastifyInstance, deps: Update
         }
 
         if (await deps.hasPendingSiteAudit(app, siteId)) {
+          const activeSubmission = await deps.loadPendingSiteAuditSummary(app, siteId);
           return deps.sendApiError(
             reply,
             409,
             'PENDING_AUDIT_EXISTS',
             'There is already a pending submission for the target site.',
+            undefined,
+            activeSubmission
+              ? {
+                  active_submission: activeSubmission,
+                }
+              : undefined,
           );
         }
 

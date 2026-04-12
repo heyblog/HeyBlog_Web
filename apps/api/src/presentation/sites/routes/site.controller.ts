@@ -13,6 +13,8 @@ import { autoFillSite } from '@/application/sites/usecase/site-auto-fill.usecase
 import {
   hasPendingSiteAudit,
   loadAutoFillHints,
+  loadPendingCreateAuditSummary,
+  loadPendingSiteAuditSummary,
   loadSiteSearchResults,
   loadSubmissionOptions,
 } from '@/application/sites/usecase/site-option.usecase';
@@ -152,6 +154,7 @@ export function registerSiteRoutes(app: FastifyInstance): void {
     reviewSubmittedSiteDuplicates,
     hasConfirmedWeakDuplicateReview,
     buildSnapshotDiff,
+    loadPendingCreateAuditSummary,
   });
 
   registerUpdateSubmissionRoute(app, {
@@ -167,6 +170,7 @@ export function registerSiteRoutes(app: FastifyInstance): void {
     sendApiError,
     loadCurrentSiteSnapshot,
     hasPendingSiteAudit,
+    loadPendingSiteAuditSummary,
     buildUpdatedSnapshot,
     materializeSiteAuditSnapshot,
     validateFeedSelection,
@@ -191,6 +195,7 @@ export function registerSiteRoutes(app: FastifyInstance): void {
     sendApiError,
     loadCurrentSiteSnapshot,
     hasPendingSiteAudit,
+    loadPendingSiteAuditSummary,
     buildDeleteSnapshot,
     buildSnapshotDiff,
   });
@@ -209,6 +214,7 @@ export function registerSiteRoutes(app: FastifyInstance): void {
     sendApiError,
     loadHiddenSiteRestoreTarget,
     loadCurrentSiteSnapshot,
+    loadPendingSiteAuditSummary,
     buildRestoreSnapshot,
     buildSnapshotDiff,
     reviewSubmittedSiteDuplicates,

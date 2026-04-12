@@ -21,6 +21,9 @@ export interface AuditActionView {
   kind: 'CREATE' | 'UPDATE' | 'DELETE' | 'RESTORE';
   changes?: DiffViewItem[];
   before_fields?: SnapshotFieldItem[];
+  effective_changes?: DiffViewItem[];
+  effective_fields?: SnapshotFieldItem[];
+  review_override_changes?: DiffViewItem[];
   after_fields?: SnapshotFieldItem[];
   submitted_fields?: SnapshotFieldItem[];
   site_fields?: SnapshotFieldItem[];
@@ -49,7 +52,6 @@ export interface AuditReviewActionViewProps {
   mode: 'detail' | 'process';
   canEditSnapshot: boolean;
   pending: boolean;
-  decision: 'APPROVED' | 'REJECTED';
   correctionDraft: SiteSnapshotDraft;
   options: SiteSubmissionOptions;
 }

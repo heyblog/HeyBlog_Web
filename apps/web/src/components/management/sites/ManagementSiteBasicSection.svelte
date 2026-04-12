@@ -15,6 +15,7 @@
   export let options: SiteSubmissionOptions;
   export let disabled = false;
   export let idPrefix = 'site-management-fields';
+  export let fieldAlerts: Partial<Record<string, { label: string; value: string }>> = {};
 
   type DraftTextField = 'name' | 'url' | 'sign' | 'main_tag_id';
 
@@ -32,6 +33,14 @@
   <p class="text-xs tracking-[0.16em] text-(--color-fg-3)">博客信息</p>
   <div class="grid gap-4 md:grid-cols-2">
     <div class="space-y-2 md:col-span-2">
+      {#if fieldAlerts.name}
+        <div
+          class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_32%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_8%,transparent)] px-3 py-2"
+        >
+          <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
+          <p class="mt-1 whitespace-pre-wrap text-xs text-(--color-fg)">{fieldAlerts.name.value}</p>
+        </div>
+      {/if}
       <label class="block text-sm" for={`${idPrefix}-name`}
         >站点名称<span class="ml-1 text-(--color-fail)" aria-hidden="true">✱</span></label
       >
@@ -47,6 +56,14 @@
     </div>
 
     <div class="space-y-2 md:col-span-2">
+      {#if fieldAlerts.url}
+        <div
+          class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_32%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_8%,transparent)] px-3 py-2"
+        >
+          <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
+          <p class="mt-1 whitespace-pre-wrap text-xs text-(--color-fg)">{fieldAlerts.url.value}</p>
+        </div>
+      {/if}
       <label class="block text-sm" for={`${idPrefix}-url`}
         >站点地址<span class="ml-1 text-(--color-fail)" aria-hidden="true">✱</span></label
       >
@@ -62,6 +79,14 @@
     </div>
 
     <div class="space-y-2 md:col-span-2">
+      {#if fieldAlerts.sign}
+        <div
+          class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_32%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_8%,transparent)] px-3 py-2"
+        >
+          <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
+          <p class="mt-1 whitespace-pre-wrap text-xs text-(--color-fg)">{fieldAlerts.sign.value}</p>
+        </div>
+      {/if}
       <label class="block text-sm" for={`${idPrefix}-sign`}
         >站点简介<span class="ml-1 text-(--color-fail)" aria-hidden="true">✱</span></label
       >
@@ -78,6 +103,16 @@
 
   <div class="grid gap-4 md:grid-cols-2">
     <div class="space-y-2">
+      {#if fieldAlerts.main_tag}
+        <div
+          class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_32%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_8%,transparent)] px-3 py-2"
+        >
+          <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
+          <p class="mt-1 whitespace-pre-wrap text-xs text-(--color-fg)">
+            {fieldAlerts.main_tag.value}
+          </p>
+        </div>
+      {/if}
       <label class="block text-sm" for={`${idPrefix}-main-tag`}
         >主分类<span class="ml-1 text-(--color-fail)" aria-hidden="true">✱</span></label
       >
@@ -98,6 +133,16 @@
     </div>
 
     <div class="space-y-2">
+      {#if fieldAlerts.sub_tags}
+        <div
+          class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_32%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_8%,transparent)] px-3 py-2"
+        >
+          <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
+          <p class="mt-1 whitespace-pre-wrap text-xs text-(--color-fg)">
+            {fieldAlerts.sub_tags.value}
+          </p>
+        </div>
+      {/if}
       <label class="block text-sm" for={`${idPrefix}-sub-tags-combobox`}>子分类</label>
       <TagMultiCombobox
         inputId={`${idPrefix}-sub-tags-combobox`}

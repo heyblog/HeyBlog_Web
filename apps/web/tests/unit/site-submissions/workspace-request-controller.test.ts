@@ -38,15 +38,19 @@ import {
   createInitialCreateForm,
   createInitialDeleteForm,
   createInitialQueryForm,
+  createInitialRestoreForm,
   createInitialUpdateForm,
   createUpdateFormFromResolvedSite,
+  type RestoreTargetResult,
   type SiteResolveResult,
   type SiteSearchItem,
   type SiteSubmissionOptionsResult,
+  type SubmissionPage,
   type SubmissionResult,
   type SubmissionStatusResult,
 } from '@/application/site-submission/site-submission.service';
 import type {
+  BlockedSubmissionNoticeState,
   CreateSubmissionDuplicateDialogState,
   SiteSubmissionWorkspaceControllerContext,
   ValueState,
@@ -105,9 +109,19 @@ function createValidCreateForm() {
   return createForm;
 }
 
-function createController() {
+function createRestoreTargetFixture(): RestoreTargetResult {
+  return {
+    site_id: '99999999-9999-7999-8999-999999999999',
+    bid: 'archived-example',
+    name: 'Archived Example',
+    url: 'https://example.com',
+    reason: 'temporarily offline',
+  };
+}
+
+function createController(activePage: SubmissionPage = 'create') {
   const context: SiteSubmissionWorkspaceControllerContext = {
-    activePage: 'create',
+    activePage,
     options: createState<SiteSubmissionOptionsResult>({
       main_tags: [],
       sub_tags: [],
@@ -119,12 +133,14 @@ function createController() {
       create: createState(createInitialCreateForm()),
       update: createState(createInitialUpdateForm()),
       delete: createState(createInitialDeleteForm()),
+      restore: createState(createInitialRestoreForm()),
       query: createState(createInitialQueryForm()),
     },
     errors: {
       create: createState({}),
       update: createState({}),
       delete: createState({}),
+      restore: createState({}),
       query: createState({}),
       queryError: createState<string | null>(null),
     },
@@ -132,15 +148,18 @@ function createController() {
       create: createState<SubmissionResult | null>(null),
       update: createState<SubmissionResult | null>(null),
       delete: createState<SubmissionResult | null>(null),
+      restore: createState<SubmissionResult | null>(null),
       query: createState<SubmissionStatusResult | null>(null),
     },
     duplicate: {
       create: createState<CreateSubmissionDuplicateDialogState | null>(null),
     },
+    blockedSubmission: createState<BlockedSubmissionNoticeState | null>(null),
     pending: {
       create: createState(false),
       update: createState(false),
       delete: createState(false),
+      restore: createState(false),
       query: createState(false),
       search: createState(false),
       resolve: createState(false),
@@ -152,6 +171,9 @@ function createController() {
       results: createState<SiteSearchItem[]>([]),
       error: createState<string | null>(null),
       selectedSite: createState<SiteResolveResult | null>(null),
+    },
+    restore: {
+      target: createState<RestoreTargetResult | null>(null),
     },
     autoFillMissing: {
       create: createState(createEmptyAutoFillMissingState()),
@@ -449,6 +471,100 @@ describe('site submission workspace request controller', () => {
       site_id: resolvedSite.site_id,
     });
     expect(clearSubmissionIdentifierSearchParamsMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('stores restore success in the shared result state and resets the restore form', async () => {
+    const { context, requestController } = createController('restore');
+    const restoreTarget = createRestoreTargetFixture();
+
+    context.restore.target.set(restoreTarget);
+    context.forms.restore.set({
+      ...createInitialRestoreForm(),
+      submitter_name: 'Alice',
+      submitter_email: 'alice@example.com',
+      restore_reason: 'Site is back online',
+      notify_by_email: true,
+      agree_terms: true,
+    });
+
+    requestSubmissionMutationMock.mockResolvedValue({
+      ok: true,
+      data: {
+        audit_id: '55555555-5555-7555-8555-555555555555',
+        action: 'RESTORE',
+        status: 'PENDING',
+        site_id: restoreTarget.site_id,
+      },
+    });
+
+    await requestController.submitRestore();
+
+    expect(context.forms.restore.get()).toEqual(createInitialRestoreForm());
+    expect(context.errors.restore.get()).toEqual({});
+    expect(context.success.restore.get()).toEqual({
+      audit_id: '55555555-5555-7555-8555-555555555555',
+      action: 'RESTORE',
+      status: 'PENDING',
+      site_id: restoreTarget.site_id,
+    });
+  });
+
+  it('stores the active pending submission when restore is blocked by an existing audit', async () => {
+    const { context, requestController } = createController('restore');
+    const restoreTarget = createRestoreTargetFixture();
+
+    context.restore.target.set(restoreTarget);
+    context.forms.restore.set({
+      ...createInitialRestoreForm(),
+      restore_reason: 'Site is back online',
+      agree_terms: true,
+    });
+
+    requestSubmissionMutationMock.mockResolvedValue({
+      ok: false,
+      error: {
+        code: 'PENDING_AUDIT_EXISTS',
+        message: 'There is already a pending submission for the target site.',
+        fieldErrors: {},
+        activeSubmission: {
+          audit_id: '66666666-6666-7666-8666-666666666666',
+          action: 'RESTORE',
+          status: 'PENDING',
+          created_time: '2026-04-12T09:00:00.000Z',
+          site_id: restoreTarget.site_id,
+        },
+      },
+    });
+
+    await requestController.submitRestore();
+
+    expect(context.blockedSubmission.get()).toEqual({
+      message: 'There is already a pending submission for the target site.',
+      submission: {
+        audit_id: '66666666-6666-7666-8666-666666666666',
+        action: 'RESTORE',
+        status: 'PENDING',
+        created_time: '2026-04-12T09:00:00.000Z',
+        site_id: restoreTarget.site_id,
+      },
+    });
+    expect(context.success.restore.get()).toBeNull();
+  });
+
+  it('hydrates the restore target when the workspace initializes in restore mode', async () => {
+    const { context, requestController } = createController('restore');
+    const restoreTarget = createRestoreTargetFixture();
+
+    requestSubmissionOptionsMock.mockResolvedValue(null);
+
+    await requestController.initialize({
+      initialIdentifier: '',
+      initialAuditId: '',
+      initialRestoreTarget: restoreTarget,
+    });
+
+    expect(context.restore.target.get()).toEqual(restoreTarget);
+    expect(requestSubmissionOptionsMock).toHaveBeenCalledWith('restore');
   });
 
   it('keeps user input and stores field errors when a mutation request fails', async () => {

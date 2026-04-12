@@ -1,7 +1,6 @@
 ---
 import { getLoginHref, readSessionUser } from '@/application/auth/auth.server';
 import { getAuthErrorMessage, getAuthStatusMessage } from '@/application/auth/auth-page';
-import { resolvePostLoginRedirect } from '@/application/auth/auth-route.server';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 
 export const prerender = false;
@@ -16,7 +15,11 @@ const resendEmail = Astro.url.searchParams.get('email')?.trim() || '';
 const sessionUser = await readSessionUser(Astro.request);
 
 if (sessionUser) {
-  return Astro.redirect(resolvePostLoginRedirect(nextPath, sessionUser));
+  return Astro.redirect(
+    nextPath && !(nextPath === '/management' || nextPath.startsWith('/management/'))
+      ? nextPath
+      : '/dashboard',
+  );
 }
 ---
 

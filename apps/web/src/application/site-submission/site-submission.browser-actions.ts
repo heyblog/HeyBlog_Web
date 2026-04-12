@@ -4,6 +4,7 @@ import { getJson, postJson } from './site-submission.browser-http';
 import { evaluateAutoFillResult } from './site-submission.browser-workspace';
 import { getLookupPayload, type SiteResolveRequest } from './site-submission.service';
 import {
+  type ActiveSubmissionSummary,
   type FieldErrors,
   mapApiFieldErrors,
   type SiteAutoFillResult,
@@ -26,12 +27,13 @@ export interface SubmissionMutationError {
   message: string;
   fieldErrors: FieldErrors;
   duplicateReview?: SubmissionDuplicateReviewPayload;
+  activeSubmission?: ActiveSubmissionSummary;
 }
 
 export async function requestSubmissionOptions(
   activePage: string,
 ): Promise<SiteSubmissionOptionsResult | null> {
-  if (activePage === 'query') {
+  if (activePage === 'query' || activePage === 'restore') {
     return null;
   }
 
@@ -203,6 +205,7 @@ export async function requestSubmissionMutation(params: {
         message: response.error.message,
         fieldErrors: mapApiFieldErrors(response.error.fields),
         duplicateReview: response.error.duplicate_review,
+        activeSubmission: response.error.active_submission,
       },
     };
   } catch {

@@ -57,7 +57,7 @@ describe('site submission payload builders', () => {
     expect(result.data).toEqual({
       submitter_name: 'Alice',
       submitter_email: 'alice@example.com',
-      submit_reason: '公开新增收录申请：Example Blog（https://example.com）',
+      submit_reason: '',
       notify_by_email: false,
       site: {
         name: 'Example Blog',
@@ -365,7 +365,6 @@ describe('site submission payload builders', () => {
 
     form.submitter_name = 'Alice';
     form.submitter_email = 'alice@example.com';
-    form.submit_reason = 'Refresh profile';
     form.agree_terms = true;
     form.architecture_framework_ids = ['framework-1'];
 
@@ -441,6 +440,33 @@ describe('site submission payload builders', () => {
         isDefault: true,
       },
     ]);
+  });
+
+  it('does not inject placeholder feed drafts when resolved site has no valid feed url', () => {
+    const current = {
+      site_id: '11111111-1111-4111-8111-111111111111',
+      bid: 'example-blog',
+      name: 'Example Blog',
+      url: 'https://example.com',
+      sign: 'A blog about software',
+      feed: [
+        {
+          name: '默认订阅',
+          url: '   ',
+          type: 'RSS' as const,
+          isDefault: true,
+        },
+      ],
+      sitemap: null,
+      link_page: null,
+      main_tag_id: 'main-tag-id',
+      sub_tags: [],
+      architecture: null,
+    };
+
+    const form = createUpdateFormFromResolvedSite(current);
+
+    expect(form.feeds).toEqual([]);
   });
 
   it('builds a delete payload with normalized contact info', () => {

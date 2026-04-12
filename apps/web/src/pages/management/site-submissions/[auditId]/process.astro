@@ -1,0 +1,101 @@
+---
+export const prerender = false;
+
+import { fetchProtectedJson } from '@/application/auth/auth.server';
+import type {
+  SiteAuditSnapshot,
+  SiteSubmissionOptions,
+} from '@/application/management/site-management.snapshot';
+import SiteAuditReviewPanel from '@/components/management/site-submissions/SiteAuditReviewPanel.svelte';
+import ManagementLayout from '@/layouts/ManagementLayout.astro';
+
+interface AuditDetail {
+  id: string;
+  action: string;
+  status: string;
+  site_id: string | null;
+  site_name: string | null;
+  submitter_name: string | null;
+  submitter_email: string | null;
+  submit_reason: string | null;
+  notify_by_email: boolean;
+  reviewer_comment: string | null;
+  editable_snapshot: SiteAuditSnapshot | null;
+  action_view: {
+    kind: 'CREATE' | 'UPDATE' | 'DELETE' | 'RESTORE';
+    changes?: Array<{
+      field: string;
+      label: string;
+      before_display: string;
+      after_display: string;
+    }>;
+    effective_changes?: Array<{
+      field: string;
+      label: string;
+      before_display: string;
+      after_display: string;
+    }>;
+    review_override_changes?: Array<{
+      field: string;
+      label: string;
+      before_display: string;
+      after_display: string;
+    }>;
+    before_fields?: Array<{
+      field: string;
+      label: string;
+      value_display: string;
+    }>;
+    site_fields?: Array<{
+      field: string;
+      label: string;
+      value_display: string;
+    }>;
+    submitted_fields?: Array<{
+      field: string;
+      label: string;
+      value_display: string;
+    }>;
+    effective_fields?: Array<{
+      field: string;
+      label: string;
+      value_display: string;
+    }>;
+    reason?: string | null;
+  };
+  created_time: string;
+  reviewed_time: string | null;
+}
+
+const auditId = Astro.params.auditId ?? '';
+const [auditPayload, optionPayload] = await Promise.all([
+  fetchProtectedJson<{
+    ok: boolean;
+    data: AuditDetail;
+  }>(Astro.request, `/api/management/site-audits/${auditId}`),
+  fetchProtectedJson<{
+    ok: boolean;
+    data: SiteSubmissionOptions;
+  }>(Astro.request, '/api/sites/submission-options'),
+]);
+
+const initialStatus = Astro.url.searchParams.get('status');
+const initialMessage = Astro.url.searchParams.get('message');
+---
+
+<ManagementLayout
+  title="信息纠正"
+  currentPath="/management/site-submissions"
+  eyebrow="management / site audit correction"
+  heading="信息纠正"
+>
+  <SiteAuditReviewPanel
+    client:load
+    auditId={auditId}
+    detail={auditPayload.data}
+    options={optionPayload.data}
+    mode="process"
+    initialStatus={initialStatus}
+    initialMessage={initialMessage}
+  />
+</ManagementLayout>

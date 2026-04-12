@@ -19,6 +19,7 @@
   export let draft: SiteSnapshotDraft;
   export let disabled = false;
   export let idPrefix = 'site-management-fields';
+  export let fieldAlerts: Partial<Record<string, { label: string; value: string }>> = {};
 
   type DraftTextField = 'sitemap' | 'link_page';
   type FeedDraftPatch = Partial<SiteSnapshotDraft['feeds'][number]>;
@@ -102,6 +103,15 @@
       <span class="subscription-feed-count-pill">{draft.feeds.length}</span>
     {/if}
   </div>
+
+  {#if fieldAlerts.feed}
+    <div
+      class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_32%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_8%,transparent)] px-3 py-2"
+    >
+      <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
+      <p class="mt-1 whitespace-pre-wrap text-xs text-(--color-fg)">{fieldAlerts.feed.value}</p>
+    </div>
+  {/if}
 
   {#if draft.feeds.length > 0}
     <div class="subscription-feed-list">
@@ -199,6 +209,16 @@
 
   <div class="grid gap-4 md:grid-cols-2">
     <div class="space-y-2">
+      {#if fieldAlerts.sitemap}
+        <div
+          class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_32%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_8%,transparent)] px-3 py-2"
+        >
+          <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
+          <p class="mt-1 whitespace-pre-wrap text-xs text-(--color-fg)">
+            {fieldAlerts.sitemap.value}
+          </p>
+        </div>
+      {/if}
       <label class="block text-sm" for={`${idPrefix}-sitemap`}>网站地图</label>
       <input
         id={`${idPrefix}-sitemap`}
@@ -212,6 +232,16 @@
     </div>
 
     <div class="space-y-2">
+      {#if fieldAlerts.link_page}
+        <div
+          class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_32%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_8%,transparent)] px-3 py-2"
+        >
+          <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
+          <p class="mt-1 whitespace-pre-wrap text-xs text-(--color-fg)">
+            {fieldAlerts.link_page.value}
+          </p>
+        </div>
+      {/if}
       <label class="block text-sm" for={`${idPrefix}-link-page`}>友链页面</label>
       <input
         id={`${idPrefix}-link-page`}

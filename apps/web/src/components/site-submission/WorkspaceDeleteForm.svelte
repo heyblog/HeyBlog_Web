@@ -22,7 +22,9 @@
   </p>
 
   <div class="space-y-2">
-    <label class="block text-sm" for="delete-reason">删除原因</label>
+    <label class="block text-sm" for="delete-reason"
+      >删除原因<span class="ml-1 text-(--color-fail)" aria-hidden="true">✱</span></label
+    >
     <textarea
       id="delete-reason"
       class={textAreaClass}

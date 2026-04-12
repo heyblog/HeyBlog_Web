@@ -38,6 +38,17 @@ type RestoreSiteSubmissionLike = {
 };
 
 export function validateSubmitterFields(payload: SubmitterFields) {
+  return validateSubmitterFieldsWithOptions(payload, {
+    requireReason: true,
+  });
+}
+
+function validateSubmitterFieldsWithOptions(
+  payload: SubmitterFields,
+  options: {
+    requireReason: boolean;
+  },
+) {
   const fields: string[] = [];
 
   if (
@@ -47,7 +58,7 @@ export function validateSubmitterFields(payload: SubmitterFields) {
     fields.push('submitter_email');
   }
 
-  if (payload.submit_reason.trim().length === 0) {
+  if (options.requireReason && payload.submit_reason.trim().length === 0) {
     fields.push('submit_reason');
   }
 
@@ -212,7 +223,9 @@ export function resolveAuditSiteName(
 }
 
 export function validateCreateSiteFields(payload: CreateSiteSubmissionLike) {
-  const fields = validateSubmitterFields(payload);
+  const fields = validateSubmitterFieldsWithOptions(payload, {
+    requireReason: false,
+  });
 
   if (payload.site.name.trim().length === 0) {
     fields.push('site.name');
@@ -232,7 +245,9 @@ export function validateCreateSiteFields(payload: CreateSiteSubmissionLike) {
 }
 
 export function validateUpdateSiteFields(payload: UpdateSiteSubmissionLike) {
-  const fields = validateSubmitterFields(payload);
+  const fields = validateSubmitterFieldsWithOptions(payload, {
+    requireReason: false,
+  });
 
   if (
     'name' in payload.changes &&
@@ -250,15 +265,22 @@ export function validateUpdateSiteFields(payload: UpdateSiteSubmissionLike) {
 }
 
 export function validateRestoreSiteFields(payload: RestoreSiteSubmissionLike) {
-  return validateSubmitterFields({
-    submitter_name: payload.submitter_name,
-    submitter_email: payload.submitter_email,
-    submit_reason: payload.restore_reason,
-  });
+  return validateSubmitterFieldsWithOptions(
+    {
+      submitter_name: payload.submitter_name,
+      submitter_email: payload.submitter_email,
+      submit_reason: payload.restore_reason,
+    },
+    {
+      requireReason: true,
+    },
+  );
 }
 
 export function validateDeleteSiteFields(payload: SubmitterFields) {
-  return validateSubmitterFields(payload);
+  return validateSubmitterFieldsWithOptions(payload, {
+    requireReason: true,
+  });
 }
 
 export function hasOwn<T extends object>(value: T, key: PropertyKey): boolean {

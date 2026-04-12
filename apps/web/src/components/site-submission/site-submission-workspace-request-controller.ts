@@ -16,14 +16,17 @@ import {
 import {
   buildCreateSubmissionPayload,
   buildDeleteSubmissionPayload,
+  buildRestoreSubmissionPayload,
   buildSubmissionQueryPayload,
   buildUpdateSubmissionPayload,
   createInitialCreateForm,
   createInitialDeleteForm,
+  createInitialRestoreForm,
   createInitialUpdateForm,
   createUpdateFormFromResolvedSite,
   type FieldErrors,
   isHttpUrl,
+  type RestoreTargetResult,
   type SiteResolveRequest,
   type SubmissionResult,
   trimText,
@@ -45,6 +48,7 @@ export function createSiteSubmissionWorkspaceRequestController(
     context.errors.create.set({});
     context.success.create.set(null);
     context.duplicate.create.set(null);
+    context.blockedSubmission.set(null);
     context.autoFillMissing.create.set(createEmptyAutoFillMissingState());
     context.programPicker.create.set('');
   };
@@ -60,17 +64,28 @@ export function createSiteSubmissionWorkspaceRequestController(
     context.errors.delete.set({});
     context.success.update.set(null);
     context.success.delete.set(null);
+    context.blockedSubmission.set(null);
     context.autoFillMissing.update.set(createEmptyAutoFillMissingState());
     context.programPicker.update.set('');
   };
 
+  const resetRestoreSubmissionState = (): void => {
+    context.forms.restore.set(createInitialRestoreForm());
+    context.errors.restore.set({});
+    context.success.restore.set(null);
+    context.blockedSubmission.set(null);
+  };
+
   const handleMutationSuccess = (
-    kind: 'create' | 'update' | 'delete',
+    kind: 'create' | 'update' | 'delete' | 'restore',
     result: SubmissionResult,
   ): void => {
     if (kind === 'create') {
       resetCreateSubmissionState();
       context.success.create.set(result);
+    } else if (kind === 'restore') {
+      resetRestoreSubmissionState();
+      context.success.restore.set(result);
     } else {
       resetResolvedSubmissionState();
       clearSubmissionIdentifierSearchParams();
@@ -83,7 +98,7 @@ export function createSiteSubmissionWorkspaceRequestController(
   };
 
   const submitMutationRequest = async (params: {
-    kind: 'create' | 'update' | 'delete';
+    kind: 'create' | 'update' | 'delete' | 'restore';
     endpoint: SubmissionMutationEndpoint;
     payload: unknown;
     setFieldErrors: (errors: FieldErrors) => void;
@@ -105,6 +120,14 @@ export function createSiteSubmissionWorkspaceRequestController(
         handleMutationSuccess(params.kind, result.data);
         return null;
       }
+      context.blockedSubmission.set(
+        result.error.code === 'PENDING_AUDIT_EXISTS' && result.error.activeSubmission
+          ? {
+              message: result.error.message,
+              submission: result.error.activeSubmission,
+            }
+          : null,
+      );
       params.setFieldErrors(result.error.fieldErrors);
       return result.error;
     } finally {
@@ -116,7 +139,7 @@ export function createSiteSubmissionWorkspaceRequestController(
     build: () => { ok: true; data: unknown } | { ok: false; fieldErrors: FieldErrors };
     setErrors: (errors: FieldErrors) => void;
     clearSuccess: () => void;
-    kind: 'create' | 'update' | 'delete';
+    kind: 'create' | 'update' | 'delete' | 'restore';
     endpoint: SubmissionMutationEndpoint;
     successTitle: string;
     errorTitle: string;
@@ -125,6 +148,7 @@ export function createSiteSubmissionWorkspaceRequestController(
   }): Promise<SubmissionMutationError | null> => {
     params.setErrors({});
     params.clearSuccess();
+    context.blockedSubmission.set(null);
     const parsed = params.build();
     if (!parsed.ok) {
       params.setErrors(parsed.fieldErrors);
@@ -289,6 +313,7 @@ export function createSiteSubmissionWorkspaceRequestController(
       errorTitle: '提交未完成',
       setPending: context.pending.create.set,
       suppressToastCodes: [
+        'PENDING_AUDIT_EXISTS',
         'SITE_DUPLICATE_WEAK_CONFIRMATION_REQUIRED',
         'SITE_DUPLICATE_STRONG_CONTACT_REQUIRED',
         'SITE_RESTORE_REQUIRED',
@@ -341,6 +366,7 @@ export function createSiteSubmissionWorkspaceRequestController(
       successTitle: '修订申请已进入审核',
       errorTitle: '修订未提交',
       setPending: context.pending.update.set,
+      suppressToastCodes: ['PENDING_AUDIT_EXISTS'],
     });
   };
 
@@ -354,6 +380,23 @@ export function createSiteSubmissionWorkspaceRequestController(
       successTitle: '删除申请已进入审核',
       errorTitle: '删除申请未提交',
       setPending: context.pending.delete.set,
+      suppressToastCodes: ['PENDING_AUDIT_EXISTS'],
+    });
+  };
+
+  const submitRestore = async (): Promise<void> => {
+    const target = context.restore.target.get();
+    await submitWithPayload({
+      build: () =>
+        buildRestoreSubmissionPayload(target?.site_id ?? '', context.forms.restore.get()),
+      setErrors: context.errors.restore.set,
+      clearSuccess: () => context.success.restore.set(null),
+      kind: 'restore',
+      endpoint: '/api/site-submissions/restore',
+      successTitle: '恢复申请已进入审核',
+      errorTitle: '恢复申请未提交',
+      setPending: context.pending.restore.set,
+      suppressToastCodes: ['PENDING_AUDIT_EXISTS'],
     });
   };
 
@@ -388,6 +431,7 @@ export function createSiteSubmissionWorkspaceRequestController(
   const initialize = async (params: {
     initialIdentifier: string;
     initialAuditId: string;
+    initialRestoreTarget?: RestoreTargetResult | null;
   }): Promise<void> => {
     await loadOptions();
     if (
@@ -395,6 +439,9 @@ export function createSiteSubmissionWorkspaceRequestController(
       trimText(params.initialIdentifier)
     ) {
       await resolveSite(params.initialIdentifier);
+    }
+    if (context.activePage === 'restore') {
+      context.restore.target.set(params.initialRestoreTarget ?? null);
     }
     if (context.activePage === 'query' && trimText(params.initialAuditId)) {
       await submitQuery();
@@ -411,6 +458,7 @@ export function createSiteSubmissionWorkspaceRequestController(
     dismissCreateDuplicateReview,
     submitUpdate,
     submitDelete,
+    submitRestore,
     submitQuery,
     initialize,
   };

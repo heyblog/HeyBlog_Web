@@ -73,7 +73,7 @@ describe('management site audit override routes', () => {
     });
   });
 
-  it('allows ADMIN snapshot_override for editable site fields and appends a final approved management audit', async () => {
+  it('allows ADMIN snapshot_override for editable site fields and stores override details on the original audit', async () => {
     app = createTestApp({
       disableExternalServices: true,
     });
@@ -185,20 +185,43 @@ describe('management site audit override routes', () => {
         recommend: true,
       }),
     });
-    expect(capturedInserts[0]).toMatchObject({
+    expect(capturedInserts).toEqual([]);
+    const persistedAuditUpdate = capturedUpdates.find((entry) => {
+      const record = entry as { table: unknown; values: Record<string, unknown> };
+      return record.table === SiteAudits && 'review_override_snapshot' in record.values;
+    });
+
+    expect(persistedAuditUpdate).toMatchObject({
       table: SiteAudits,
       values: expect.objectContaining({
-        site_id: MANAGEMENT_TEST_IDS.siteId,
-        action: 'UPDATE',
-        status: 'APPROVED',
-        reviewed_by: MANAGEMENT_TEST_IDS.actorId,
-        submitter_name: 'Alice',
-        submitter_email: 'alice@example.com',
+        diff: expect.arrayContaining([
+          expect.objectContaining({
+            field: 'recommend',
+            before: false,
+            after: true,
+          }),
+          expect.objectContaining({
+            field: 'status',
+            before: 'OK',
+            after: 'ERROR',
+          }),
+        ]),
+        review_override_snapshot: expect.objectContaining({
+          recommend: true,
+          status: 'ERROR',
+        }),
+        review_override_diff: expect.arrayContaining([
+          expect.objectContaining({
+            field: 'status',
+            before: 'OK',
+            after: 'ERROR',
+          }),
+        ]),
       }),
     });
   });
 
-  it('appends a final approved CREATE audit when ADMIN overrides a create submission', async () => {
+  it('stores CREATE override details on the original audit when ADMIN adjusts the submitted snapshot', async () => {
     app = createTestApp({
       disableExternalServices: true,
     });
@@ -241,39 +264,43 @@ describe('management site audit override routes', () => {
       }),
     ]);
 
+    const capturedUpdates: unknown[] = [];
     const capturedInserts: unknown[] = [];
 
     app.db.write.update = vi.fn((table: unknown) => ({
-      set: vi.fn(() => ({
-        where: vi.fn(() => {
-          if (table === SiteAudits) {
-            return {
-              returning: vi.fn(async () => [
-                {
-                  id: MANAGEMENT_TEST_IDS.auditId,
-                  action: 'CREATE',
-                  status: 'APPROVED',
-                  site_id: MANAGEMENT_TEST_IDS.createdSiteId,
-                  submitter_email: 'author@example.com',
-                  notify_by_email: false,
-                  reviewer_comment: 'adjust imported sign',
-                  current_snapshot: null,
-                  proposed_snapshot: {
-                    name: 'Example Blog',
-                    url: 'https://example.com',
-                    sign: 'Original sign',
-                    from: ['WEB_SUBMIT'],
-                    is_show: true,
-                    recommend: false,
+      set: vi.fn((values) => {
+        capturedUpdates.push({ table, values });
+        return {
+          where: vi.fn(() => {
+            if (table === SiteAudits) {
+              return {
+                returning: vi.fn(async () => [
+                  {
+                    id: MANAGEMENT_TEST_IDS.auditId,
+                    action: 'CREATE',
+                    status: 'APPROVED',
+                    site_id: MANAGEMENT_TEST_IDS.createdSiteId,
+                    submitter_email: 'author@example.com',
+                    notify_by_email: false,
+                    reviewer_comment: 'adjust imported sign',
+                    current_snapshot: null,
+                    proposed_snapshot: {
+                      name: 'Example Blog',
+                      url: 'https://example.com',
+                      sign: 'Original sign',
+                      from: ['WEB_SUBMIT'],
+                      is_show: true,
+                      recommend: false,
+                    },
                   },
-                },
-              ]),
-            };
-          }
+                ]),
+              };
+            }
 
-          return Promise.resolve();
-        }),
-      })),
+            return Promise.resolve();
+          }),
+        };
+      }),
     })) as unknown as typeof app.db.write.update;
 
     app.db.write.delete = vi.fn(() => ({
@@ -329,16 +356,36 @@ describe('management site audit override routes', () => {
         sign: 'Adjusted sign',
       }),
     });
-    expect(capturedInserts[1]).toMatchObject({
+    expect(capturedInserts).toHaveLength(1);
+    const persistedAuditUpdate = capturedUpdates.find((entry) => {
+      const record = entry as { table: unknown; values: Record<string, unknown> };
+      return record.table === SiteAudits && 'review_override_snapshot' in record.values;
+    });
+
+    expect(persistedAuditUpdate).toMatchObject({
       table: SiteAudits,
       values: expect.objectContaining({
-        site_id: MANAGEMENT_TEST_IDS.createdSiteId,
-        action: 'CREATE',
-        status: 'APPROVED',
         current_snapshot: null,
-        reviewed_by: MANAGEMENT_TEST_IDS.actorId,
-        submitter_name: 'Alice',
-        submitter_email: 'alice@example.com',
+        proposed_snapshot: expect.objectContaining({
+          sign: 'Original sign',
+        }),
+        diff: expect.arrayContaining([
+          expect.objectContaining({
+            field: 'sign',
+            before: null,
+            after: 'Adjusted sign',
+          }),
+        ]),
+        review_override_snapshot: expect.objectContaining({
+          sign: 'Adjusted sign',
+        }),
+        review_override_diff: expect.arrayContaining([
+          expect.objectContaining({
+            field: 'sign',
+            before: 'Original sign',
+            after: 'Adjusted sign',
+          }),
+        ]),
       }),
     });
   });

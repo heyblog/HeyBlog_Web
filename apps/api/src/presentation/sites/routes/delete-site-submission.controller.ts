@@ -15,6 +15,7 @@ type ErrorResponder = (
   code: string,
   message: string,
   fields?: string[],
+  details?: Record<string, unknown>,
 ) => unknown;
 
 type DeleteSubmissionInput = {
@@ -40,6 +41,16 @@ type DeleteRouteDeps = {
     siteId: string,
   ) => Promise<SiteAuditSnapshot | null>;
   hasPendingSiteAudit: (app: FastifyInstance, siteId: string) => Promise<boolean>;
+  loadPendingSiteAuditSummary: (
+    app: FastifyInstance,
+    siteId: string,
+  ) => Promise<{
+    audit_id: string;
+    action: string;
+    status: string;
+    created_time: string;
+    site_id: string | null;
+  } | null>;
   buildDeleteSnapshot: (current: SiteAuditSnapshot, submitReason: string) => SiteAuditSnapshot;
   buildSnapshotDiff: (
     before: SiteAuditSnapshot | null,
@@ -113,11 +124,18 @@ export function registerDeleteSubmissionRoute(app: FastifyInstance, deps: Delete
         }
 
         if (await deps.hasPendingSiteAudit(app, siteId)) {
+          const activeSubmission = await deps.loadPendingSiteAuditSummary(app, siteId);
           return deps.sendApiError(
             reply,
             409,
             'PENDING_AUDIT_EXISTS',
             'There is already a pending submission for the target site.',
+            undefined,
+            activeSubmission
+              ? {
+                  active_submission: activeSubmission,
+                }
+              : undefined,
           );
         }
 

@@ -103,6 +103,10 @@ export const SiteAudits = pgTable(
     proposed_snapshot: jsonb().$type<SiteAuditSnapshot>(),
     /** 预计算的字段差异，方便前端直接展示 */
     diff: jsonb().$type<SiteAuditDiffItem[]>().notNull().default([]),
+    /** 审核员人工修正后最终生效的快照 */
+    review_override_snapshot: jsonb().$type<SiteAuditSnapshot>(),
+    /** 审核员人工修正相对提交内容的差异 */
+    review_override_diff: jsonb().$type<SiteAuditDiffItem[]>(),
     /** 提交申请原因 */
     submit_reason: text(),
     /** 审核备注 */

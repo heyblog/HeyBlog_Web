@@ -48,6 +48,18 @@ describe('management site detail routes', () => {
                 after: true,
               },
             ],
+            review_override_diff: [
+              {
+                field: 'status',
+                before: 'OK',
+                after: 'ERROR',
+              },
+            ],
+            review_override_snapshot: {
+              ...BASE_MANAGED_SITE_SNAPSHOT,
+              recommend: true,
+              status: 'ERROR',
+            },
             created_time: new Date('2026-04-09T10:00:00.000Z'),
             reviewed_time: new Date('2026-04-09T10:01:00.000Z'),
           },

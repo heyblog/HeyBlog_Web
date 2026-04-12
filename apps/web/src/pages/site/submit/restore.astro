@@ -2,7 +2,7 @@
 import { fetchApiJson } from '@/application/api/api.server';
 import type { RestoreTargetResult } from '@/application/site-submission/site-submission.service';
 import PublicHeader from '@/components/public-header/PublicHeader.astro';
-import SiteRestoreSubmissionForm from '@/components/site-submission/SiteRestoreSubmissionForm.svelte';
+import SiteSubmissionWorkspace from '@/components/site-submission/SiteSubmissionWorkspace.svelte';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 
 export const prerender = false;
@@ -22,18 +22,12 @@ const restoreTarget = restoreTargetPayload?.ok ? restoreTargetPayload.data : nul
   <PublicHeader currentPath={Astro.url.pathname} />
 
   <main class="flex-1">
-    <div class="mx-auto w-full max-w-220 px-3.5 py-6 xs:px-4 sm:px-6 lg:px-8 lg:py-8">
-      <section class="space-y-3 pb-6">
-        <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-(--color-fg-3)">
-          site restore
-        </p>
-        <h1 class="text-3xl tracking-[-0.04em] text-(--color-fg)">恢复已下线站点</h1>
-        <p class="max-w-3xl text-sm leading-7 text-(--color-fg-2)">
-          当前页面只处理已经下线的站点恢复申请，请结合站点当前状态填写恢复说明，以便审核。
-        </p>
-      </section>
-
-      <SiteRestoreSubmissionForm client:load target={restoreTarget} />
+    <div class="mx-auto w-full max-w-368 px-3.5 py-6 xs:px-4 sm:px-6 lg:px-8 lg:py-8">
+      <SiteSubmissionWorkspace
+        client:load
+        activePage="restore"
+        initialRestoreTarget={restoreTarget}
+      />
     </div>
   </main>
 </BaseLayout>

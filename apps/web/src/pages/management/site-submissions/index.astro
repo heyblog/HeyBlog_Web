@@ -1,0 +1,231 @@
+---
+export const prerender = false;
+
+import { fetchProtectedJson } from '@/application/auth/auth.server';
+import ManagementLayout from '@/layouts/ManagementLayout.astro';
+
+const DEFAULT_PAGE_SIZE = 20;
+const status = Astro.url.searchParams.get('status') ?? 'PENDING';
+const action = Astro.url.searchParams.get('action') ?? '';
+const requestedPage = Math.max(1, Number(Astro.url.searchParams.get('page') || '1') || 1);
+const requestedPageSize = Math.max(
+  1,
+  Math.min(
+    50,
+    Number(Astro.url.searchParams.get('pageSize') || String(DEFAULT_PAGE_SIZE)) ||
+      DEFAULT_PAGE_SIZE,
+  ),
+);
+const query = new URLSearchParams();
+
+if (status) {
+  query.set('status', status);
+}
+
+if (action) {
+  query.set('action', action);
+}
+
+query.set('page', String(requestedPage));
+query.set('pageSize', String(requestedPageSize));
+
+const payload = await fetchProtectedJson<{
+  ok: boolean;
+  data: {
+    items: Array<{
+      id: string;
+      action: string;
+      status: string;
+      site_id: string | null;
+      site_name: string | null;
+      submitter_name: string | null;
+      submitter_email: string | null;
+      submit_reason: string | null;
+      created_time: string;
+      reviewed_time: string | null;
+    }>;
+    pagination: {
+      page: number;
+      pageSize: number;
+      totalItems: number;
+      totalPages: number;
+    };
+  };
+}>(Astro.request, `/api/management/site-audits${query.toString() ? `?${query.toString()}` : ''}`);
+
+const audits = payload.data.items;
+const pagination = payload.data.pagination;
+const visiblePageStart = Math.max(1, pagination.page - 2);
+const visiblePageEnd = Math.min(pagination.totalPages, pagination.page + 2);
+
+const buildListHref = (page: number): string => {
+  const target = new URL(Astro.url.pathname, Astro.url);
+
+  if (status) {
+    target.searchParams.set('status', status);
+  }
+
+  if (action) {
+    target.searchParams.set('action', action);
+  }
+
+  if (page > 1) {
+    target.searchParams.set('page', String(page));
+  }
+
+  if (pagination.pageSize !== DEFAULT_PAGE_SIZE) {
+    target.searchParams.set('pageSize', String(pagination.pageSize));
+  }
+
+  return `${target.pathname}${target.search}`;
+};
+
+const paginationView = {
+  page: pagination.page,
+  pageSize: pagination.pageSize,
+  totalItems: pagination.totalItems,
+  totalPages: pagination.totalPages,
+  previousHref: pagination.page > 1 ? buildListHref(pagination.page - 1) : null,
+  nextHref: pagination.page < pagination.totalPages ? buildListHref(pagination.page + 1) : null,
+  pages: Array.from(
+    { length: visiblePageEnd - visiblePageStart + 1 },
+    (_, index) => visiblePageStart + index,
+  ).map((pageNumber) => ({
+    page: pageNumber,
+    href: buildListHref(pageNumber),
+    isCurrent: pageNumber === pagination.page,
+  })),
+};
+---
+
+<ManagementLayout
+  title="站点审核"
+  currentPath="/management/site-submissions"
+  eyebrow="management / site audits"
+  heading="站点审核"
+>
+  <div class="page-section pt-0">
+    <div class="overflow-x-auto">
+      <form class="flex min-w-max flex-nowrap items-center gap-3" method="get">
+        <select class="rounded-sm border border-(--color-line-med) px-3 py-2 text-sm" name="status">
+          <option value="PENDING" selected={status === 'PENDING'}>待审核</option>
+          <option value="APPROVED" selected={status === 'APPROVED'}>已通过</option>
+          <option value="REJECTED" selected={status === 'REJECTED'}>已驳回</option>
+          <option value="CANCELED" selected={status === 'CANCELED'}>已取消</option>
+        </select>
+        <select class="rounded-sm border border-(--color-line-med) px-3 py-2 text-sm" name="action">
+          <option value="" selected={action === ''}>全部动作</option>
+          <option value="CREATE" selected={action === 'CREATE'}>新增</option>
+          <option value="UPDATE" selected={action === 'UPDATE'}>修订</option>
+          <option value="DELETE" selected={action === 'DELETE'}>删除</option>
+          <option value="RESTORE" selected={action === 'RESTORE'}>恢复</option>
+        </select>
+        <button
+          class="inline-flex items-center rounded-sm border border-(--color-line-med) px-4 py-2 text-sm font-medium text-nowrap"
+          type="submit"
+        >
+          应用筛选
+        </button>
+      </form>
+    </div>
+
+    <div class="mt-5 overflow-x-auto rounded-sm border border-(--color-line)">
+      <table class="min-w-full border-collapse text-left text-sm">
+        <thead class="border-b border-(--color-line) bg-(--color-bg-raised)">
+          <tr>
+            <th class="px-4 py-3 font-medium">站点</th>
+            <th class="px-4 py-3 font-medium">动作</th>
+            <th class="px-4 py-3 font-medium">提交者</th>
+            <th class="px-4 py-3 font-medium">提交时间</th>
+            <th class="px-4 py-3 font-medium">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            audits.length > 0 ? (
+              audits.map((entry) => (
+                <tr class="border-b border-(--color-line) last:border-b-0">
+                  <td class="px-4 py-4 align-top">
+                    <div class="font-medium">{entry.site_name ?? '未命名站点'}</div>
+                    <div class="mt-1 text-xs text-(--color-fg-3)">{entry.id}</div>
+                  </td>
+                  <td class="px-4 py-4 align-top">
+                    <div>{entry.action}</div>
+                    <div class="mt-1 text-xs text-(--color-fg-3)">{entry.status}</div>
+                  </td>
+                  <td class="px-4 py-4 align-top">
+                    <div>{entry.submitter_name ?? '匿名'}</div>
+                    <div class="mt-1 text-xs text-(--color-fg-3)">
+                      {entry.submitter_email ?? '无邮箱'}
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 align-top text-xs text-(--color-fg-3)">
+                    {entry.created_time}
+                  </td>
+                  <td class="px-4 py-4 align-top">
+                    <a
+                      class="inline-flex items-center rounded-sm border border-(--color-line-med) px-3 py-1.5 text-xs font-medium text-nowrap"
+                      href={`/management/site-submissions/${entry.id}`}
+                    >
+                      查看详情
+                    </a>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td class="px-4 py-10 text-center text-(--color-fg-3)" colspan="5">
+                  暂无符合条件的审核记录。
+                </td>
+              </tr>
+            )
+          }
+        </tbody>
+      </table>
+    </div>
+
+    {
+      pagination.totalItems > 0 && (
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-(--color-line) pt-6">
+          <p class="text-sm text-(--color-fg-3)">
+            第 {paginationView.page} / {paginationView.totalPages} 页，共{' '}
+            {paginationView.totalItems} 条
+          </p>
+          <div class="action-row">
+            {paginationView.previousHref ? (
+              <a class="action-button action-button-ghost" href={paginationView.previousHref}>
+                上一页
+              </a>
+            ) : (
+              <span class="action-button action-button-ghost" aria-disabled="true">
+                上一页
+              </span>
+            )}
+
+            {paginationView.pages.map((pageItem) =>
+              pageItem.isCurrent ? (
+                <span class="action-button action-button-primary" aria-current="page">
+                  {pageItem.page}
+                </span>
+              ) : (
+                <a class="action-button action-button-secondary" href={pageItem.href}>
+                  {pageItem.page}
+                </a>
+              ),
+            )}
+
+            {paginationView.nextHref ? (
+              <a class="action-button action-button-ghost" href={paginationView.nextHref}>
+                下一页
+              </a>
+            ) : (
+              <span class="action-button action-button-ghost" aria-disabled="true">
+                下一页
+              </span>
+            )}
+          </div>
+        </div>
+      )
+    }
+  </div>
+</ManagementLayout>
