@@ -12,8 +12,15 @@ export interface FeedDraft {
   id: string;
   name: string;
   url: string;
+  type: FeedType;
   isDefault: boolean;
 }
+
+export const FEED_TYPE_OPTIONS: Array<{ value: FeedType; label: string }> = [
+  { value: 'RSS', label: 'RSS' },
+  { value: 'ATOM', label: 'Atom' },
+  { value: 'JSON', label: 'JSON Feed' },
+];
 
 export interface FeedCandidateInput {
   name: string;

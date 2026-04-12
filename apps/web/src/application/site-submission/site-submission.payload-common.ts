@@ -1,5 +1,5 @@
 import { isHttpUrl, isUuid, isValidEmail, normalizeEmail, trimText } from './site-submission.core';
-import type { FeedInput, FieldErrors } from './site-submission.types';
+import type { FeedInput, FeedType, FieldErrors, SubTagInput } from './site-submission.types';
 
 export type ValidationSuccess<T> = {
   ok: true;
@@ -13,6 +13,9 @@ export type ValidationFailure = {
 };
 
 export type ValidationResult<T> = ValidationSuccess<T> | ValidationFailure;
+
+const normalizeFeedType = (value: FeedInput['type']): FeedType =>
+  value === 'ATOM' || value === 'JSON' ? value : 'RSS';
 
 type ContactFormLike = {
   submitter_name: string;
@@ -51,11 +54,82 @@ export function normalizeStringList(values: string[]): string[] {
   return [...new Set(values.map((value) => trimText(value)).filter(Boolean))].sort();
 }
 
-export function normalizeResolvedFeed(feed: FeedInput[]): Array<{ name: string; url: string }> {
+export function normalizeSubTagToken(value: string | null | undefined): string | null {
+  const normalized = trimText(value ?? '');
+
+  if (!normalized) {
+    return null;
+  }
+
+  const compact = normalized.toLocaleLowerCase('zh-CN').replace(/[^\p{L}\p{N}]+/gu, '');
+  return compact || normalized.toLocaleLowerCase('zh-CN');
+}
+
+export function normalizeSubTagInputs(values: SubTagInput[]): SubTagInput[] {
+  const normalized: SubTagInput[] = [];
+  const seenIds = new Set<string>();
+  const seenNames = new Set<string>();
+
+  for (const item of values) {
+    const tag_id = trimText(item.tag_id ?? '') || null;
+    const name = trimText(item.name ?? '') || null;
+    const name_normalized = normalizeSubTagToken(item.name_normalized ?? name);
+
+    if (!tag_id && !name) {
+      continue;
+    }
+
+    if (tag_id) {
+      if (seenIds.has(tag_id)) {
+        continue;
+      }
+
+      seenIds.add(tag_id);
+      normalized.push({
+        tag_id,
+        name,
+        name_normalized,
+      });
+      continue;
+    }
+
+    if (!name || !name_normalized || seenNames.has(name_normalized)) {
+      continue;
+    }
+
+    seenNames.add(name_normalized);
+    normalized.push({
+      tag_id: null,
+      name,
+      name_normalized,
+    });
+  }
+
+  return normalized.sort((left, right) => {
+    const leftHasId = Boolean(left.tag_id);
+    const rightHasId = Boolean(right.tag_id);
+
+    if (leftHasId !== rightHasId) {
+      return leftHasId ? -1 : 1;
+    }
+
+    if ((left.tag_id ?? '') !== (right.tag_id ?? '')) {
+      return (left.tag_id ?? '').localeCompare(right.tag_id ?? '', 'zh-CN');
+    }
+
+    return (left.name_normalized ?? '').localeCompare(right.name_normalized ?? '', 'zh-CN');
+  });
+}
+
+export function normalizeResolvedFeed(
+  feed: FeedInput[],
+): Array<{ name: string; url: string; type: 'RSS' | 'ATOM' | 'JSON'; isDefault: boolean }> {
   return feed
     .map((item, index) => ({
       name: trimText(item.name) || (feed.length === 1 && index === 0 ? '默认订阅' : ''),
       url: trimText(item.url),
+      type: normalizeFeedType(item.type),
+      isDefault: feed.length === 1 ? true : item.isDefault === true,
     }))
     .filter((item) => item.url.length > 0);
 }
@@ -89,13 +163,13 @@ export function buildDefaultCreateReason(name: string, url: string): string {
   return `公开新增收录申请：${name}（${url}）`;
 }
 
-export function normalizeSubmitterName(value: string): string {
-  return trimText(value) || '匿名提交者';
+export function normalizeSubmitterName(value: string): string | null {
+  return trimText(value) || null;
 }
 
-export function normalizeOptionalSubmitterEmail(value: string): string {
+export function normalizeOptionalSubmitterEmail(value: string): string | null {
   const normalized = normalizeEmail(value);
-  return normalized && isValidEmail(normalized) ? normalized : 'noreply@zhblogs.invalid';
+  return normalized && isValidEmail(normalized) ? normalized : null;
 }
 
 export function toLookupPayload(identifier: string) {

@@ -38,7 +38,6 @@
   export let isAutoFillMissing: (kind: 'create' | 'update', field: AutoFillFieldKey) => boolean;
   export let options: SiteSubmissionOptionsResult;
   export let optionsPending = false;
-  export let programOptions: Array<{ id: string; name: string }> = [];
   export let queryErrors: FieldErrors = {};
   export let queryForm: QuerySubmissionFormState;
   export let queryPending = false;
@@ -78,6 +77,11 @@
   export let submitUpdate: () => Promise<void>;
   export let updateCreateUrl: (value: string) => void;
   export let updateFeedName: (kind: 'create' | 'update', id: string, value: string) => void;
+  export let updateFeedType: (
+    kind: 'create' | 'update',
+    id: string,
+    value: 'RSS' | 'ATOM' | 'JSON',
+  ) => void;
   export let updateFeedUrl: (kind: 'create' | 'update', id: string, value: string) => void;
   export let updateUpdateUrl: (value: string) => void;
 </script>
@@ -109,11 +113,11 @@
       {addFeed}
       {removeFeed}
       {updateFeedName}
+      {updateFeedType}
       {updateFeedUrl}
       {selectDefaultFeed}
       {optionsPending}
       {options}
-      {programOptions}
       {createProgramSelectedId}
       selectProgramForCreate={(id) => selectProgramOption('create', id)}
       applyProgramCustomDraftForCreate={(draft) => applyProgramCustomDraft('create', draft)}
@@ -155,11 +159,11 @@
           {addFeed}
           {removeFeed}
           {updateFeedName}
+          {updateFeedType}
           {updateFeedUrl}
           {selectDefaultFeed}
           {optionsPending}
           {options}
-          {programOptions}
           {updateProgramSelectedId}
           selectProgramForUpdate={(id) => selectProgramOption('update', id)}
           applyProgramCustomDraftForUpdate={(draft) => applyProgramCustomDraft('update', draft)}

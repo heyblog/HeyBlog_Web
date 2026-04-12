@@ -363,6 +363,7 @@
     addFeed,
     removeFeed,
     updateFeedName,
+    updateFeedType,
     updateFeedUrl,
     selectDefaultFeed,
     getProgramPickerSelected,
@@ -419,10 +420,6 @@
     {isAutoFillMissing}
     {options}
     {optionsPending}
-    programOptions={options.programs.map((item) => ({
-      id: item.id,
-      name: item.name,
-    }))}
     {queryErrors}
     {queryForm}
     {queryPending}
@@ -458,6 +455,7 @@
     {submitUpdate}
     {updateCreateUrl}
     {updateFeedName}
+    {updateFeedType}
     {updateFeedUrl}
     {updateUpdateUrl}
   />

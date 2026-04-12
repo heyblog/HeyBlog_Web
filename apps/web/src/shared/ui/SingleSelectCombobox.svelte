@@ -182,7 +182,7 @@
         id={inputId}
         bind:this={input}
         bind:value={query}
-        class="min-w-36 flex-1 bg-transparent py-1 text-sm text-(--color-fg) outline-none placeholder:text-(--color-fg-3)"
+        class="combobox-input-reset min-w-36 flex-1 bg-transparent py-1 text-sm text-(--color-fg) outline-none placeholder:text-(--color-fg-3)"
         {disabled}
         placeholder={selectedDisplayName ? `当前：${selectedDisplayName}` : placeholder}
         onfocus={open}

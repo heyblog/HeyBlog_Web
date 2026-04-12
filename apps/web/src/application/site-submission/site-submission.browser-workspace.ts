@@ -1,5 +1,6 @@
 import {
   type CreateSubmissionFormState,
+  ensureSingleDefaultFeedDrafts,
   guessDefaultFeedUrl,
   guessDefaultLinkPageUrl,
   guessDefaultSitemapUrl,
@@ -132,10 +133,7 @@ export function syncUrlSuggestions(
     if (shouldReset(currentUrl, [previousBase, previousFeed])) {
       form.feeds[0].url = nextBase;
     }
-
-    if (shouldReset(trimText(form.default_feed_url), [previousBase, previousFeed])) {
-      form.default_feed_url = nextBase;
-    }
+    form.feeds = ensureSingleDefaultFeedDrafts(form.feeds);
   }
 
   if (shouldReset(trimText(form.sitemap), [previousBase, previousSitemap])) {
@@ -158,14 +156,17 @@ export function applyAutoFillToForm(
   form.link_page = trimText(data.link_page) || form.link_page;
 
   if (data.feed_candidates.length > 0) {
-    form.feeds = data.feed_candidates.map((item, index) => ({
-      id: `${index + 1}-${Math.random().toString(36).slice(2, 6)}`,
-      name:
-        trimText(item.name) ||
-        (data.feed_candidates.length === 1 ? '默认订阅' : `订阅源 ${index + 1}`),
-      url: trimText(item.url),
-    }));
-    form.default_feed_url = trimText(form.feeds[0]?.url ?? '');
+    form.feeds = ensureSingleDefaultFeedDrafts(
+      data.feed_candidates.map((item, index) => ({
+        id: `${index + 1}-${Math.random().toString(36).slice(2, 6)}`,
+        name:
+          trimText(item.name) ||
+          (data.feed_candidates.length === 1 ? '默认订阅' : `订阅源 ${index + 1}`),
+        url: trimText(item.url),
+        type: 'RSS',
+        isDefault: index === 0,
+      })),
+    );
   }
 
   if (data.architecture?.program_id && !trimText(form.architecture_program_id)) {

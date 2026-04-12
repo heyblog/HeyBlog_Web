@@ -1,0 +1,53 @@
+---
+export const prerender = false;
+
+import { fetchProtectedJson } from '@/application/auth/auth.server';
+import type {
+  SiteAuditSnapshot,
+  SiteSubmissionOptions,
+} from '@/application/management/site-management.snapshot';
+import SiteEditorPanel from '@/components/management/sites/SiteEditorPanel.svelte';
+import ManagementLayout from '@/layouts/ManagementLayout.astro';
+
+interface SiteHistoryItem {
+  id: string;
+  action: string;
+  status: string;
+  operator_name: string;
+  reviewer_comment: string | null;
+  submit_reason: string | null;
+  change_summary: string;
+  created_time: string;
+  reviewed_time: string | null;
+}
+
+const siteId = Astro.params.siteId ?? '';
+const [sitePayload, optionPayload] = await Promise.all([
+  fetchProtectedJson<{
+    ok: boolean;
+    data: {
+      snapshot: SiteAuditSnapshot;
+      history: SiteHistoryItem[];
+    };
+  }>(Astro.request, `/api/management/sites/${siteId}`),
+  fetchProtectedJson<{
+    ok: boolean;
+    data: SiteSubmissionOptions;
+  }>(Astro.request, '/api/sites/submission-options'),
+]);
+---
+
+<ManagementLayout
+  title="编辑站点"
+  currentPath="/management/sites"
+  eyebrow="management / site detail"
+  heading="编辑站点"
+>
+  <SiteEditorPanel
+    client:load
+    siteId={siteId}
+    initialSnapshot={sitePayload.data.snapshot}
+    history={sitePayload.data.history}
+    options={optionPayload.data}
+  />
+</ManagementLayout>

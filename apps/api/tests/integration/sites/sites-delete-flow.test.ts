@@ -128,4 +128,80 @@ describe('site submission routes', () => {
       ]),
     });
   });
+
+  it('stores nullable submitter info for delete submissions without contact fields', async () => {
+    app = createTestApp({
+      disableExternalServices: true,
+    });
+
+    await app.ready();
+
+    const siteId = '11111111-1111-4111-8111-111111111111';
+
+    mockReadSelect(app, [
+      {
+        table: Sites,
+        rows: [
+          {
+            id: siteId,
+            bid: 'example-blog',
+            name: 'Example Blog',
+            url: 'https://example.com',
+            sign: 'Old sign',
+            icon_base64: null,
+            feed: [],
+            from: ['WEB_SUBMIT'],
+            classification_status: 'COMPLETE',
+            sitemap: null,
+            link_page: null,
+            access_scope: 'BOTH',
+            status: 'OK',
+            is_show: true,
+            recommend: false,
+            reason: null,
+          },
+        ],
+      },
+      {
+        table: SiteTags,
+        rows: [],
+      },
+      {
+        table: SiteArchitectures,
+        rows: [],
+      },
+      {
+        table: ProgramTechnologyStacks,
+        rows: [],
+      },
+      {
+        table: SiteAudits,
+        rows: [],
+      },
+    ]);
+
+    const writeMock = mockWriteInsertSuccess(app, [
+      {
+        id: 'audit-delete-null-contact-id',
+        status: 'PENDING',
+      },
+    ]);
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/api/sites/${siteId}/deletions`,
+      payload: {
+        submitter_name: null,
+        submitter_email: null,
+        submit_reason: 'Site is retired.',
+        notify_by_email: false,
+      },
+    });
+
+    expect(response.statusCode).toBe(201);
+    expect(writeMock.getInsertedValues()).toMatchObject({
+      submitter_name: null,
+      submitter_email: null,
+    });
+  });
 });

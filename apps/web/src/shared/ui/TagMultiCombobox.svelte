@@ -3,15 +3,17 @@
 
   import {
     type ComboboxOption,
+    type ComboboxValueItem,
     filterOptions,
     hasCustomConflict,
     normalize,
+    normalizeKey,
+    normalizeSelectionItems,
   } from '../browser/tag-multi-combobox.browser';
 
   let {
     options = [],
-    selectedIds = $bindable([] as string[]),
-    customValues = $bindable([] as string[]),
+    items = $bindable([] as ComboboxValueItem[]),
     inputId = '',
     placeholder = '搜索或选择子分类',
     customActionLabel = '添加自定义内容',
@@ -20,8 +22,7 @@
     onRequestCustom,
   }: {
     options?: ComboboxOption[];
-    selectedIds?: string[];
-    customValues?: string[];
+    items?: ComboboxValueItem[];
     inputId?: string;
     placeholder?: string;
     customActionLabel?: string;
@@ -53,22 +54,33 @@
   }
 
   function toggleOption(optionId: string) {
-    if (selectedIds.includes(optionId)) {
-      selectedIds = selectedIds.filter((value) => value !== optionId);
+    if (items.some((item) => item.tag_id === optionId)) {
+      items = items.filter((item) => item.tag_id !== optionId);
       return;
     }
 
-    selectedIds = [...selectedIds, optionId];
+    const option = optionById.get(optionId);
+    items = normalizeSelectionItems([
+      ...items,
+      {
+        tag_id: optionId,
+        name: option?.name ?? null,
+        name_normalized: normalizeKey(option?.name ?? ''),
+      },
+    ]);
     query = '';
     focusInput();
   }
 
-  function removeCustom(value: string) {
-    customValues = customValues.filter((item) => item !== value);
+  function removeCustom(value: ComboboxValueItem) {
+    const targetKey = normalizeKey(value.name_normalized ?? value.name ?? '');
+    items = items.filter(
+      (item) => item.tag_id || normalizeKey(item.name_normalized ?? item.name ?? '') !== targetKey,
+    );
   }
 
   function removeSelected(optionId: string) {
-    selectedIds = selectedIds.filter((value) => value !== optionId);
+    items = items.filter((item) => item.tag_id !== optionId);
   }
 
   function addCustom(value: string) {
@@ -78,7 +90,14 @@
       return;
     }
 
-    customValues = [...customValues, normalized];
+    items = normalizeSelectionItems([
+      ...items,
+      {
+        tag_id: null,
+        name: normalized,
+        name_normalized: normalizeKey(normalized),
+      },
+    ]);
     query = '';
     focusInput();
   }
@@ -97,14 +116,19 @@
 
   let normalizedQuery = $derived(normalize(query));
   let optionById = $derived(new Map(options.map((option) => [option.id, option])));
+  let selectedItems = $derived(items.filter((item) => item.tag_id));
+  let customItems = $derived(items.filter((item) => !item.tag_id && item.name));
   let selectedOptions = $derived(
-    selectedIds
-      .map((id) => optionById.get(id))
-      .filter((option): option is ComboboxOption => Boolean(option)),
+    selectedItems
+      .map((item) => ({
+        id: item.tag_id ?? item.name ?? '',
+        name: item.tag_id ? (optionById.get(item.tag_id)?.name ?? item.name ?? item.tag_id) : '',
+      }))
+      .filter((option): option is ComboboxOption => Boolean(option.id && option.name)),
   );
   let filteredOptions = $derived(filterOptions(options, normalizedQuery));
   let customConflict = $derived(
-    hasCustomConflict(normalizedQuery, selectedOptions, customValues, options),
+    hasCustomConflict(normalizedQuery, selectedOptions, items, options),
   );
   let canAddCustom = $derived(normalizedQuery.length > 0 && !customConflict);
 
@@ -176,15 +200,15 @@
           </button>
         </span>
       {/each}
-      {#each customValues as value (value)}
+      {#each customItems as value (value.name_normalized ?? value.name ?? '')}
         <span
           class="inline-flex items-center gap-2 rounded-[999px] border border-dashed border-(--color-line-med) px-3 py-1 text-xs text-(--color-fg)"
         >
-          {value}
+          {value.name}
           <button
             class="text-(--color-fg-3) transition hover:text-(--color-fg)"
             type="button"
-            aria-label={`移除 ${value}`}
+            aria-label={`移除 ${value.name}`}
             onclick={(event) => {
               event.stopPropagation();
               removeCustom(value);
@@ -198,11 +222,9 @@
         id={inputId}
         bind:this={input}
         bind:value={query}
-        class="min-w-36 h-8 flex-1 bg-transparent py-0 text-sm leading-8 text-(--color-fg) outline-none placeholder:text-(--color-fg-3)"
+        class="combobox-input-reset min-w-36 h-8 flex-1 bg-transparent py-0 text-sm leading-8 text-(--color-fg) outline-none placeholder:text-(--color-fg-3)"
         {disabled}
-        placeholder={selectedOptions.length === 0 && customValues.length === 0
-          ? placeholder
-          : '继续搜索或添加'}
+        placeholder={items.length === 0 ? placeholder : '继续搜索或添加'}
         onfocus={open}
         oninput={open}
         onkeydown={(event) => {
@@ -215,8 +237,11 @@
             }
           }
 
-          if (event.key === 'Backspace' && !query && customValues.length > 0) {
-            customValues = customValues.slice(0, -1);
+          if (event.key === 'Backspace' && !query && customItems.length > 0) {
+            const lastCustom = customItems[customItems.length - 1];
+            if (lastCustom) {
+              removeCustom(lastCustom);
+            }
           }
         }}
       />
@@ -233,7 +258,7 @@
             {#each filteredOptions as option (option.id)}
               <button
                 class={`flex w-full items-center justify-between rounded-sm px-3 py-2 text-left text-sm transition ${
-                  selectedIds.includes(option.id)
+                  items.some((item) => item.tag_id === option.id)
                     ? 'border border-(--color-line-med) text-(--color-fg)'
                     : 'text-(--color-fg-2) hover:bg-[color-mix(in_srgb,var(--color-bg)_82%,transparent)] hover:text-(--color-fg)'
                 }`}
@@ -241,7 +266,7 @@
                 onclick={() => toggleOption(option.id)}
               >
                 <span>{option.name}</span>
-                {#if selectedIds.includes(option.id)}
+                {#if items.some((item) => item.tag_id === option.id)}
                   <span
                     class="font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-info)"
                     >已选</span

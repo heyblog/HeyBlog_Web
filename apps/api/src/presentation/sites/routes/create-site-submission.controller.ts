@@ -49,10 +49,14 @@ type CreateRouteDeps = {
   validateCreateSiteFields: (payload: CreateSubmissionInput) => string[];
   sendApiError: ErrorResponder;
   buildCreateSnapshot: (site: CreateSubmissionInput['site']) => SiteAuditSnapshot;
+  materializeSiteAuditSnapshot: (
+    app: FastifyInstance,
+    snapshot: SiteAuditSnapshot,
+  ) => Promise<SiteAuditSnapshot>;
   validateFeedSelection: (feed: SiteAuditSnapshot['feed'], fieldPrefix: string) => string[];
   ensureTagIdsExist: (app: FastifyInstance, tagIds: string[]) => Promise<boolean>;
   buildSelectedTagIds: (
-    mainTagId?: string | null,
+    mainTag?: SiteAuditSnapshot['main_tag'] | string | null,
     subTags?: SiteAuditSnapshot['sub_tags'],
   ) => string[] | null;
   ensureTechnologyIdsExist: (
@@ -144,8 +148,8 @@ export function registerCreateSubmissionRoute(app: FastifyInstance, deps: Create
       }
 
       try {
-        const proposedSnapshot = deps.buildCreateSnapshot(payload.site);
-        const feedFields = deps.validateFeedSelection(proposedSnapshot.feed, 'site.');
+        const rawProposedSnapshot = deps.buildCreateSnapshot(payload.site);
+        const feedFields = deps.validateFeedSelection(rawProposedSnapshot.feed, 'site.');
 
         if (feedFields.length > 0) {
           return deps.sendApiError(
@@ -162,8 +166,8 @@ export function registerCreateSubmissionRoute(app: FastifyInstance, deps: Create
             app,
             deps.buildSelectedTagIds(payload.site.main_tag_id, payload.site.sub_tags) ?? [],
           ),
-          deps.ensureTechnologyIdsExist(app, proposedSnapshot.architecture),
-          deps.reviewSubmittedSiteDuplicates(app, proposedSnapshot),
+          deps.ensureTechnologyIdsExist(app, rawProposedSnapshot.architecture),
+          deps.reviewSubmittedSiteDuplicates(app, rawProposedSnapshot),
         ]);
 
         if (!tagsValid) {
@@ -241,6 +245,7 @@ export function registerCreateSubmissionRoute(app: FastifyInstance, deps: Create
           });
         }
 
+        const proposedSnapshot = await deps.materializeSiteAuditSnapshot(app, rawProposedSnapshot);
         const diff = deps.buildSnapshotDiff(null, proposedSnapshot);
 
         const [createdAudit] = await app.db.write

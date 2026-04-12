@@ -14,6 +14,11 @@ describe('site submission routes', () => {
   const mainTagId = '11111111-1111-4111-8111-111111111111';
   const subTagId = '22222222-2222-4222-8222-222222222222';
   const frameworkId = '44444444-4444-4444-8444-444444444444';
+  const expectedMainTagSnapshot = {
+    tag_id: mainTagId,
+    name: '后端',
+    name_normalized: '后端',
+  };
 
   afterEach(async () => {
     vi.restoreAllMocks();
@@ -31,11 +36,28 @@ describe('site submission routes', () => {
     mockReadSelect(app, [
       {
         table: TagDefinitions,
-        rows: [{ id: mainTagId }, { id: subTagId }],
+        rows: [
+          { id: mainTagId, name: '后端', tag_type: 'MAIN' },
+          { id: subTagId, name: '开发', tag_type: 'SUB' },
+        ],
+      },
+      {
+        table: TagDefinitions,
+        rows: [
+          { id: mainTagId, name: '后端', tag_type: 'MAIN' },
+          { id: subTagId, name: '开发', tag_type: 'SUB' },
+        ],
       },
       {
         table: TechnologyCatalogs,
-        rows: [{ id: frameworkId, technology_type: 'FRAMEWORK' }],
+        rows: [
+          {
+            id: frameworkId,
+            name: 'Astro',
+            name_normalized: 'astro',
+            technology_type: 'FRAMEWORK',
+          },
+        ],
       },
       {
         table: Sites,
@@ -102,7 +124,7 @@ describe('site submission routes', () => {
         sign: 'A blog about software',
         from: ['WEB_SUBMIT'],
         classification_status: 'COMPLETE',
-        main_tag_id: mainTagId,
+        main_tag: expectedMainTagSnapshot,
         sub_tags: [
           {
             tag_id: subTagId,
@@ -122,7 +144,7 @@ describe('site submission routes', () => {
       diff: expect.arrayContaining([
         expect.objectContaining({ field: 'name', after: 'Example Blog' }),
         expect.objectContaining({ field: 'url', after: 'https://example.com' }),
-        expect.objectContaining({ field: 'main_tag_id', after: mainTagId }),
+        expect.objectContaining({ field: 'main_tag', after: expectedMainTagSnapshot }),
       ]),
     });
   });
@@ -137,7 +159,11 @@ describe('site submission routes', () => {
     mockReadSelect(app, [
       {
         table: TagDefinitions,
-        rows: [{ id: mainTagId }],
+        rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
+      },
+      {
+        table: TagDefinitions,
+        rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
       },
       {
         table: TechnologyCatalogs,
@@ -190,11 +216,33 @@ describe('site submission routes', () => {
     mockReadSelect(app, [
       {
         table: TagDefinitions,
-        rows: [{ id: mainTagId }],
+        rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
+      },
+      {
+        table: TagDefinitions,
+        rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
       },
       {
         table: TechnologyCatalogs,
-        rows: [{ id: frameworkId, technology_type: 'FRAMEWORK' }],
+        rows: [
+          {
+            id: frameworkId,
+            name: 'Astro',
+            name_normalized: 'astro',
+            technology_type: 'FRAMEWORK',
+          },
+        ],
+      },
+      {
+        table: TechnologyCatalogs,
+        rows: [
+          {
+            id: frameworkId,
+            name: 'Astro',
+            name_normalized: 'astro',
+            technology_type: 'FRAMEWORK',
+          },
+        ],
       },
       {
         table: Sites,
@@ -230,8 +278,8 @@ describe('site submission routes', () => {
               {
                 category: 'FRAMEWORK',
                 catalog_id: frameworkId,
-                name: null,
-                name_normalized: null,
+                name: 'Astro',
+                name_normalized: 'astro',
               },
             ],
           },
@@ -250,8 +298,8 @@ describe('site submission routes', () => {
             {
               category: 'FRAMEWORK',
               catalog_id: frameworkId,
-              name: null,
-              name_normalized: null,
+              name: 'Astro',
+              name_normalized: 'astro',
             },
           ],
         },
@@ -351,7 +399,7 @@ describe('site submission routes', () => {
     mockReadSelect(app, [
       {
         table: TagDefinitions,
-        rows: [{ id: mainTagId }],
+        rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
       },
       {
         table: Sites,
@@ -417,7 +465,7 @@ describe('site submission routes', () => {
     mockReadSelect(app, [
       {
         table: TagDefinitions,
-        rows: [{ id: mainTagId }],
+        rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
       },
       {
         table: Sites,
@@ -430,6 +478,10 @@ describe('site submission routes', () => {
             is_show: false,
           },
         ],
+      },
+      {
+        table: TagDefinitions,
+        rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
       },
     ]);
 
@@ -483,7 +535,7 @@ describe('site submission routes', () => {
     mockReadSelect(app, [
       {
         table: TagDefinitions,
-        rows: [{ id: mainTagId }],
+        rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
       },
       {
         table: Sites,
@@ -499,7 +551,7 @@ describe('site submission routes', () => {
       },
       {
         table: TagDefinitions,
-        rows: [{ id: mainTagId }],
+        rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
       },
       {
         table: Sites,
@@ -512,6 +564,10 @@ describe('site submission routes', () => {
             is_show: true,
           },
         ],
+      },
+      {
+        table: TagDefinitions,
+        rows: [{ id: mainTagId, name: '后端', tag_type: 'MAIN' }],
       },
     ]);
 

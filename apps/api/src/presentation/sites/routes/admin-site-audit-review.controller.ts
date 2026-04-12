@@ -3,6 +3,11 @@ import { SiteAudits, type SiteAuditSnapshot } from '@zhblogs/db';
 import { eq } from 'drizzle-orm';
 import type { FastifyInstance, FastifyReply, preHandlerHookHandler } from 'fastify';
 
+import { listManualReadOnlySiteManagementFieldChanges } from '@/domain/sites/service/site-management-access.service';
+import { normalizeManagementSiteSnapshot } from '@/domain/sites/service/site-management-snapshot.service';
+import { buildSnapshotDiff } from '@/domain/sites/service/site-snapshot.service';
+import type { AuditReviewInput } from '@/presentation/sites/dto/site-request.dto';
+
 type ParseResult<T> = { success: true; data: T } | { success: false };
 
 type SafeParser<T> = {
@@ -35,10 +40,7 @@ type ReviewRouteDeps = {
   submissionResultSchema: unknown;
   errorResponseSchema: unknown;
   siteIdParamSchema: SafeParser<{ site_id: string | null }>;
-  auditReviewSchema: SafeParser<{
-    decision: 'APPROVED' | 'REJECTED';
-    reviewer_comment?: string | null;
-  }>;
+  auditReviewSchema: SafeParser<AuditReviewInput>;
   sendApiError: ErrorResponder;
   applyApprovedAudit: (
     app: FastifyInstance,
@@ -50,6 +52,7 @@ type ReviewRouteDeps = {
       reviewer_comment: string | null;
       current_snapshot: SiteAuditSnapshot | null;
       proposed_snapshot: SiteAuditSnapshot | null;
+      snapshot_override?: SiteAuditSnapshot | null;
     },
   ) => Promise<string | null>;
   finalizeAuditReview: (
@@ -60,6 +63,14 @@ type ReviewRouteDeps = {
     reviewerId: string,
     siteId: string | null,
   ) => Promise<UpdatedAudit | null>;
+  loadCurrentSiteSnapshot: (
+    app: FastifyInstance,
+    siteId: string,
+  ) => Promise<SiteAuditSnapshot | null>;
+  materializeSiteAuditSnapshot: (
+    app: FastifyInstance,
+    snapshot: SiteAuditSnapshot,
+  ) => Promise<SiteAuditSnapshot>;
   enqueueFeedDetectionJobs: (
     app: FastifyInstance,
     siteId: string,
@@ -95,6 +106,7 @@ export function registerAdminAuditReviewRoute(app: FastifyInstance, deps: Review
         response: {
           200: deps.submissionResultSchema,
           400: deps.errorResponseSchema,
+          403: deps.errorResponseSchema,
           404: deps.errorResponseSchema,
           409: deps.errorResponseSchema,
           503: deps.errorResponseSchema,
@@ -158,9 +170,34 @@ export function registerAdminAuditReviewRoute(app: FastifyInstance, deps: Review
       }
 
       const reviewerComment = parsedBody.data.reviewer_comment?.trim() ?? null;
+      const validatedSnapshotOverride = parsedBody.data.snapshot_override as
+        | SiteAuditSnapshot
+        | null
+        | undefined;
+      const snapshotOverride = validatedSnapshotOverride
+        ? normalizeManagementSiteSnapshot(validatedSnapshotOverride)
+        : null;
 
       try {
         let siteId = audit.site_id;
+        const currentSnapshot = audit.current_snapshot as SiteAuditSnapshot | null;
+        const proposedSnapshot = audit.proposed_snapshot as SiteAuditSnapshot | null;
+
+        if (parsedBody.data.decision === 'APPROVED' && snapshotOverride) {
+          const forbiddenFields = listManualReadOnlySiteManagementFieldChanges(
+            proposedSnapshot ?? currentSnapshot,
+            snapshotOverride,
+          );
+
+          if (forbiddenFields.length > 0) {
+            return deps.sendApiError(
+              reply,
+              403,
+              'SITE_FIELD_FORBIDDEN',
+              `Read-only site fields cannot be modified manually: ${forbiddenFields.join(', ')}.`,
+            );
+          }
+        }
 
         if (parsedBody.data.decision === 'APPROVED') {
           siteId = await deps.applyApprovedAudit(app, {
@@ -169,8 +206,9 @@ export function registerAdminAuditReviewRoute(app: FastifyInstance, deps: Review
             site_id: audit.site_id,
             submit_reason: audit.submit_reason,
             reviewer_comment: reviewerComment,
-            current_snapshot: audit.current_snapshot as SiteAuditSnapshot | null,
-            proposed_snapshot: audit.proposed_snapshot as SiteAuditSnapshot | null,
+            current_snapshot: currentSnapshot,
+            proposed_snapshot: proposedSnapshot,
+            snapshot_override: snapshotOverride,
           });
         }
 
@@ -187,18 +225,52 @@ export function registerAdminAuditReviewRoute(app: FastifyInstance, deps: Review
           throw new Error('failed to update audit review result');
         }
 
-        if (
-          parsedBody.data.decision === 'APPROVED' &&
-          updatedAudit.site_id &&
-          updatedAudit.action !== 'DELETE'
-        ) {
-          await deps.enqueueFeedDetectionJobs(
-            app,
-            updatedAudit.site_id,
-            (updatedAudit.proposed_snapshot as SiteAuditSnapshot | null | undefined) ??
-              (updatedAudit.current_snapshot as SiteAuditSnapshot | null | undefined),
-            `site-audit:${updatedAudit.id}`,
-          );
+        const appliedSnapshot =
+          parsedBody.data.decision === 'APPROVED' && updatedAudit.site_id
+            ? await deps.loadCurrentSiteSnapshot(app, updatedAudit.site_id)
+            : null;
+        const approvedSiteId = updatedAudit.site_id;
+
+        if (parsedBody.data.decision === 'APPROVED' && appliedSnapshot && approvedSiteId) {
+          if (snapshotOverride) {
+            const originalTargetSnapshot = proposedSnapshot
+              ? await deps.materializeSiteAuditSnapshot(app, proposedSnapshot)
+              : null;
+
+            if (buildSnapshotDiff(originalTargetSnapshot, appliedSnapshot).length > 0) {
+              await app.db.write.insert(SiteAudits).values({
+                site_id: approvedSiteId,
+                action: audit.action,
+                status: 'APPROVED',
+                current_snapshot: currentSnapshot,
+                proposed_snapshot: appliedSnapshot,
+                diff: buildSnapshotDiff(currentSnapshot, appliedSnapshot),
+                submit_reason: reviewerComment,
+                reviewer_comment: reviewerComment,
+                reviewed_by: actor.id,
+                submitter_name: actor.nickname,
+                submitter_email: actor.email,
+                notify_by_email: false,
+                reviewed_time: new Date(),
+              });
+
+              await deps.enqueueFeedDetectionJobs(
+                app,
+                approvedSiteId,
+                appliedSnapshot,
+                `site-audit:${updatedAudit.id}`,
+              );
+            }
+          } else {
+            await app.db.write
+              .update(SiteAudits)
+              .set({
+                current_snapshot: currentSnapshot,
+                proposed_snapshot: appliedSnapshot,
+                diff: buildSnapshotDiff(currentSnapshot, appliedSnapshot),
+              })
+              .where(eq(SiteAudits.id, updatedAudit.id));
+          }
         }
 
         if (

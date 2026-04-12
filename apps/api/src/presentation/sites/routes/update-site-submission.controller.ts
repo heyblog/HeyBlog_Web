@@ -18,8 +18,8 @@ type ErrorResponder = (
 ) => unknown;
 
 type UpdateSubmissionInput = {
-  submitter_name: string;
-  submitter_email: string;
+  submitter_name: string | null;
+  submitter_email: string | null;
   submit_reason: string;
   notify_by_email: boolean;
   changes: Record<string, unknown>;
@@ -32,7 +32,8 @@ type UpdateRouteDeps = {
   enforceSubmissionRateLimit: preHandlerHookHandler;
   siteIdParamSchema: SafeParser;
   updateSiteSubmissionSchema: SafeParser;
-  normalizeSubmitterEmail: (email: string) => string;
+  normalizeSubmitterName: (name: string | null | undefined) => string | null;
+  normalizeSubmitterEmail: (email: string | null | undefined) => string | null;
   validateUpdateSiteFields: (payload: UpdateSubmissionInput) => string[];
   sendApiError: ErrorResponder;
   loadCurrentSiteSnapshot: (
@@ -44,18 +45,21 @@ type UpdateRouteDeps = {
     currentSnapshot: SiteAuditSnapshot,
     changes: Record<string, unknown>,
   ) => SiteAuditSnapshot;
-  validateFeedSelection: (
-    feed: SiteAuditSnapshot['feed'],
-    defaultFeedUrl: string | null | undefined,
-    fieldPrefix: string,
-  ) => string[];
+  materializeSiteAuditSnapshot: (
+    app: FastifyInstance,
+    snapshot: SiteAuditSnapshot,
+  ) => Promise<SiteAuditSnapshot>;
+  validateFeedSelection: (feed: SiteAuditSnapshot['feed'], fieldPrefix: string) => string[];
   buildSnapshotDiff: (
     before: SiteAuditSnapshot | null,
     after: SiteAuditSnapshot,
   ) => SiteAuditDiffItem[];
   hasOwn: (value: Record<string, unknown>, key: string) => boolean;
   ensureTagIdsExist: (app: FastifyInstance, tagIds: string[]) => Promise<boolean>;
-  buildCombinedTagIds: (mainTagId?: string | null, subTagIds?: string[] | null) => string[] | null;
+  buildSelectedTagIds: (
+    mainTag?: SiteAuditSnapshot['main_tag'] | string | null,
+    subTags?: SiteAuditSnapshot['sub_tags'],
+  ) => string[] | null;
   ensureTechnologyIdsExist: (
     app: FastifyInstance,
     architecture: SiteAuditSnapshot['architecture'],
@@ -108,7 +112,8 @@ export function registerUpdateSubmissionRoute(app: FastifyInstance, deps: Update
 
       const payload = {
         ...(parsed.data as UpdateSubmissionInput),
-        submitter_email: deps.normalizeSubmitterEmail(String(parsed.data.submitter_email ?? '')),
+        submitter_name: deps.normalizeSubmitterName(parsed.data.submitter_name),
+        submitter_email: deps.normalizeSubmitterEmail(parsed.data.submitter_email),
       };
       const invalidFields = deps.validateUpdateSiteFields(payload);
 
@@ -144,13 +149,8 @@ export function registerUpdateSubmissionRoute(app: FastifyInstance, deps: Update
           );
         }
 
-        const proposedSnapshot = deps.buildUpdatedSnapshot(currentSnapshot, payload.changes);
-        const feedFields = deps.validateFeedSelection(
-          proposedSnapshot.feed,
-          proposedSnapshot.default_feed_url,
-          'changes.',
-        );
-        const diff = deps.buildSnapshotDiff(currentSnapshot, proposedSnapshot);
+        const rawProposedSnapshot = deps.buildUpdatedSnapshot(currentSnapshot, payload.changes);
+        const feedFields = deps.validateFeedSelection(rawProposedSnapshot.feed, 'changes.');
 
         if (feedFields.length > 0) {
           return deps.sendApiError(
@@ -162,29 +162,20 @@ export function registerUpdateSubmissionRoute(app: FastifyInstance, deps: Update
           );
         }
 
-        if (diff.length === 0) {
-          return deps.sendApiError(
-            reply,
-            409,
-            'NO_CHANGES',
-            'The submitted update does not change any persisted site field.',
-          );
-        }
-
         const [tagsValid, architectureValid, conflictFields] = await Promise.all([
-          deps.hasOwn(payload.changes, 'main_tag_id') || deps.hasOwn(payload.changes, 'sub_tag_ids')
+          deps.hasOwn(payload.changes, 'main_tag_id') || deps.hasOwn(payload.changes, 'sub_tags')
             ? deps.ensureTagIdsExist(
                 app,
-                deps.buildCombinedTagIds(
-                  proposedSnapshot.main_tag_id,
-                  proposedSnapshot.sub_tag_ids,
+                deps.buildSelectedTagIds(
+                  rawProposedSnapshot.main_tag,
+                  rawProposedSnapshot.sub_tags,
                 ) ?? [],
               )
             : Promise.resolve(true),
           deps.hasOwn(payload.changes, 'architecture')
-            ? deps.ensureTechnologyIdsExist(app, proposedSnapshot.architecture)
+            ? deps.ensureTechnologyIdsExist(app, rawProposedSnapshot.architecture)
             : Promise.resolve(true),
-          deps.ensureNoSiteIdentifierConflict(app, proposedSnapshot, siteId),
+          deps.ensureNoSiteIdentifierConflict(app, rawProposedSnapshot, siteId),
         ]);
 
         if (!tagsValid) {
@@ -193,7 +184,7 @@ export function registerUpdateSubmissionRoute(app: FastifyInstance, deps: Update
             400,
             'INVALID_TAG_IDS',
             'One or more submitted tag IDs do not exist or are disabled.',
-            ['changes.main_tag_id', 'changes.sub_tag_ids'],
+            ['changes.main_tag_id', 'changes.sub_tags'],
           );
         }
 
@@ -214,6 +205,18 @@ export function registerUpdateSubmissionRoute(app: FastifyInstance, deps: Update
             'SITE_CONFLICT',
             'A site with the same unique identifier already exists.',
             conflictFields.map((field) => `changes.${field}`),
+          );
+        }
+
+        const proposedSnapshot = await deps.materializeSiteAuditSnapshot(app, rawProposedSnapshot);
+        const diff = deps.buildSnapshotDiff(currentSnapshot, proposedSnapshot);
+
+        if (diff.length === 0) {
+          return deps.sendApiError(
+            reply,
+            409,
+            'NO_CHANGES',
+            'The submitted update does not change any persisted site field.',
           );
         }
 

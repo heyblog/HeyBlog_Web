@@ -18,8 +18,8 @@ type ErrorResponder = (
 ) => unknown;
 
 type DeleteSubmissionInput = {
-  submitter_name: string;
-  submitter_email: string;
+  submitter_name: string | null;
+  submitter_email: string | null;
   submit_reason: string;
   notify_by_email: boolean;
 };
@@ -31,7 +31,8 @@ type DeleteRouteDeps = {
   enforceSubmissionRateLimit: preHandlerHookHandler;
   siteIdParamSchema: SafeParser;
   submissionContactSchema: SafeParser;
-  normalizeSubmitterEmail: (email: string) => string;
+  normalizeSubmitterName: (name: string | null | undefined) => string | null;
+  normalizeSubmitterEmail: (email: string | null | undefined) => string | null;
   validateDeleteSiteFields: (payload: DeleteSubmissionInput) => string[];
   sendApiError: ErrorResponder;
   loadCurrentSiteSnapshot: (
@@ -87,7 +88,8 @@ export function registerDeleteSubmissionRoute(app: FastifyInstance, deps: Delete
 
       const payload = {
         ...(parsed.data as DeleteSubmissionInput),
-        submitter_email: deps.normalizeSubmitterEmail(String(parsed.data.submitter_email ?? '')),
+        submitter_name: deps.normalizeSubmitterName(parsed.data.submitter_name),
+        submitter_email: deps.normalizeSubmitterEmail(parsed.data.submitter_email),
       };
       const invalidFields = deps.validateDeleteSiteFields(payload);
 

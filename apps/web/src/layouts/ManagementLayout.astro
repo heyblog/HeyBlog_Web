@@ -12,10 +12,9 @@ interface Props {
   currentPath: string;
   eyebrow?: string;
   heading: string;
-  description: string;
 }
 
-const { title, currentPath, eyebrow = 'management / panel', heading, description } = Astro.props;
+const { title, currentPath, eyebrow = 'management / panel', heading } = Astro.props;
 const user = Astro.locals.authUser as SessionUser | null | undefined;
 const visibleNavItems =
   user?.role === 'SYS_ADMIN'
@@ -24,78 +23,88 @@ const visibleNavItems =
 const showEmptyBanner = user?.role === 'ADMIN' && !hasAnyManagementPermission(user);
 ---
 
-<BaseLayout title={`${title} | ZhBlogs`} showFooter={false}>
+<BaseLayout title={`${title} | 集博栈 - zhblogs`} showFooter={false}>
   <main class="page-shell management-shell">
     <section class="page-stack">
       <div class="management-frame">
-        <aside class="management-sidebar surface-card space-y-5">
-          <div class="space-y-3">
-            <p class="eyebrow">
-              <span class="status-dot" style="--status-dot: var(--color-info-dot)"></span>
-              management / identity
-            </p>
-            <div>
-              <div class="text-lg font-medium">{user?.nickname ?? '管理员'}</div>
-              <p class="mt-1 text-sm text-[var(--color-fg-3)]">{user?.email ?? 'unknown'}</p>
-            </div>
-            <dl class="space-y-2 text-sm">
-              <div class="flex items-center justify-between gap-3">
-                <dt class="text-[var(--color-fg-3)]">角色</dt>
-                <dd class="font-medium">{user?.role ?? 'UNKNOWN'}</dd>
-              </div>
-              <div class="flex items-center justify-between gap-3">
-                <dt class="text-[var(--color-fg-3)]">模块权限</dt>
-                <dd class="font-medium">
-                  {user?.role === 'SYS_ADMIN' ? '全部' : visibleNavItems.length}
-                </dd>
-              </div>
-              <div class="flex items-center justify-between gap-3">
-                <dt class="text-[var(--color-fg-3)]">会话版本</dt>
-                <dd class="font-medium">{user?.authVersion ?? '—'}</dd>
-              </div>
-            </dl>
-          </div>
+        <aside class="management-sidebar">
+          <details class="sidebar-collapsible management-sidebar-panel">
+            <summary class="sidebar-collapsible-toggle">
+              <span class="management-collapsible-summary-copy">
+                <span class="sidebar-collapsible-title">管理菜单</span>
+                <span class="management-collapsible-summary-note">
+                  查看账号信息、快捷入口与可访问的管理模块。
+                </span>
+              </span>
+              <span aria-hidden="true" class="sidebar-collapsible-icon">⌄</span>
+            </summary>
 
-          <div class="space-y-2">
-            <a class="action-button action-button-secondary w-full" href="/"> 返回首页 </a>
-            <a class="action-button action-button-primary w-full" href="/dashboard"> 返回工作台 </a>
-            <form action="/auth/logout" method="post">
-              <button class="action-button action-button-ghost w-full" type="submit">
-                退出登录
-              </button>
-            </form>
-          </div>
+            <div class="sidebar-collapsible-body">
+              <div class="space-y-3">
+                <p class="eyebrow">
+                  <span class="status-dot" style="--status-dot: var(--color-info-dot)"></span>
+                  management / identity
+                </p>
+                <div>
+                  <div class="text-lg font-medium">{user?.nickname ?? '管理员'}</div>
+                  <p class="mt-1 text-sm text-(--color-fg-3)">{user?.email ?? 'unknown'}</p>
+                </div>
+                <dl class="space-y-2 text-sm">
+                  <div class="flex items-center justify-between gap-3">
+                    <dt class="text-(--color-fg-3)">角色</dt>
+                    <dd class="font-medium">{user?.role ?? 'UNKNOWN'}</dd>
+                  </div>
+                  <div class="flex items-center justify-between gap-3">
+                    <dt class="text-(--color-fg-3)">会话版本</dt>
+                    <dd class="font-medium">{user?.authVersion ?? '—'}</dd>
+                  </div>
+                </dl>
+              </div>
 
-          <nav class="space-y-2" aria-label="管理模块">
-            <a
-              class:list={[
-                'block rounded-[var(--radius-sm)] border px-3 py-3 transition',
-                currentPath === '/management'
-                  ? 'border-[var(--color-line-med)] bg-[var(--color-bg-raised)]'
-                  : 'border-[var(--color-line)] hover:border-[var(--color-line-med)]',
-              ]}
-              href="/management"
-            >
-              <div class="text-sm font-medium">管理首页</div>
-              <p class="mt-1 text-xs text-[var(--color-fg-3)]">查看当前身份、授权状态与快捷入口</p>
-            </a>
-            {
-              visibleNavItems.map((item) => (
+              <div class="management-sidebar-actions">
+                <a class="action-button action-button-secondary w-full" href="/"> 返回首页 </a>
+                <a class="action-button action-button-primary w-full" href="/dashboard">
+                  返回工作台
+                </a>
+                <form action="/auth/logout" method="post">
+                  <button class="action-button action-button-ghost w-full" type="submit">
+                    退出登录
+                  </button>
+                </form>
+              </div>
+
+              <nav class="management-sidebar-nav" aria-label="管理模块">
                 <a
                   class:list={[
-                    'block rounded-[var(--radius-sm)] border px-3 py-3 transition',
-                    currentPath === item.href
-                      ? 'border-[var(--color-line-med)] bg-[var(--color-bg-raised)]'
-                      : 'border-[var(--color-line)] hover:border-[var(--color-line-med)]',
+                    'management-sidebar-link rounded-sm border px-3 py-3 transition',
+                    currentPath === '/management'
+                      ? 'border-(--color-line-med) bg-(--color-bg-raised)'
+                      : 'border-(--color-line) hover:border-(--color-line-med)',
                   ]}
-                  href={item.href}
+                  href="/management"
                 >
-                  <div class="text-sm font-medium">{item.label}</div>
-                  <p class="mt-1 text-xs text-[var(--color-fg-3)]">{item.description}</p>
+                  <div class="text-sm font-medium">管理首页</div>
+                  <p class="mt-1 text-xs text-(--color-fg-3)">查看管理模块与快捷入口</p>
                 </a>
-              ))
-            }
-          </nav>
+                {
+                  visibleNavItems.map((item) => (
+                    <a
+                      class:list={[
+                        'management-sidebar-link rounded-sm border px-3 py-3 transition',
+                        currentPath === item.href
+                          ? 'border-(--color-line-med) bg-(--color-bg-raised)'
+                          : 'border-(--color-line) hover:border-(--color-line-med)',
+                      ]}
+                      href={item.href}
+                    >
+                      <div class="text-sm font-medium">{item.label}</div>
+                      <p class="mt-1 text-xs text-(--color-fg-3)">{item.description}</p>
+                    </a>
+                  ))
+                }
+              </nav>
+            </div>
+          </details>
         </aside>
 
         <div class="management-content space-y-6">
@@ -132,9 +141,8 @@ const showEmptyBanner = user?.role === 'ADMIN' && !hasAnyManagementPermission(us
                   <span class="status-dot" style="--status-dot: var(--color-info-dot)"></span>
                   {eyebrow}
                 </p>
-                <h1 class="page-lead-title">{heading}</h1>
+                <h1 class="page-lead-title mt-4">{heading}</h1>
               </div>
-              <p class="page-lead-copy">{description}</p>
             </div>
           </div>
 
@@ -149,6 +157,28 @@ const showEmptyBanner = user?.role === 'ADMIN' && !hasAnyManagementPermission(us
   const storageKey = 'zhblogs-management-empty-banner-dismissed';
   const banner = document.querySelector('[data-management-empty-banner]');
   const closeButton = document.querySelector('[data-management-empty-banner-close]');
+  const sidebarMenus = document.querySelectorAll('.management-shell .management-sidebar-panel');
+  const desktopMenuQuery = window.matchMedia('(min-width: 80rem)');
+
+  const syncSidebarMenuState = () => {
+    sidebarMenus.forEach((node) => {
+      if (!(node instanceof HTMLDetailsElement)) {
+        return;
+      }
+
+      if (desktopMenuQuery.matches) {
+        node.open = true;
+        return;
+      }
+
+      if (!desktopMenuQuery.matches) {
+        node.open = false;
+      }
+    });
+  };
+
+  syncSidebarMenuState();
+  desktopMenuQuery.addEventListener('change', syncSidebarMenuState);
 
   if (banner instanceof HTMLElement) {
     if (window.localStorage.getItem(storageKey) === 'true') {

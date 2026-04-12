@@ -2,6 +2,7 @@ import type {
   CreateSubmissionFormState,
   DeleteSubmissionFormState,
   FeedDraft,
+  FeedType,
   FieldErrors,
   QuerySubmissionFormState,
   RestoreSubmissionFormState,
@@ -17,10 +18,19 @@ const createDraftId = (): string =>
   globalThis.crypto?.randomUUID?.() ??
   `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
-const createFeedDraft = (name = '', url = '', isDefault = false): FeedDraft => ({
+const normalizeFeedType = (value: string | null | undefined): FeedType =>
+  value === 'ATOM' || value === 'JSON' ? value : 'RSS';
+
+const createFeedDraft = (
+  name = '',
+  url = '',
+  isDefault = false,
+  type: FeedDraft['type'] = 'RSS',
+): FeedDraft => ({
   id: createDraftId(),
   name,
   url,
+  type,
   isDefault,
 });
 
@@ -273,6 +283,7 @@ export function createUpdateFormFromResolvedSite(
           id: createDraftId(),
           name: trimText(item.name) || (site.feed.length === 1 && index === 0 ? '默认订阅' : ''),
           url: trimText(item.url),
+          type: normalizeFeedType(item.type),
           isDefault: item.isDefault === true,
         }))
       : [createFeedDraft('', trimText(site.url), true)],

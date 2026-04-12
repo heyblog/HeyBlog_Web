@@ -1,0 +1,182 @@
+---
+export const prerender = false;
+
+import { fetchProtectedJson } from '@/application/auth/auth.server';
+import {
+  SITE_ACCESS_SCOPE_OPTIONS,
+  SITE_CLASSIFICATION_STATUS_OPTIONS,
+  SITE_STATUS_OPTIONS,
+} from '@/application/management/site-management.snapshot';
+import {
+  BOOLEAN_FILTER_OPTIONS,
+  type ManagedSiteListItem,
+  type SitePagination,
+} from '@/components/management/sites/managed-site-list.shared';
+import ManagedSiteFilters from '@/components/management/sites/ManagedSiteFilters.astro';
+import ManagedSiteTable from '@/components/management/sites/ManagedSiteTable.astro';
+import ManagementLayout from '@/layouts/ManagementLayout.astro';
+
+const DEFAULT_PAGE_SIZE = 10;
+const keyword = Astro.url.searchParams.get('q') ?? '';
+const classificationStatus = Astro.url.searchParams.get('classification_status') ?? '';
+const accessScope = Astro.url.searchParams.get('access_scope') ?? '';
+const siteStatus = Astro.url.searchParams.get('status') ?? '';
+const isShow = Astro.url.searchParams.get('is_show') ?? '';
+const recommend = Astro.url.searchParams.get('recommend') ?? '';
+const mainTagId = Astro.url.searchParams.get('main_tag_id') ?? '';
+const requestedPage = Math.max(1, Number(Astro.url.searchParams.get('page') || '1') || 1);
+const requestedPageSize = Math.max(
+  1,
+  Math.min(
+    50,
+    Number(Astro.url.searchParams.get('pageSize') || String(DEFAULT_PAGE_SIZE)) ||
+      DEFAULT_PAGE_SIZE,
+  ),
+);
+const query = new URLSearchParams();
+
+if (keyword) {
+  query.set('q', keyword);
+}
+
+if (classificationStatus) {
+  query.set('classification_status', classificationStatus);
+}
+
+if (accessScope) {
+  query.set('access_scope', accessScope);
+}
+
+if (siteStatus) {
+  query.set('status', siteStatus);
+}
+
+if (isShow) {
+  query.set('is_show', isShow);
+}
+
+if (recommend) {
+  query.set('recommend', recommend);
+}
+
+if (mainTagId) {
+  query.set('main_tag_id', mainTagId);
+}
+
+query.set('page', String(requestedPage));
+query.set('pageSize', String(requestedPageSize));
+
+const [payload, optionsPayload] = await Promise.all([
+  fetchProtectedJson<{
+    ok: boolean;
+    data: {
+      items: ManagedSiteListItem[];
+      pagination: SitePagination;
+    };
+  }>(Astro.request, `/api/management/sites?${query.toString()}`),
+  fetchProtectedJson<{
+    ok: boolean;
+    data: {
+      main_tags: Array<{ id: string; name: string }>;
+    };
+  }>(Astro.request, '/api/sites/submission-options'),
+]);
+
+const items = payload.data.items;
+const pagination = payload.data.pagination;
+const mainTagOptions = optionsPayload.data.main_tags;
+const visiblePageStart = Math.max(1, pagination.page - 2);
+const visiblePageEnd = Math.min(pagination.totalPages, pagination.page + 2);
+
+const buildListHref = (page: number): string => {
+  const target = new URL(Astro.url.pathname, Astro.url);
+
+  if (keyword) {
+    target.searchParams.set('q', keyword);
+  }
+
+  if (classificationStatus) {
+    target.searchParams.set('classification_status', classificationStatus);
+  }
+
+  if (accessScope) {
+    target.searchParams.set('access_scope', accessScope);
+  }
+
+  if (siteStatus) {
+    target.searchParams.set('status', siteStatus);
+  }
+
+  if (isShow) {
+    target.searchParams.set('is_show', isShow);
+  }
+
+  if (recommend) {
+    target.searchParams.set('recommend', recommend);
+  }
+
+  if (mainTagId) {
+    target.searchParams.set('main_tag_id', mainTagId);
+  }
+
+  if (page > 1) {
+    target.searchParams.set('page', String(page));
+  }
+
+  if (pagination.pageSize !== DEFAULT_PAGE_SIZE) {
+    target.searchParams.set('pageSize', String(pagination.pageSize));
+  }
+
+  return `${target.pathname}${target.search}`;
+};
+
+const paginationView = {
+  page: pagination.page,
+  pageSize: pagination.pageSize,
+  totalItems: pagination.totalItems,
+  totalPages: pagination.totalPages,
+  previousHref: pagination.page > 1 ? buildListHref(pagination.page - 1) : null,
+  nextHref: pagination.page < pagination.totalPages ? buildListHref(pagination.page + 1) : null,
+  pages: Array.from(
+    { length: visiblePageEnd - visiblePageStart + 1 },
+    (_, index) => visiblePageStart + index,
+  ).map((pageNumber) => ({
+    page: pageNumber,
+    href: buildListHref(pageNumber),
+    isCurrent: pageNumber === pagination.page,
+  })),
+};
+---
+
+<ManagementLayout
+  title="站点编辑"
+  currentPath="/management/sites"
+  eyebrow="management / sites"
+  heading="站点编辑"
+>
+  <div class="page-section pt-0">
+    <ManagedSiteFilters
+      {keyword}
+      {classificationStatus}
+      {accessScope}
+      {siteStatus}
+      {isShow}
+      {recommend}
+      {mainTagId}
+      {mainTagOptions}
+      classificationOptions={SITE_CLASSIFICATION_STATUS_OPTIONS}
+      accessScopeOptions={SITE_ACCESS_SCOPE_OPTIONS}
+      siteStatusOptions={SITE_STATUS_OPTIONS}
+      booleanFilterOptions={BOOLEAN_FILTER_OPTIONS}
+      clearHref={Astro.url.pathname}
+    />
+
+    <ManagedSiteTable
+      {items}
+      classificationOptions={SITE_CLASSIFICATION_STATUS_OPTIONS}
+      accessScopeOptions={SITE_ACCESS_SCOPE_OPTIONS}
+      siteStatusOptions={SITE_STATUS_OPTIONS}
+      {paginationView}
+    />
+  </div>
+</ManagementLayout>

@@ -1,6 +1,8 @@
 import {
   createEmptyFeedDraft,
   type CreateSubmissionFormState,
+  ensureSingleDefaultFeedDrafts,
+  type FeedType,
   trimText,
   type UpdateSubmissionFormState,
 } from './site-submission.service';
@@ -27,7 +29,7 @@ export function applyAddressInferenceToForm(form: SiteFormState, url: string): v
     form.feeds[0].url = url;
   }
 
-  form.default_feed_url = url;
+  form.feeds = ensureSingleDefaultFeedDrafts(form.feeds);
   form.sitemap = url;
   form.link_page = url;
 }
@@ -67,27 +69,19 @@ export function applyProgramCustomDraftToForm(
 
 export function addFeedToForm(form: SiteFormState): void {
   const draft = createEmptyFeedDraft();
-  form.feeds = [...form.feeds, draft];
-
-  if (form.feeds.length === 1) {
-    form.default_feed_url = trimText(draft.url);
-  }
+  form.feeds = ensureSingleDefaultFeedDrafts([...form.feeds, draft]);
 }
 
 export function removeFeedFromForm(form: SiteFormState, id: string): void {
-  const removed = form.feeds.find((feed) => feed.id === id);
-  form.feeds = form.feeds.filter((feed) => feed.id !== id);
+  const fallbackId =
+    form.feeds.find((feed) => feed.isDefault && feed.id !== id)?.id ??
+    form.feeds.find((feed) => feed.id !== id)?.id ??
+    null;
 
-  if (form.feeds.length === 0) {
-    form.default_feed_url = '';
-    return;
-  }
-
-  if (removed && trimText(removed.url) === trimText(form.default_feed_url)) {
-    form.default_feed_url = trimText(form.feeds[0]?.url ?? '');
-  } else if (form.feeds.length === 1) {
-    form.default_feed_url = trimText(form.feeds[0]?.url ?? '');
-  }
+  form.feeds = ensureSingleDefaultFeedDrafts(
+    form.feeds.filter((feed) => feed.id !== id),
+    fallbackId,
+  );
 }
 
 export function updateFeedNameInForm(form: SiteFormState, id: string, value: string): void {
@@ -96,28 +90,24 @@ export function updateFeedNameInForm(form: SiteFormState, id: string, value: str
 
 export function updateFeedUrlInForm(form: SiteFormState, id: string, value: string): boolean {
   const current = form.feeds.find((feed) => feed.id === id);
-  const previousUrl = trimText(current?.url ?? '');
-
-  form.feeds = form.feeds.map((feed) => (feed.id === id ? { ...feed, url: value } : feed));
+  form.feeds = ensureSingleDefaultFeedDrafts(
+    form.feeds.map((feed) => (feed.id === id ? { ...feed, url: value } : feed)),
+    current?.isDefault ? id : undefined,
+  );
 
   if (!current) {
     return false;
   }
 
-  if (trimText(form.default_feed_url) === previousUrl) {
-    form.default_feed_url = trimText(value);
-    return true;
-  }
-
-  if (form.feeds.length === 1 && !trimText(form.default_feed_url)) {
-    form.default_feed_url = trimText(value);
-  }
-
   return true;
 }
 
-export function selectDefaultFeedInForm(form: SiteFormState, url: string): void {
-  form.default_feed_url = trimText(url);
+export function updateFeedTypeInForm(form: SiteFormState, id: string, value: FeedType): void {
+  form.feeds = form.feeds.map((feed) => (feed.id === id ? { ...feed, type: value } : feed));
+}
+
+export function selectDefaultFeedInForm(form: SiteFormState, id: string): void {
+  form.feeds = ensureSingleDefaultFeedDrafts(form.feeds, trimText(id));
 }
 
 export function buildUrlUpdatedForm<T extends SiteFormState>(form: T, value: string): T {

@@ -4,6 +4,7 @@ import {
   SiteAudits,
   Sites,
   SiteTags,
+  TechnologyCatalogs,
 } from '@zhblogs/db';
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -69,6 +70,28 @@ describe('site submission routes', () => {
       {
         table: SiteAudits,
         rows: [],
+      },
+      {
+        table: TechnologyCatalogs,
+        rows: [
+          {
+            id: frameworkId,
+            name: 'Astro',
+            name_normalized: 'astro',
+            technology_type: 'FRAMEWORK',
+          },
+        ],
+      },
+      {
+        table: TechnologyCatalogs,
+        rows: [
+          {
+            id: frameworkId,
+            name: 'Astro',
+            name_normalized: 'astro',
+            technology_type: 'FRAMEWORK',
+          },
+        ],
       },
       {
         table: Sites,
@@ -139,6 +162,89 @@ describe('site submission routes', () => {
     });
   });
 
+  it('stores nullable submitter info for update submissions without contact fields', async () => {
+    app = createTestApp({
+      disableExternalServices: true,
+    });
+
+    await app.ready();
+
+    const siteId = '11111111-1111-4111-8111-111111111111';
+
+    mockReadSelect(app, [
+      {
+        table: Sites,
+        rows: [
+          {
+            id: siteId,
+            bid: 'example-blog',
+            name: 'Example Blog',
+            url: 'https://example.com',
+            sign: 'Old sign',
+            icon_base64: null,
+            feed: [],
+            from: ['WEB_SUBMIT'],
+            classification_status: 'COMPLETE',
+            sitemap: 'https://example.com/sitemap.xml',
+            link_page: 'https://example.com/friends',
+            access_scope: 'BOTH',
+            status: 'OK',
+            is_show: true,
+            recommend: false,
+            reason: null,
+          },
+        ],
+      },
+      {
+        table: SiteTags,
+        rows: [],
+      },
+      {
+        table: SiteArchitectures,
+        rows: [],
+      },
+      {
+        table: ProgramTechnologyStacks,
+        rows: [],
+      },
+      {
+        table: SiteAudits,
+        rows: [],
+      },
+      {
+        table: Sites,
+        rows: [],
+      },
+    ]);
+
+    const writeMock = mockWriteInsertSuccess(app, [
+      {
+        id: 'audit-update-null-contact-id',
+        status: 'PENDING',
+      },
+    ]);
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/api/sites/${siteId}/updates`,
+      payload: {
+        submitter_name: null,
+        submitter_email: null,
+        submit_reason: 'Please refresh the site profile.',
+        notify_by_email: false,
+        changes: {
+          sign: 'New sign',
+        },
+      },
+    });
+
+    expect(response.statusCode).toBe(201);
+    expect(writeMock.getInsertedValues()).toMatchObject({
+      submitter_name: null,
+      submitter_email: null,
+    });
+  });
+
   it('keeps architecture stacks in update snapshot', async () => {
     app = createTestApp({
       disableExternalServices: true,
@@ -189,6 +295,28 @@ describe('site submission routes', () => {
         rows: [],
       },
       {
+        table: TechnologyCatalogs,
+        rows: [
+          {
+            id: frameworkId,
+            name: 'Astro',
+            name_normalized: 'astro',
+            technology_type: 'FRAMEWORK',
+          },
+        ],
+      },
+      {
+        table: TechnologyCatalogs,
+        rows: [
+          {
+            id: frameworkId,
+            name: 'Astro',
+            name_normalized: 'astro',
+            technology_type: 'FRAMEWORK',
+          },
+        ],
+      },
+      {
         table: Sites,
         rows: [],
       },
@@ -218,8 +346,8 @@ describe('site submission routes', () => {
               {
                 category: 'FRAMEWORK',
                 catalog_id: frameworkId,
-                name: null,
-                name_normalized: null,
+                name: 'Astro',
+                name_normalized: 'astro',
               },
             ],
           },
@@ -238,8 +366,8 @@ describe('site submission routes', () => {
             {
               category: 'FRAMEWORK',
               catalog_id: frameworkId,
-              name: null,
-              name_normalized: null,
+              name: 'Astro',
+              name_normalized: 'astro',
             },
           ],
         },

@@ -140,14 +140,15 @@ function buildArchitectureInput(
 
 export function buildFeedInputs(
   drafts: FeedDraft[],
-  defaultFeedUrl: string,
   fieldErrors: FieldErrors,
-): { feed: FeedInput[]; defaultFeedUrl: string | null } {
+): { feed: FeedInput[] } {
   const normalized = drafts
     .map((draft) => ({
       ...draft,
       name: trimText(draft.name),
       url: trimText(draft.url),
+      type: draft.type,
+      isDefault: draft.isDefault === true,
     }))
     .filter((draft) => draft.url.length > 0);
 
@@ -155,7 +156,6 @@ export function buildFeedInputs(
     fieldErrors.feeds = '订阅地址必须是合法的 http 或 https 链接。';
     return {
       feed: [],
-      defaultFeedUrl: null,
     };
   }
 
@@ -168,7 +168,6 @@ export function buildFeedInputs(
       fieldErrors.feeds = '订阅地址必须是合法的 http 或 https 链接。';
       return {
         feed: [],
-        defaultFeedUrl: null,
       };
     }
 
@@ -176,7 +175,6 @@ export function buildFeedInputs(
       fieldErrors.feeds = '订阅地址不能重复。';
       return {
         feed: [],
-        defaultFeedUrl: null,
       };
     }
 
@@ -186,7 +184,6 @@ export function buildFeedInputs(
   if (normalized.length === 0) {
     return {
       feed: [],
-      defaultFeedUrl: null,
     };
   }
 
@@ -194,42 +191,33 @@ export function buildFeedInputs(
     fieldErrors.feeds = '多个订阅地址时，请为每个订阅填写名称。';
     return {
       feed: [],
-      defaultFeedUrl: null,
     };
   }
 
-  const resolvedDefaultFeedUrl =
-    normalized.length === 1 ? (normalized[0]?.url ?? null) : trimText(defaultFeedUrl) || null;
+  const normalizedWithDefault =
+    normalized.length === 1
+      ? normalized.map((draft) => ({
+          ...draft,
+          isDefault: true,
+        }))
+      : normalized;
 
-  if (!resolvedDefaultFeedUrl) {
-    fieldErrors.default_feed_url = '请选择一个默认订阅地址。';
+  const defaultCount = normalizedWithDefault.filter((draft) => draft.isDefault).length;
+
+  if (defaultCount !== 1) {
+    fieldErrors.feeds = '请确保恰好选择一个默认订阅地址。';
     return {
       feed: [],
-      defaultFeedUrl: null,
-    };
-  }
-
-  const matchedDefaultFeed = normalized.find(
-    (draft) =>
-      createComparableHttpUrlKey(draft.url) === createComparableHttpUrlKey(resolvedDefaultFeedUrl),
-  );
-
-  if (!matchedDefaultFeed) {
-    fieldErrors.default_feed_url = '默认订阅地址必须来自当前订阅列表。';
-    return {
-      feed: [],
-      defaultFeedUrl: null,
     };
   }
 
   return {
-    feed: normalized.map((draft) => ({
-      name:
-        draft.name ||
-        (normalized.length === 1 && draft.url === matchedDefaultFeed.url ? '默认订阅' : ''),
+    feed: normalizedWithDefault.map((draft) => ({
+      name: draft.name || (normalizedWithDefault.length === 1 && draft.isDefault ? '默认订阅' : ''),
       url: draft.url,
+      type: draft.type,
+      isDefault: draft.isDefault,
     })),
-    defaultFeedUrl: matchedDefaultFeed.url,
   };
 }
 

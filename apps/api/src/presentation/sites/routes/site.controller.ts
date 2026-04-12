@@ -47,6 +47,7 @@ import {
   ensureTechnologyIdsExist,
   loadCurrentSiteSnapshot,
   loadHiddenSiteRestoreTarget,
+  materializeSiteAuditSnapshot,
   reviewSubmittedSiteDuplicates,
 } from '@/infrastructure/sites/db/site.repository';
 import {
@@ -143,6 +144,7 @@ export function registerSiteRoutes(app: FastifyInstance): void {
     validateCreateSiteFields,
     sendApiError,
     buildCreateSnapshot,
+    materializeSiteAuditSnapshot,
     validateFeedSelection,
     ensureTagIdsExist,
     buildSelectedTagIds,
@@ -166,6 +168,7 @@ export function registerSiteRoutes(app: FastifyInstance): void {
     loadCurrentSiteSnapshot,
     hasPendingSiteAudit,
     buildUpdatedSnapshot,
+    materializeSiteAuditSnapshot,
     validateFeedSelection,
     buildSnapshotDiff,
     hasOwn,
@@ -238,6 +241,8 @@ export function registerSiteRoutes(app: FastifyInstance): void {
         syncSiteArchitecture,
       }),
     finalizeAuditReview,
+    loadCurrentSiteSnapshot,
+    materializeSiteAuditSnapshot,
     enqueueFeedDetectionJobs: (routeApp, siteId, snapshot, triggerKey) =>
       enqueueFeedDetectionJobs(routeApp, siteId, snapshot, triggerKey, normalizeSubmittedFeeds),
     canSendSubmissionDecisionMail,

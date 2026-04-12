@@ -8,8 +8,8 @@ import {
   normalizeArchitectureInput,
   normalizeOptionalSubmitterEmail,
   normalizeResolvedFeed,
-  normalizeStringList,
   normalizeSubmitterName,
+  normalizeSubTagInputs,
   validateContactFields,
   type ValidationResult,
 } from './site-submission.payload-shared';
@@ -36,9 +36,8 @@ export function buildCreateSubmissionPayload(
   const sign = trimText(form.sign);
   const sitemap = trimText(form.sitemap);
   const linkPage = trimText(form.link_page);
-  const subTagIds = normalizeStringList(form.sub_tag_ids);
-  const customSubTags = normalizeStringList(form.custom_sub_tags);
-  const { feed, defaultFeedUrl } = buildFeedInputs(form.feeds, form.default_feed_url, fieldErrors);
+  const subTags = normalizeSubTagInputs(form.sub_tags);
+  const { feed } = buildFeedInputs(form.feeds, fieldErrors);
   const architecture = buildArchitectureFromForm(form, fieldErrors);
 
   if (!name) {
@@ -85,12 +84,10 @@ export function buildCreateSubmissionPayload(
         url,
         sign,
         ...(feed.length > 0 ? { feed } : {}),
-        default_feed_url: defaultFeedUrl,
         ...(sitemap ? { sitemap } : {}),
         ...(linkPage ? { link_page: linkPage } : {}),
         main_tag_id: trimText(form.main_tag_id),
-        ...(subTagIds.length > 0 ? { sub_tag_ids: subTagIds } : {}),
-        ...(customSubTags.length > 0 ? { custom_sub_tags: customSubTags } : {}),
+        ...(subTags.length > 0 ? { sub_tags: subTags } : {}),
         ...(architecture ? { architecture } : {}),
       },
     },
@@ -112,9 +109,8 @@ export function buildUpdateSubmissionPayload(
   const sign = trimText(form.sign);
   const sitemap = trimText(form.sitemap);
   const linkPage = trimText(form.link_page);
-  const subTagIds = normalizeStringList(form.sub_tag_ids);
-  const customSubTags = normalizeStringList(form.custom_sub_tags);
-  const { feed, defaultFeedUrl } = buildFeedInputs(form.feeds, form.default_feed_url, fieldErrors);
+  const subTags = normalizeSubTagInputs(form.sub_tags);
+  const { feed } = buildFeedInputs(form.feeds, fieldErrors);
   const architecture = buildArchitectureFromForm(form, fieldErrors);
 
   if (!trimText(form.site_identifier)) {
@@ -156,7 +152,6 @@ export function buildUpdateSubmissionPayload(
   const changes: SiteSubmissionUpdateRequest['changes'] = {};
   const currentFeed = normalizeResolvedFeed(current.feed ?? []);
   const nextFeed = normalizeResolvedFeed(feed);
-  const currentDefaultFeedUrl = trimText(current.default_feed_url ?? '') || null;
   const currentArchitecture = normalizeArchitectureInput(current.architecture ?? {});
   const nextArchitecture = architecture;
 
@@ -176,10 +171,6 @@ export function buildUpdateSubmissionPayload(
     changes.feed = nextFeed;
   }
 
-  if ((defaultFeedUrl || null) !== currentDefaultFeedUrl) {
-    changes.default_feed_url = defaultFeedUrl;
-  }
-
   if ((sitemap || null) !== (trimText(current.sitemap ?? '') || null)) {
     changes.sitemap = sitemap || null;
   }
@@ -192,12 +183,8 @@ export function buildUpdateSubmissionPayload(
     changes.main_tag_id = trimText(form.main_tag_id) || null;
   }
 
-  if (!areEqualJson(subTagIds, normalizeStringList(current.sub_tag_ids ?? []))) {
-    changes.sub_tag_ids = subTagIds;
-  }
-
-  if (!areEqualJson(customSubTags, normalizeStringList(current.custom_sub_tags ?? []))) {
-    changes.custom_sub_tags = customSubTags;
+  if (!areEqualJson(subTags, normalizeSubTagInputs(current.sub_tags ?? []))) {
+    changes.sub_tags = subTags;
   }
 
   if (!areEqualJson(nextArchitecture, currentArchitecture)) {

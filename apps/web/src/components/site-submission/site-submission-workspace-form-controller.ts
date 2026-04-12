@@ -9,6 +9,7 @@ import {
   removeFeedFromForm,
   selectDefaultFeedInForm,
   updateFeedNameInForm,
+  updateFeedTypeInForm,
   updateFeedUrlInForm,
 } from '@/application/site-submission/site-submission.browser-form';
 import {
@@ -264,9 +265,14 @@ export function createSiteSubmissionWorkspaceFormController(
         }
       });
     },
-    selectDefaultFeed(kind: SiteFormKind, url: string): void {
+    updateFeedType(kind: SiteFormKind, id: string, value: 'RSS' | 'ATOM' | 'JSON'): void {
       mutateSiteForm(kind, (form) => {
-        selectDefaultFeedInForm(form, url);
+        updateFeedTypeInForm(form, id, value);
+      });
+    },
+    selectDefaultFeed(kind: SiteFormKind, id: string): void {
+      mutateSiteForm(kind, (form) => {
+        selectDefaultFeedInForm(form, id);
       });
     },
     setAutoFillMissing,
