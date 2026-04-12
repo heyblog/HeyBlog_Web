@@ -58,6 +58,53 @@ describe('site submission proxy handlers', () => {
     });
   });
 
+  it('accepts nullable contact fields when proxying create submissions', async () => {
+    const fetchMock = vi.fn(async () => siteSubmissionApiStubs.created());
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const response = await handleCreateSubmissionRequest(
+      new Request('http://127.0.0.1:9902/api/site-submissions/create', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          submitter_name: null,
+          submitter_email: null,
+          submit_reason: 'Request inclusion',
+          notify_by_email: false,
+          site: {
+            name: 'Example Blog',
+            url: 'https://example.com',
+            sign: 'A blog about software',
+            main_tag_id: 'main-tag-id',
+          },
+        }),
+      }),
+    );
+
+    expect(response.status).toBe(201);
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://127.0.0.1:9901/api/sites',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          submitter_name: null,
+          submitter_email: null,
+          submit_reason: 'Request inclusion',
+          notify_by_email: false,
+          site: {
+            name: 'Example Blog',
+            url: 'https://example.com',
+            sign: 'A blog about software',
+            main_tag_id: 'main-tag-id',
+          },
+        }),
+      }),
+    );
+  });
+
   it('resolves update targets before forwarding the update submission', async () => {
     const fetchMock = vi
       .fn()

@@ -21,20 +21,27 @@ describe('site submission payload builders', () => {
     form.url = 'https://example.com';
     form.sign = ' A blog about software ';
     form.main_tag_id = 'main-tag-id';
-    form.custom_sub_tags = ['前端', ' 架构 ', '前端'];
+    form.sub_tags = [
+      { tag_id: null, name: '前端', name_normalized: '前端' },
+      { tag_id: null, name: ' 架构 ', name_normalized: '架构' },
+      { tag_id: null, name: '前端', name_normalized: '前端' },
+    ];
     form.feeds = [
       {
         id: 'feed-primary',
         name: '站点主订阅',
         url: 'https://example.com/feed.xml',
+        type: 'RSS',
+        isDefault: false,
       },
       {
         id: secondaryFeedId,
         name: '站点更新',
         url: 'https://example.com/atom.xml',
+        type: 'ATOM',
+        isDefault: true,
       },
     ];
-    form.default_feed_url = 'https://example.com/atom.xml';
     form.sitemap = 'https://example.com/sitemap.xml';
     form.link_page = 'https://example.com/friends';
     form.architecture_program_name = ' Astro ';
@@ -60,17 +67,31 @@ describe('site submission payload builders', () => {
           {
             name: '站点主订阅',
             url: 'https://example.com/feed.xml',
+            type: 'RSS',
+            isDefault: false,
           },
           {
             name: '站点更新',
             url: 'https://example.com/atom.xml',
+            type: 'ATOM',
+            isDefault: true,
           },
         ],
-        default_feed_url: 'https://example.com/atom.xml',
         sitemap: 'https://example.com/sitemap.xml',
         link_page: 'https://example.com/friends',
         main_tag_id: 'main-tag-id',
-        custom_sub_tags: ['前端', '架构'],
+        sub_tags: [
+          {
+            tag_id: null,
+            name: '架构',
+            name_normalized: '架构',
+          },
+          {
+            tag_id: null,
+            name: '前端',
+            name_normalized: '前端',
+          },
+        ],
         architecture: {
           program_id: null,
           program_name: 'Astro',
@@ -81,6 +102,30 @@ describe('site submission payload builders', () => {
         },
       },
     });
+  });
+
+  it('maps blank contact info to null for create payloads', () => {
+    const form = createInitialCreateForm();
+
+    form.submitter_name = '   ';
+    form.submitter_email = '   ';
+    form.notify_by_email = false;
+    form.agree_terms = true;
+    form.name = 'Example Blog';
+    form.url = 'https://example.com';
+    form.sign = 'A blog about software';
+    form.main_tag_id = 'main-tag-id';
+
+    const result = buildCreateSubmissionPayload(form);
+
+    expect(result.ok).toBe(true);
+
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.data.submitter_name).toBeNull();
+    expect(result.data.submitter_email).toBeNull();
   });
 
   it('keeps architecture links when recording program', () => {
@@ -229,14 +274,24 @@ describe('site submission payload builders', () => {
           name: '默认订阅',
           url: 'https://example.com/feed.xml',
           type: 'RSS' as const,
+          isDefault: true,
         },
       ],
-      default_feed_url: 'https://example.com/feed.xml',
       sitemap: 'https://example.com/sitemap.xml',
       link_page: 'https://example.com/friends',
       main_tag_id: 'main-tag-id',
-      sub_tag_ids: ['sub-tag-id'],
-      custom_sub_tags: ['前端'],
+      sub_tags: [
+        {
+          tag_id: 'sub-tag-id',
+          name: '开发',
+          name_normalized: '开发',
+        },
+        {
+          tag_id: null,
+          name: '前端',
+          name_normalized: '前端',
+        },
+      ],
       architecture: {
         program_id: null,
         program_name: 'Astro',
@@ -279,14 +334,24 @@ describe('site submission payload builders', () => {
           name: '默认订阅',
           url: 'https://example.com/feed.xml',
           type: 'RSS' as const,
+          isDefault: true,
         },
       ],
-      default_feed_url: 'https://example.com/feed.xml',
       sitemap: 'https://example.com/sitemap.xml',
       link_page: 'https://example.com/friends',
       main_tag_id: 'main-tag-id',
-      sub_tag_ids: ['sub-tag-id'],
-      custom_sub_tags: ['前端'],
+      sub_tags: [
+        {
+          tag_id: 'sub-tag-id',
+          name: '开发',
+          name_normalized: '开发',
+        },
+        {
+          tag_id: null,
+          name: '前端',
+          name_normalized: '前端',
+        },
+      ],
       architecture: {
         program_id: null,
         program_name: 'Astro',
@@ -325,6 +390,59 @@ describe('site submission payload builders', () => {
     });
   });
 
+  it('preserves feed types when building update payloads from resolved sites', () => {
+    const current = {
+      site_id: '11111111-1111-4111-8111-111111111111',
+      bid: 'example-blog',
+      name: 'Example Blog',
+      url: 'https://example.com',
+      sign: 'A blog about software',
+      feed: [
+        {
+          name: '默认订阅',
+          url: 'https://example.com/feed.xml',
+          type: 'ATOM' as const,
+          isDefault: true,
+        },
+      ],
+      sitemap: 'https://example.com/sitemap.xml',
+      link_page: 'https://example.com/friends',
+      main_tag_id: 'main-tag-id',
+      sub_tags: [],
+      architecture: null,
+    };
+    const form = createUpdateFormFromResolvedSite(current);
+
+    form.submitter_name = 'Alice';
+    form.submitter_email = 'alice@example.com';
+    form.submit_reason = '调整订阅信息';
+    form.agree_terms = true;
+
+    expect(form.feeds[0]?.type).toBe('ATOM');
+
+    form.feeds[0] = {
+      ...form.feeds[0],
+      type: 'JSON',
+    };
+
+    const result = buildUpdateSubmissionPayload(form, current);
+
+    expect(result.ok).toBe(true);
+
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.data.changes.feed).toEqual([
+      {
+        name: '默认订阅',
+        url: 'https://example.com/feed.xml',
+        type: 'JSON',
+        isDefault: true,
+      },
+    ]);
+  });
+
   it('builds a delete payload with normalized contact info', () => {
     const form = createInitialDeleteForm();
 
@@ -350,5 +468,27 @@ describe('site submission payload builders', () => {
       submit_reason: '站点已停更',
       notify_by_email: true,
     });
+  });
+
+  it('maps blank contact info to null for delete payloads', () => {
+    const form = createInitialDeleteForm();
+
+    form.site_identifier = 'example-blog';
+    form.submitter_name = ' ';
+    form.submitter_email = ' ';
+    form.submit_reason = '站点已停更';
+    form.notify_by_email = false;
+    form.agree_terms = true;
+
+    const result = buildDeleteSubmissionPayload(form);
+
+    expect(result.ok).toBe(true);
+
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.data.submitter_name).toBeNull();
+    expect(result.data.submitter_email).toBeNull();
   });
 });

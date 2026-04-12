@@ -1,4 +1,4 @@
-export const ZHBLOGS_SITE_NAME = '集博栈';
+export const ZHBLOGS_SITE_NAME = '集博栈 - zhblogs';
 export const ZHBLOGS_SITE_URL = 'https://www.zhblogs.net';
 export const DEFAULT_SEO_DESCRIPTION = '该博客未留下描述信息呢，不如亲自访问看看？';
 export const DEFAULT_SEO_IMAGE_PATH = '/og-default.svg';

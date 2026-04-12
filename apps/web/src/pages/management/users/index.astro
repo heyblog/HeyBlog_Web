@@ -25,7 +25,6 @@ const users = payload.data;
   currentPath="/management/users"
   eyebrow="management / users"
   heading="用户与授权"
-  description="先把普通用户提权为 ADMIN，再给对应管理员下发具体模块权限。SYS_ADMIN 拥有全部模块能力。"
 >
   <div class="page-section">
     <UserAuthorizationPanel client:load {users} currentUser={currentUser ?? null} />

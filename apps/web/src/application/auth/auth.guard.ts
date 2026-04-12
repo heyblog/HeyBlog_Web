@@ -36,34 +36,10 @@ export interface ManagementNavItem {
 
 export const MANAGEMENT_NAV_ITEMS: ManagementNavItem[] = [
   {
-    permission: 'user.manage',
-    href: '/management/users',
-    label: '用户与授权',
-    description: '提权、降权与模块权限分配',
-  },
-  {
     permission: 'site_audit.review',
     href: '/management/site-submissions',
     label: '站点审核',
     description: '处理博客新增、修改和删除审核',
-  },
-  {
-    permission: 'feedback.review',
-    href: '/management/feedback',
-    label: '反馈处理',
-    description: '处理站点和文章反馈',
-  },
-  {
-    permission: 'announcement.manage',
-    href: '/management/announcements',
-    label: '公告管理',
-    description: '维护首页公告与公开公告归档',
-  },
-  {
-    permission: 'taxonomy.manage',
-    href: '/management/taxonomy',
-    label: '标签与目录',
-    description: '管理标签、技术目录与标签合并',
   },
   {
     permission: 'site.manage',
@@ -72,10 +48,34 @@ export const MANAGEMENT_NAV_ITEMS: ManagementNavItem[] = [
     description: '直接维护线上站点信息',
   },
   {
+    permission: 'feedback.review',
+    href: '/management/feedback',
+    label: '反馈处理',
+    description: '处理站点和文章反馈',
+  },
+  {
+    permission: 'taxonomy.manage',
+    href: '/management/taxonomy',
+    label: '标签与目录',
+    description: '管理标签、技术目录与标签合并',
+  },
+  {
+    permission: 'announcement.manage',
+    href: '/management/announcements',
+    label: '公告管理',
+    description: '维护首页公告与公开公告归档',
+  },
+  {
     permission: 'task.manage',
     href: '/management/tasks',
     label: '任务中心',
     description: '管理调度、手动触发与重试',
+  },
+  {
+    permission: 'user.manage',
+    href: '/management/users',
+    label: '用户与授权',
+    description: '提权、降权与模块权限分配',
   },
   {
     permission: 'log.read',

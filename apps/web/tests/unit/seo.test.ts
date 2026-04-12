@@ -19,7 +19,7 @@ describe('seo helpers', () => {
   it('uses page overrides when resolving metadata', () => {
     const metadata = resolveSeoMetadata({
       pathname: '/site/example',
-      title: '示例站点 | 集博栈',
+      title: '示例站点 | 集博栈 - zhblogs',
       description: '站点简介',
       canonicalPath: '/site/example',
       ogType: 'article',
@@ -29,7 +29,7 @@ describe('seo helpers', () => {
     });
 
     expect(metadata).toMatchObject({
-      title: '示例站点 | 集博栈',
+      title: '示例站点 | 集博栈 - zhblogs',
       description: '站点简介',
       canonicalUrl: 'https://www.zhblogs.net/site/example',
       ogType: 'article',

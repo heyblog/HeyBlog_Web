@@ -26,9 +26,10 @@ describe('site submission payload builders', () => {
         id: 'feed-1',
         name: '默认订阅',
         url: 'https://example.com',
+        type: 'RSS',
+        isDefault: true,
       },
     ];
-    form.default_feed_url = 'https://example.com';
     form.sitemap = 'https://example.com';
     form.link_page = 'https://example.com';
 
@@ -63,14 +64,17 @@ describe('site submission payload builders', () => {
         id: 'feed-1',
         name: '主订阅',
         url: 'https://Example.com/feed.xml',
+        type: 'RSS',
+        isDefault: true,
       },
       {
         id: 'feed-2',
         name: '备用订阅',
         url: 'https://example.com/feed.xml/',
+        type: 'ATOM',
+        isDefault: false,
       },
     ];
-    form.default_feed_url = 'https://example.com/feed.xml/';
 
     const result = buildCreateSubmissionPayload(form);
 
@@ -97,14 +101,13 @@ describe('site submission payload builders', () => {
           name: '默认订阅',
           url: 'https://example.com/feed.xml',
           type: 'RSS' as const,
+          isDefault: true,
         },
       ],
-      default_feed_url: 'https://example.com/feed.xml',
       sitemap: 'https://example.com/sitemap.xml',
       link_page: 'https://example.com/friends',
       main_tag_id: 'main-tag-id',
-      sub_tag_ids: [],
-      custom_sub_tags: [],
+      sub_tags: [],
       architecture: null,
     };
     const form = createUpdateFormFromResolvedSite(current);
@@ -118,9 +121,10 @@ describe('site submission payload builders', () => {
         id: 'feed-1',
         name: '默认订阅',
         url: 'https://example.com',
+        type: 'RSS',
+        isDefault: true,
       },
     ];
-    form.default_feed_url = 'https://example.com';
     form.sitemap = 'https://example.com';
     form.link_page = 'https://example.com';
 
@@ -136,6 +140,44 @@ describe('site submission payload builders', () => {
       feeds: '订阅地址与站点地址相同，请补充具体路径或删除该订阅。',
       sitemap: '网站地图地址与站点地址相同，请补充具体路径或清空该字段。',
       link_page: '友链页面地址与站点地址相同，请补充具体路径或清空该字段。',
+    });
+  });
+
+  it('rejects create payloads when multiple feeds do not have a unique default item', () => {
+    const form = createInitialCreateForm();
+
+    form.agree_terms = true;
+    form.name = 'Example Blog';
+    form.url = 'https://example.com';
+    form.sign = 'A blog about software';
+    form.main_tag_id = 'main-tag-id';
+    form.feeds = [
+      {
+        id: 'feed-1',
+        name: '主订阅',
+        url: 'https://example.com/feed.xml',
+        type: 'RSS',
+        isDefault: false,
+      },
+      {
+        id: 'feed-2',
+        name: '备用订阅',
+        url: 'https://example.com/atom.xml',
+        type: 'ATOM',
+        isDefault: false,
+      },
+    ];
+
+    const result = buildCreateSubmissionPayload(form);
+
+    expect(result.ok).toBe(false);
+
+    if (result.ok) {
+      return;
+    }
+
+    expect(result.fieldErrors).toMatchObject({
+      feeds: '请确保恰好选择一个默认订阅地址。',
     });
   });
 

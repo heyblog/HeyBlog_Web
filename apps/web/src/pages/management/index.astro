@@ -15,84 +15,44 @@ const availableModules =
     : MANAGEMENT_NAV_ITEMS.filter((item) => hasManagementPermission(user, item.permission));
 ---
 
-<ManagementLayout
-  title="管理面板"
-  currentPath="/management"
-  heading="管理面板"
-  description="管理员会先进入这里，再根据已经下发的模块权限进入具体业务页面。"
->
-  <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-    <section class="page-section">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">
-            <span class="status-dot" style="--status-dot: var(--color-ok-dot)"></span>
-            management / modules
-          </p>
-          <h2 class="section-title">当前可用模块</h2>
-        </div>
-        <p class="section-copy">
-          {
-            hasAnyManagementPermission(user)
-              ? '点击模块卡片即可进入对应管理能力。'
-              : '当前账号可以进入管理面板，但尚未拥有任何具体模块权限。'
-          }
+<ManagementLayout title="管理面板" currentPath="/management" heading="管理面板">
+  <section class="page-section">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">
+          <span class="status-dot" style="--status-dot: var(--color-ok-dot)"></span>
+          management / modules
         </p>
+        <h2 class="section-title">当前可用模块</h2>
       </div>
-
-      <div class="grid gap-3 md:grid-cols-2">
+      <p class="section-copy">
         {
-          availableModules.map((item) => (
-            <a
-              class="rounded-sm border border-(--color-line) p-4 transition hover:border-(--color-line-med)"
-              href={item.href}
-            >
-              <div class="text-sm font-medium">{item.label}</div>
-              <p class="mt-2 text-sm text-(--color-fg-3)">{item.description}</p>
-            </a>
-          ))
+          hasAnyManagementPermission(user)
+            ? '点击模块卡片即可进入对应管理面板。'
+            : '当前账号尚未拥有任何具体模块权限。'
         }
-        {
-          !hasAnyManagementPermission(user) && user?.role === 'ADMIN' && (
-            <div class="rounded-sm border border-dashed border-(--color-line-med) p-4 text-sm text-(--color-fg-3)">
-              目前还没有管理的模块权限。请联系系统管理员分配权限后再试。
-            </div>
-          )
-        }
-      </div>
-    </section>
+      </p>
+    </div>
 
-    <aside class="page-section">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">
-            <span class="status-dot" style="--status-dot: var(--color-info-dot)"></span>
-            management / summary
-          </p>
-          <h2 class="section-title">权限摘要</h2>
-        </div>
-      </div>
-
-      <dl class="space-y-4 text-sm">
-        <div>
-          <dt class="text-(--color-fg-3)">角色</dt>
-          <dd class="mt-1 font-medium">{user?.role ?? 'UNKNOWN'}</dd>
-        </div>
-        <div>
-          <dt class="text-(--color-fg-3)">模块权限</dt>
-          <dd class="mt-1">
-            {user?.role === 'SYS_ADMIN' ? '全部模块' : user?.permissions.join(' / ') || '未授权'}
-          </dd>
-        </div>
-        <div>
-          <dt class="text-(--color-fg-3)">授权人</dt>
-          <dd class="mt-1">{user?.adminGrantedBy ?? 'system / self'}</dd>
-        </div>
-        <div>
-          <dt class="text-(--color-fg-3)">授权时间</dt>
-          <dd class="mt-1">{user?.adminGrantedTime ?? '—'}</dd>
-        </div>
-      </dl>
-    </aside>
-  </div>
+    <div class="grid gap-3 md:grid-cols-2">
+      {
+        availableModules.map((item) => (
+          <a
+            class="rounded-sm border border-(--color-line) p-4 transition hover:border-(--color-line-med)"
+            href={item.href}
+          >
+            <div class="text-sm font-medium">{item.label}</div>
+            <p class="mt-2 text-sm text-(--color-fg-3)">{item.description}</p>
+          </a>
+        ))
+      }
+      {
+        !hasAnyManagementPermission(user) && user?.role === 'ADMIN' && (
+          <div class="rounded-sm border border-dashed border-(--color-line-med) p-4 text-sm text-(--color-fg-3)">
+            目前还没有管理的模块权限。请联系系统管理员分配权限后再试。
+          </div>
+        )
+      }
+    </div>
+  </section>
 </ManagementLayout>

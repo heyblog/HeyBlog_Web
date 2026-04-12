@@ -23,7 +23,13 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     resolve: {
-      noExternal: [/icons-svelte-runes/],
+      noExternal: ['@tabler/icons-svelte-runes'],
+    },
+    optimizeDeps: {
+      include: ['@tabler/icons-svelte-runes'],
+    },
+    ssr: {
+      noExternal: ['@tabler/icons-svelte-runes'],
     },
   },
   redirects: {

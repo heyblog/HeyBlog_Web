@@ -1,17 +1,13 @@
 ---
 export const prerender = false;
 
-import { isManagementRole, MANAGEMENT_NAV_ITEMS } from '@/application/auth/auth.guard';
+import { isManagementRole } from '@/application/auth/auth.guard';
 import { getGithubBindHref, getGithubUnbindHref } from '@/application/auth/auth.server';
 import { getAuthErrorMessage, getAuthStatusMessage } from '@/application/auth/auth-page';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 
 const user = Astro.locals.authUser;
 const canOpenManagement = isManagementRole(user);
-const managementModules =
-  user?.role === 'SYS_ADMIN'
-    ? MANAGEMENT_NAV_ITEMS
-    : MANAGEMENT_NAV_ITEMS.filter((item) => user && user.permissions.includes(item.permission));
 const statusMessage = getAuthStatusMessage(Astro.url.searchParams.get('status'));
 const errorMessage = getAuthErrorMessage(Astro.url.searchParams.get('error'));
 const githubBindHref = getGithubBindHref();
@@ -21,10 +17,12 @@ const securityNavItems = [
   {
     href: '#account-security',
     label: '账户安全',
+    description: '修改密码、管理第三方登录绑定。',
   },
   {
     href: '/',
     label: '返回首页',
+    description: '回到公开站点首页。',
   },
 ] as const;
 
@@ -35,46 +33,66 @@ const loginMethods = [user?.hasPassword ? '密码' : null, user?.hasGithub ? 'Gi
 const loginMethodLabel = loginMethods.length > 0 ? loginMethods.join(' + ') : '未设置';
 ---
 
-<BaseLayout title="Dashboard | ZhBlogs" showFooter={false}>
+<BaseLayout title="Dashboard | 集博栈 - zhblogs" showFooter={false}>
   <main class="page-shell dashboard-shell">
     <section class="page-stack">
       <div class="dashboard-frame">
-        <aside class="dashboard-sidebar surface-card">
-          <div class="space-y-3">
-            <p class="eyebrow">
-              <span class="status-dot" style="--status-dot: var(--color-info-dot)"></span>
-              dashboard / identity
-            </p>
-            <div class="space-y-1">
-              <div class="text-lg font-medium text-(--color-fg)">{user?.nickname ?? '用户'}</div>
-              <p class="break-all text-sm text-(--color-fg-3)">{user?.email ?? 'unknown'}</p>
+        <aside class="dashboard-sidebar">
+          <details class="sidebar-collapsible management-sidebar-panel dashboard-sidebar-panel">
+            <summary class="sidebar-collapsible-toggle">
+              <span class="management-collapsible-summary-copy">
+                <span class="sidebar-collapsible-title">工作台菜单</span>
+                <span class="management-collapsible-summary-note">
+                  查看账号信息、常用入口与账户安全模块。
+                </span>
+              </span>
+              <span aria-hidden="true" class="sidebar-collapsible-icon">⌄</span>
+            </summary>
+
+            <div class="sidebar-collapsible-body">
+              <div class="space-y-3">
+                <p class="eyebrow">
+                  <span class="status-dot" style="--status-dot: var(--color-info-dot)"></span>
+                  dashboard / identity
+                </p>
+                <div class="space-y-1">
+                  <div class="text-lg font-medium text-(--color-fg)">
+                    {user?.nickname ?? '用户'}
+                  </div>
+                  <p class="break-all text-sm text-(--color-fg-3)">{user?.email ?? 'unknown'}</p>
+                </div>
+              </div>
+
+              <nav class="management-sidebar-nav dashboard-sidebar-nav" aria-label="工作台菜单">
+                {
+                  securityNavItems.map((item) => (
+                    <a
+                      class="management-sidebar-link rounded-sm border border-(--color-line) px-3 py-3 transition hover:border-(--color-line-med)"
+                      href={item.href}
+                    >
+                      <div class="text-sm font-medium">{item.label}</div>
+                      <p class="mt-1 text-xs text-(--color-fg-3)">{item.description}</p>
+                    </a>
+                  ))
+                }
+              </nav>
+
+              <div class="dashboard-sidebar-actions">
+                {
+                  canOpenManagement && (
+                    <a class="action-button action-button-secondary w-full" href="/management">
+                      进入管理面板
+                    </a>
+                  )
+                }
+                <form action="/auth/logout" method="post">
+                  <button class="action-button action-button-ghost w-full" type="submit">
+                    退出登录
+                  </button>
+                </form>
+              </div>
             </div>
-          </div>
-
-          <nav class="dashboard-menu" aria-label="工作台菜单">
-            {
-              securityNavItems.map((item) => (
-                <a class="dashboard-menu-link" href={item.href}>
-                  <span class="dashboard-menu-title">{item.label}</span>
-                </a>
-              ))
-            }
-          </nav>
-
-          <div class="dashboard-sidebar-actions">
-            {
-              canOpenManagement && (
-                <a class="action-button action-button-secondary w-full" href="/management">
-                  进入管理面板
-                </a>
-              )
-            }
-            <form action="/auth/logout" method="post">
-              <button class="action-button action-button-ghost w-full" type="submit">
-                退出登录
-              </button>
-            </form>
-          </div>
+          </details>
         </aside>
 
         <div class="dashboard-content space-y-6">
@@ -108,7 +126,6 @@ const loginMethodLabel = loginMethods.length > 0 ? loginMethods.join(' + ') : '�
               </div>
             </dl>
           </section>
-
           {
             statusMessage && (
               <div class="status-panel status-panel-success">
@@ -254,35 +271,31 @@ const loginMethodLabel = loginMethods.length > 0 ? loginMethods.join(' + ') : '�
               </section>
             </div>
           </section>
-
-          {
-            canOpenManagement && managementModules.length > 0 && (
-              <section class="surface-card space-y-5">
-                <div class="section-head">
-                  <div>
-                    <p class="eyebrow">
-                      <span class="status-dot" style="--status-dot: var(--color-info-dot)" />
-                      dashboard / management summary
-                    </p>
-                    <h2 class="section-title">管理权限摘要</h2>
-                  </div>
-                </div>
-
-                <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                  {managementModules.map((item) => (
-                    <a
-                      class="rounded-sm border border-(--color-line) p-4 transition hover:border-(--color-line-med)"
-                      href={item.href}
-                    >
-                      <div class="text-sm font-medium">{item.label}</div>
-                    </a>
-                  ))}
-                </div>
-              </section>
-            )
-          }
         </div>
       </div>
     </section>
   </main>
 </BaseLayout>
+
+<script>
+  const sidebarMenus = document.querySelectorAll('.dashboard-shell .dashboard-sidebar-panel');
+  const desktopMenuQuery = window.matchMedia('(min-width: 80rem)');
+
+  const syncSidebarMenuState = () => {
+    sidebarMenus.forEach((node) => {
+      if (!(node instanceof HTMLDetailsElement)) {
+        return;
+      }
+
+      if (desktopMenuQuery.matches) {
+        node.open = true;
+        return;
+      }
+
+      node.open = false;
+    });
+  };
+
+  syncSidebarMenuState();
+  desktopMenuQuery.addEventListener('change', syncSidebarMenuState);
+</script>

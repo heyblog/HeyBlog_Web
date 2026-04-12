@@ -20,7 +20,7 @@ if (sessionUser) {
 }
 ---
 
-<BaseLayout title="登录 | 集博栈" showFooter={false}>
+<BaseLayout title="登录 | 集博栈 - zhblogs" showFooter={false}>
   <main class="page-shell auth-shell items-center justify-center">
     <section class="page-stack max-w-md">
       <div class="surface-card space-y-6">
@@ -78,7 +78,7 @@ if (sessionUser) {
 
         <div class="flex justify-end text-sm">
           <a
-            class="text-(--color-fg-3) underline decoration-[color:var(--color-line-med)] underline-offset-[0.18em] transition hover:text-(--color-fg)"
+            class="text-(--color-fg-3) underline decoration-(--color-line-med) underline-offset-[0.18em] transition hover:text-(--color-fg)"
             href={`/forgot-password${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ''}`}
           >
             忘记密码

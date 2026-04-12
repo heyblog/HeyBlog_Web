@@ -13,10 +13,25 @@ export type UpdateStep = {
 };
 
 function createAwaitableRows(rows: unknown[]) {
+  const createOffsetChain = () => ({
+    limit: vi.fn(async () => rows),
+    offset: vi.fn(async () => rows),
+    then: (resolve: (value: unknown[]) => unknown, reject?: (reason: unknown) => unknown) =>
+      Promise.resolve(rows).then(resolve, reject),
+  });
+
+  const createLimitChain = () => ({
+    offset: vi.fn(async () => rows),
+    then: (resolve: (value: unknown[]) => unknown, reject?: (reason: unknown) => unknown) =>
+      Promise.resolve(rows).then(resolve, reject),
+  });
+
   return {
     limit: vi.fn(async () => rows),
+    offset: vi.fn(() => createOffsetChain()),
     orderBy: vi.fn(() => ({
-      limit: vi.fn(async () => rows),
+      limit: vi.fn(() => createLimitChain()),
+      offset: vi.fn(() => createOffsetChain()),
       then: (resolve: (value: unknown[]) => unknown, reject?: (reason: unknown) => unknown) =>
         Promise.resolve(rows).then(resolve, reject),
     })),

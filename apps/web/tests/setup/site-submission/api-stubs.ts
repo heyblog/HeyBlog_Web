@@ -7,12 +7,10 @@ const DEFAULT_RESOLVED_SITE = {
   url: 'https://example.com',
   sign: 'Old sign',
   feed: [],
-  default_feed_url: null,
   sitemap: null,
   link_page: null,
   main_tag_id: null,
-  sub_tag_ids: [],
-  custom_sub_tags: [],
+  sub_tags: [],
   architecture: null,
 } as const;
 
