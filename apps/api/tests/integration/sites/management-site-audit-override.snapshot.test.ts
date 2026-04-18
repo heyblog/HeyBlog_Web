@@ -1,4 +1,4 @@
-import { SiteAudits, Sites } from '@zhblogs/db';
+import { Jobs, SiteAudits, Sites } from '@zhblogs/db';
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -12,7 +12,7 @@ import {
   mockManagementUser,
 } from './site-test.helpers';
 
-describe('management site audit override routes', () => {
+describe('management site audit override snapshot routes', () => {
   let app: ReturnType<typeof createTestApp> | undefined;
 
   afterEach(async () => {
@@ -22,10 +22,7 @@ describe('management site audit override routes', () => {
   });
 
   it('forbids manual edits to read-only fields through snapshot_override', async () => {
-    app = createTestApp({
-      disableExternalServices: true,
-    });
-
+    app = createTestApp({ disableExternalServices: true });
     await app.ready();
     mockManagementUser(app, 'site_audit.review');
 
@@ -74,10 +71,7 @@ describe('management site audit override routes', () => {
   });
 
   it('allows ADMIN snapshot_override for editable site fields and stores override details on the original audit', async () => {
-    app = createTestApp({
-      disableExternalServices: true,
-    });
-
+    app = createTestApp({ disableExternalServices: true });
     await app.ready();
     mockManagementUser(app, 'site_audit.review');
 
@@ -149,8 +143,24 @@ describe('management site audit override routes', () => {
     })) as unknown as typeof app.db.write.delete;
 
     app.db.write.insert = vi.fn((table: unknown) => ({
-      values: vi.fn(async (values) => {
+      values: vi.fn((values) => {
         capturedInserts.push({ table, values });
+
+        if (table === Jobs) {
+          return {
+            onConflictDoNothing: vi.fn(() => ({
+              returning: vi.fn(async () => [
+                {
+                  id: crypto.randomUUID(),
+                  status: 'PENDING',
+                  trigger_source: 'EVENT',
+                },
+              ]),
+            })),
+          };
+        }
+
+        return Promise.resolve();
       }),
     })) as unknown as typeof app.db.write.insert;
 
@@ -185,7 +195,14 @@ describe('management site audit override routes', () => {
         recommend: true,
       }),
     });
-    expect(capturedInserts).toEqual([]);
+    const jobInsertRecords = capturedInserts.filter((entry) => {
+      const record = entry as { table: unknown; values: Record<string, unknown> };
+      return record.table === Jobs;
+    }) as Array<{ table: unknown; values: Record<string, unknown> }>;
+    expect(jobInsertRecords.length).toBeGreaterThanOrEqual(2);
+    expect(jobInsertRecords.map((entry) => entry.values.task_type)).toEqual(
+      expect.arrayContaining(['SITE_CHECK', 'RSS_FETCH']),
+    );
     const persistedAuditUpdate = capturedUpdates.find((entry) => {
       const record = entry as { table: unknown; values: Record<string, unknown> };
       return record.table === SiteAudits && 'review_override_snapshot' in record.values;
@@ -222,10 +239,7 @@ describe('management site audit override routes', () => {
   });
 
   it('stores CREATE override details on the original audit when ADMIN adjusts the submitted snapshot', async () => {
-    app = createTestApp({
-      disableExternalServices: true,
-    });
-
+    app = createTestApp({ disableExternalServices: true });
     await app.ready();
     mockManagementUser(app, 'site_audit.review');
 
@@ -317,6 +331,20 @@ describe('management site audit override routes', () => {
           };
         }
 
+        if (table === Jobs) {
+          return {
+            onConflictDoNothing: vi.fn(() => ({
+              returning: vi.fn(async () => [
+                {
+                  id: crypto.randomUUID(),
+                  status: 'PENDING',
+                  trigger_source: 'EVENT',
+                },
+              ]),
+            })),
+          };
+        }
+
         return Promise.resolve();
       }),
     })) as unknown as typeof app.db.write.insert;
@@ -356,7 +384,14 @@ describe('management site audit override routes', () => {
         sign: 'Adjusted sign',
       }),
     });
-    expect(capturedInserts).toHaveLength(1);
+    const jobInsertRecords = capturedInserts.filter((entry) => {
+      const record = entry as { table: unknown; values: Record<string, unknown> };
+      return record.table === Jobs;
+    }) as Array<{ table: unknown; values: Record<string, unknown> }>;
+    expect(jobInsertRecords.length).toBeGreaterThanOrEqual(2);
+    expect(jobInsertRecords.map((entry) => entry.values.task_type)).toEqual(
+      expect.arrayContaining(['SITE_CHECK', 'RSS_FETCH']),
+    );
     const persistedAuditUpdate = capturedUpdates.find((entry) => {
       const record = entry as { table: unknown; values: Record<string, unknown> };
       return record.table === SiteAudits && 'review_override_snapshot' in record.values;

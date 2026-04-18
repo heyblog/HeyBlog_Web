@@ -234,7 +234,7 @@ describe('site submission routes', () => {
             classification_status: 'NEEDS_REVIEW',
             sitemap: null,
             link_page: null,
-            access_scope: 'BOTH',
+            access_scope: 'ALL',
             status: 'OK',
             is_show: false,
             recommend: false,

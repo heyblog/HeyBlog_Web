@@ -147,7 +147,7 @@ describe('site submission routes', () => {
             classification_status: 'COMPLETE',
             sitemap: 'https://example.com/sitemap.xml',
             link_page: 'https://example.com/friends',
-            access_scope: 'BOTH',
+            access_scope: 'ALL',
             status: 'OK',
             is_show: true,
             recommend: false,

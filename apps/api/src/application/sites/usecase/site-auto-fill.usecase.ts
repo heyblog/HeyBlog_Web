@@ -66,6 +66,7 @@ export async function autoFillSite(
     name: index === 0 ? '默认订阅' : `订阅 ${index + 1}`,
     url: item.url,
     type: item.type,
+    isDefault: index === 0,
   }));
   const sitemap = validatedSitemapCandidates.find((item): item is string => Boolean(item)) ?? '';
   const linkPage = validatedLinkPageCandidates.find((item): item is string => Boolean(item)) ?? '';

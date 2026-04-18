@@ -26,6 +26,15 @@ export type EditableSubTagInput = {
 
 export type EditableTagInput = NonNullable<SiteAuditSnapshot['main_tag']>;
 
+const OPTIONAL_EMPTY_TEXT_FIELDS: Array<keyof SiteAuditSnapshot> = [
+  'bid',
+  'sign',
+  'icon_base64',
+  'sitemap',
+  'link_page',
+  'reason',
+];
+
 const normalizeOptionalText = (value: unknown): string | null => {
   if (typeof value !== 'string') {
     return null;
@@ -207,6 +216,9 @@ const normalizeComparableFeeds = (value: unknown) => {
   return normalized.length > 0 ? normalized : null;
 };
 
+const normalizeComparableTextField = (field: keyof SiteAuditSnapshot, value: unknown) =>
+  OPTIONAL_EMPTY_TEXT_FIELDS.includes(field) ? normalizeOptionalText(value) : (value ?? null);
+
 function normalizeComparableValue(field: keyof SiteAuditSnapshot, value: unknown) {
   if (field === 'feed') {
     return normalizeComparableFeeds(value);
@@ -228,7 +240,7 @@ function normalizeComparableValue(field: keyof SiteAuditSnapshot, value: unknown
     return normalizeArchitectureSnapshot(value as EditableArchitectureInput);
   }
 
-  return value ?? null;
+  return normalizeComparableTextField(field, value);
 }
 
 export function normalizeArchitectureSnapshot(

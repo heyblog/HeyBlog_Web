@@ -20,7 +20,7 @@ describe('site restore submission routes', () => {
     classification_status: 'COMPLETE',
     sitemap: null,
     link_page: null,
-    access_scope: 'BOTH',
+    access_scope: 'ALL',
     status: 'ERROR',
     is_show: false,
     recommend: false,

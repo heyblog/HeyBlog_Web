@@ -112,7 +112,7 @@ export function registerManagementSiteUpdateRoute(app: FastifyInstance): void {
           classification_status: normalizedSnapshot.classification_status ?? 'NEEDS_REVIEW',
           sitemap: normalizedSnapshot.sitemap ?? null,
           link_page: normalizedSnapshot.link_page ?? null,
-          access_scope: normalizedSnapshot.access_scope ?? 'BOTH',
+          access_scope: normalizedSnapshot.access_scope ?? 'ALL',
           status: normalizedSnapshot.status ?? 'OK',
           is_show: normalizedSnapshot.is_show ?? true,
           recommend: normalizedSnapshot.recommend ?? false,

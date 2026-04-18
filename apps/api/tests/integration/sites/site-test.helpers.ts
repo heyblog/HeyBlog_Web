@@ -24,8 +24,8 @@ type ManagedSiteRow = {
   classification_status: 'COMPLETE' | 'NEEDS_REVIEW';
   sitemap: string | null;
   link_page: string | null;
-  access_scope: 'BOTH' | 'CN_ONLY' | 'GLOBAL_ONLY';
-  status: 'OK' | 'ERROR' | 'SSLERROR';
+  access_scope: 'ALL' | 'CN_ONLY' | 'NON_CN_ONLY';
+  status: 'OK' | 'ERROR' | 'WARNING';
   is_show: boolean;
   recommend: boolean;
   reason: string | null;
@@ -44,7 +44,7 @@ export const BASE_MANAGED_SITE_ROW: ManagedSiteRow = {
   classification_status: 'COMPLETE',
   sitemap: null,
   link_page: null,
-  access_scope: 'BOTH',
+  access_scope: 'ALL',
   status: 'OK',
   is_show: true,
   recommend: false,

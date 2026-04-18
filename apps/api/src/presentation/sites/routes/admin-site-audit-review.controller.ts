@@ -77,6 +77,7 @@ type ReviewRouteDeps = {
     siteId: string,
     snapshot: SiteAuditSnapshot | null | undefined,
     triggerKey: string,
+    action: 'CREATE' | 'UPDATE' | 'RESTORE',
   ) => Promise<void>;
   canSendSubmissionDecisionMail: (config: FastifyInstance['config']) => boolean;
   sendSubmissionDecisionMail: (
@@ -267,12 +268,19 @@ export function registerAdminAuditReviewRoute(app: FastifyInstance, deps: Review
             })
             .where(eq(SiteAudits.id, updatedAudit.id));
 
-          if (snapshotOverride && overrideDiff.length > 0) {
+          const isLifecycleAction =
+            updatedAudit.action === 'CREATE' ||
+            updatedAudit.action === 'UPDATE' ||
+            updatedAudit.action === 'RESTORE';
+
+          if (isLifecycleAction) {
+            const lifecycleAction = updatedAudit.action as 'CREATE' | 'UPDATE' | 'RESTORE';
             await deps.enqueueFeedDetectionJobs(
               app,
               approvedSiteId,
               appliedSnapshot,
-              `site-audit:${updatedAudit.id}`,
+              `site-audit:${updatedAudit.id}:${updatedAudit.action}`,
+              lifecycleAction,
             );
           }
         }

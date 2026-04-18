@@ -173,6 +173,7 @@ export function collectFeedCandidates(
       name: feeds.length === 0 ? '默认订阅' : `订阅 ${feeds.length + 1}`,
       url: href,
       type,
+      isDefault: feeds.length === 0,
     });
   }
 
@@ -190,6 +191,7 @@ export function collectFeedCandidates(
       name: feeds.length === 0 ? '默认订阅' : `订阅 ${feeds.length + 1}`,
       url: href,
       type: /atom/i.test(`${href} ${text}`) ? 'ATOM' : 'RSS',
+      isDefault: feeds.length === 0,
     });
   }
 
@@ -198,6 +200,7 @@ export function collectFeedCandidates(
       name: index === 0 ? '默认订阅' : `订阅 ${index + 1}`,
       url: absolutizeUrl(path, siteUrl),
       type: /atom/i.test(path) ? 'ATOM' : 'RSS',
+      isDefault: index === 0,
     }),
   );
 
@@ -207,6 +210,7 @@ export function collectFeedCandidates(
       const renamed: MultiFeed = {
         name: index === 0 ? '默认订阅' : `订阅 ${index + 1}`,
         url: feed.url,
+        isDefault: index === 0,
       };
 
       if (feed.type) {

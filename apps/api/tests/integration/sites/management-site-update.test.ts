@@ -66,7 +66,7 @@ describe('management site update routes', () => {
         rows: [],
       },
       ...createManagedSiteSnapshotSteps({
-        access_scope: 'GLOBAL_ONLY',
+        access_scope: 'NON_CN_ONLY',
         status: 'ERROR',
         recommend: true,
       }),
@@ -101,7 +101,7 @@ describe('management site update routes', () => {
       url: `/api/management/sites/${MANAGEMENT_TEST_IDS.siteId}`,
       payload: {
         snapshot: buildManagedSiteSnapshot({
-          access_scope: 'GLOBAL_ONLY',
+          access_scope: 'NON_CN_ONLY',
           status: 'ERROR',
           recommend: true,
         }),
@@ -120,7 +120,7 @@ describe('management site update routes', () => {
     expect(capturedUpdates[0]).toMatchObject({
       table: Sites,
       values: expect.objectContaining({
-        access_scope: 'GLOBAL_ONLY',
+        access_scope: 'NON_CN_ONLY',
         status: 'ERROR',
         recommend: true,
       }),

@@ -75,7 +75,7 @@ export function buildCreateSnapshot(site: CreateSiteInput): SiteAuditSnapshot {
     classification_status: site.main_tag_id ? 'COMPLETE' : 'NEEDS_REVIEW',
     sitemap: site.sitemap ?? null,
     link_page: site.link_page ?? null,
-    access_scope: 'BOTH',
+    access_scope: 'ALL',
     main_tag: normalizeTagSnapshot({ tag_id: site.main_tag_id ?? null }),
     sub_tags: normalizeSubTagSnapshots(site.sub_tags),
     architecture,

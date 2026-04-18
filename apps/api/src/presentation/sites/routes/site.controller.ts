@@ -249,8 +249,15 @@ export function registerSiteRoutes(app: FastifyInstance): void {
     finalizeAuditReview,
     loadCurrentSiteSnapshot,
     materializeSiteAuditSnapshot,
-    enqueueFeedDetectionJobs: (routeApp, siteId, snapshot, triggerKey) =>
-      enqueueFeedDetectionJobs(routeApp, siteId, snapshot, triggerKey, normalizeSubmittedFeeds),
+    enqueueFeedDetectionJobs: (routeApp, siteId, snapshot, triggerKey, action) =>
+      enqueueFeedDetectionJobs(
+        routeApp,
+        siteId,
+        snapshot,
+        triggerKey,
+        normalizeSubmittedFeeds,
+        action,
+      ),
     canSendSubmissionDecisionMail,
     sendSubmissionDecisionMail,
     resolveAuditSiteName,

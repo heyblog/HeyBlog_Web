@@ -38,11 +38,11 @@ export function registerManagementSiteListRoute(app: FastifyInstance): void {
         'NEEDS_REVIEW',
       ] as const);
       const accessScope = normalizeEnumFilter(query.access_scope, [
-        'BOTH',
+        'ALL',
         'CN_ONLY',
-        'GLOBAL_ONLY',
+        'NON_CN_ONLY',
       ] as const);
-      const siteStatus = normalizeEnumFilter(query.status, ['OK', 'ERROR', 'SSLERROR'] as const);
+      const siteStatus = normalizeEnumFilter(query.status, ['OK', 'WARNING', 'ERROR'] as const);
       const isShow = normalizeBooleanFilter(query.is_show);
       const recommend = normalizeBooleanFilter(query.recommend);
       const mainTagId = normalizeOptionalString(query.main_tag_id);

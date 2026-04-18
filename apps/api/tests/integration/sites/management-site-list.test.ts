@@ -86,7 +86,7 @@ describe('management site list routes', () => {
             name: 'Example Blog',
             url: 'https://example.com',
             classification_status: 'COMPLETE',
-            access_scope: 'BOTH',
+            access_scope: 'ALL',
             status: 'OK',
             is_show: true,
             recommend: false,

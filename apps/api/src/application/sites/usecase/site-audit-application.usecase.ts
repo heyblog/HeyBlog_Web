@@ -1,8 +1,9 @@
-import { Jobs, SiteAudits, type SiteAuditSnapshot, Sites } from '@zhblogs/db';
+import { SiteAudits, type SiteAuditSnapshot, Sites } from '@zhblogs/db';
 
 import { eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 
+import { enqueueJobs } from '@/application/jobs/usecase';
 import { normalizeManagementSiteSnapshot } from '@/domain/sites/service/site-management-snapshot.service';
 
 type AuditAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'RESTORE';
@@ -113,7 +114,7 @@ export async function applyApprovedAudit(
         classification_status: snapshot.main_tag?.tag_id ? 'COMPLETE' : 'NEEDS_REVIEW',
         sitemap: snapshot.sitemap ?? null,
         link_page: snapshot.link_page ?? null,
-        access_scope: snapshot.access_scope ?? 'BOTH',
+        access_scope: snapshot.access_scope ?? 'ALL',
         status: snapshot.status ?? 'OK',
         is_show: true,
         recommend: snapshot.recommend ?? false,
@@ -157,7 +158,7 @@ export async function applyApprovedAudit(
         classification_status: snapshot.main_tag?.tag_id ? 'COMPLETE' : 'NEEDS_REVIEW',
         sitemap: snapshot.sitemap ?? null,
         link_page: snapshot.link_page ?? null,
-        access_scope: snapshot.access_scope ?? 'BOTH',
+        access_scope: snapshot.access_scope ?? 'ALL',
         status: snapshot.status ?? 'OK',
         is_show: snapshot.is_show ?? true,
         recommend: snapshot.recommend ?? false,
@@ -205,23 +206,66 @@ export async function enqueueFeedDetectionJobs(
   normalizeSubmittedFeeds: (
     feed: SiteAuditSnapshot['feed'] | null | undefined,
   ) => Array<{ url: string }>,
+  action: 'CREATE' | 'UPDATE' | 'RESTORE' = 'UPDATE',
 ) {
   const feed = normalizeSubmittedFeeds(snapshot?.feed);
 
-  if (feed.length === 0) {
-    return;
-  }
-
-  await app.db.write.insert(Jobs).values(
-    feed.map((item) => ({
-      task_type: 'RSS_FETCH',
-      queue_name: 'rss',
-      trigger_source: 'EVENT',
-      trigger_key: triggerKey,
+  const jobs = [
+    {
+      task_type: 'SITE_CHECK' as const,
+      trigger_source: 'EVENT' as const,
       payload: {
-        site_id: siteId,
-        feed_url: item.url,
+        target: {
+          kind: 'SITE',
+          site_id: siteId,
+        },
+        options: {
+          source: 'site-audit',
+          action,
+          run_content_validation: true,
+        },
       },
-    })),
-  );
+    },
+  ];
+
+  const rssJobs =
+    feed.length > 0
+      ? feed.map((item, index) => ({
+          task_type: 'RSS_FETCH' as const,
+          trigger_source: 'EVENT' as const,
+          payload: {
+            target: {
+              kind: 'SITE',
+              site_id: siteId,
+            },
+            options: {
+              source: 'site-audit',
+              action,
+              first_fetch: true,
+              feed_mode: 'DEFAULT_ONLY',
+              feed_urls: [item.url],
+              feed_index: index,
+            },
+          },
+        }))
+      : [
+          {
+            task_type: 'RSS_FETCH' as const,
+            trigger_source: 'EVENT' as const,
+            payload: {
+              target: {
+                kind: 'SITE',
+                site_id: siteId,
+              },
+              options: {
+                source: 'site-audit',
+                action,
+                first_fetch: true,
+                feed_mode: 'DEFAULT_ONLY',
+              },
+            },
+          },
+        ];
+
+  await enqueueJobs(app, [...jobs, ...rssJobs]);
 }
