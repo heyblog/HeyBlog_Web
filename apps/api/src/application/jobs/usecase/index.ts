@@ -1,9 +1,9 @@
+export { buildTaskCatalog } from './job-catalog.usecase';
 export {
-  type AllowedQueueName,
   enqueueJob,
   type EnqueueJobInput,
   type EnqueueJobResult,
   enqueueJobs,
-  isAllowedQueueName,
-  retryDeadLetterJobs,
+  requeueJobs,
+  validateTaskPayload,
 } from './job-queue.usecase';

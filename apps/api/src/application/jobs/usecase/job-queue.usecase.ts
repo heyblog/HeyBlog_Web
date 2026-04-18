@@ -1,138 +1,159 @@
-import { type JOB_TRIGGER_SOURCE_KEYS, Jobs, type TASK_TYPE_KEYS } from '@zhblogs/db';
+import { Jobs, type TASK_TYPE_KEYS } from '@zhblogs/db';
 
-import { and, eq, inArray } from 'drizzle-orm';
+import { inArray } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 
-const ALLOWED_QUEUES = ['queue:realtime', 'queue:ingest', 'queue:batch', 'queue:notify'] as const;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-const SCHEDULE_SOURCES = new Set(['CHAIN', 'RETRY', 'SYSTEM']);
-
-export type AllowedQueueName = (typeof ALLOWED_QUEUES)[number];
+type TaskTypeValue = (typeof TASK_TYPE_KEYS)[number];
 
 export interface EnqueueJobInput {
-  task_type: (typeof TASK_TYPE_KEYS)[number];
-  queue_name: AllowedQueueName;
-  trigger_source: (typeof JOB_TRIGGER_SOURCE_KEYS)[number];
+  schedule_id?: string;
+  task_type: TaskTypeValue;
+  trigger_source: 'SCHEDULE' | 'MANUAL' | 'EVENT';
   payload: Record<string, unknown>;
-  priority?: number;
   run_at?: Date;
-  max_attempts?: number;
-  dedupe_key?: string;
-  trigger_key?: string;
-  source_request_id?: string;
-  parent_job_id?: string;
-  root_job_id?: string;
+  retry_root_job_id?: string;
+  retry_parent_job_id?: string;
+  retry_sequence?: number;
 }
 
 export interface EnqueueJobResult {
   job_id: string;
   status: string;
-  deduped: boolean;
   trigger_source: string;
 }
 
-export function isAllowedQueueName(value: string): value is AllowedQueueName {
-  return ALLOWED_QUEUES.includes(value as AllowedQueueName);
+type InsertedJobRow = {
+  id: string;
+  status: string;
+  trigger_source: string;
+};
+
+function normalizeNullableString(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
 }
 
-function normalizeNullableString(value: string | undefined): string | undefined {
-  const normalized = value?.trim();
-  return normalized ? normalized : undefined;
+function isValidUuid(value: unknown): value is string {
+  return typeof value === 'string' && UUID_PATTERN.test(value.trim());
 }
 
-function buildDedupeKey(input: EnqueueJobInput): string {
-  const sourceRequestID = normalizeNullableString(input.source_request_id);
+function readRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return {};
+  }
+  return value as Record<string, unknown>;
+}
 
-  if (sourceRequestID) {
-    return `${input.task_type}:${input.queue_name}:${sourceRequestID}`;
+function validateTaskTarget(payload: Record<string, unknown>): string | null {
+  const target = readRecord(payload.target);
+  const kind = normalizeNullableString(target.kind);
+
+  if (!kind || !['SITE', 'SITE_LIST', 'ALL_VISIBLE'].includes(kind)) {
+    return 'target.kind must be SITE, SITE_LIST or ALL_VISIBLE.';
   }
 
-  const payloadSeed = JSON.stringify(input.payload);
-  return `${input.task_type}:${input.queue_name}:${payloadSeed}`;
-}
+  if (kind === 'SITE' && !isValidUuid(target.site_id)) {
+    return 'target.site_id must be a valid UUID.';
+  }
 
-function validatePolicy(input: EnqueueJobInput): string | null {
-  if (SCHEDULE_SOURCES.has(input.trigger_source)) {
-    if (!normalizeNullableString(input.parent_job_id)) {
-      return 'parent_job_id is required for CHAIN/RETRY/SYSTEM tasks';
-    }
-
-    if (!normalizeNullableString(input.root_job_id)) {
-      return 'root_job_id is required for CHAIN/RETRY/SYSTEM tasks';
+  if (kind === 'SITE_LIST') {
+    const siteIDs = Array.isArray(target.site_ids) ? target.site_ids : [];
+    if (siteIDs.length === 0 || siteIDs.some((item) => !isValidUuid(item))) {
+      return 'target.site_ids must contain valid UUID values.';
     }
   }
 
   return null;
 }
 
-export async function enqueueJob(
-  app: FastifyInstance,
-  input: EnqueueJobInput,
-): Promise<EnqueueJobResult> {
-  const policyError = validatePolicy(input);
-  if (policyError) {
-    throw new Error(`POLICY_VIOLATION:${policyError}`);
+export function validateTaskPayload(
+  taskType: TaskTypeValue,
+  payload: Record<string, unknown>,
+): string | null {
+  if (taskType === 'UPSTREAM_SYNC') {
+    const sourceID = payload.source_id;
+    if (sourceID !== undefined && !isValidUuid(sourceID)) {
+      return 'source_id must be a valid UUID.';
+    }
+
+    const requestConfigID = payload.request_config_id;
+    if (requestConfigID !== undefined && !isValidUuid(requestConfigID)) {
+      return 'request_config_id must be a valid UUID.';
+    }
+
+    return null;
   }
 
-  const dedupeKey = normalizeNullableString(input.dedupe_key) ?? buildDedupeKey(input);
-  const runAt = input.run_at ?? new Date();
-  const maxAttempts = input.max_attempts ?? 3;
+  const targetError = validateTaskTarget(payload);
+  if (targetError) {
+    return targetError;
+  }
 
-  const insertedRows = await app.db.write
+  const requestConfigID = payload.request_config_id;
+  if (requestConfigID !== undefined && !isValidUuid(requestConfigID)) {
+    return 'request_config_id must be a valid UUID.';
+  }
+
+  if (taskType === 'RSS_FETCH') {
+    const options = readRecord(payload.options);
+    const feedMode = normalizeNullableString(options.feed_mode);
+    if (feedMode && !['DEFAULT_ONLY', 'ALL'].includes(feedMode)) {
+      return 'options.feed_mode must be DEFAULT_ONLY or ALL.';
+    }
+  }
+
+  return null;
+}
+
+async function insertJobRow(
+  app: FastifyInstance,
+  input: EnqueueJobInput,
+  runAt: Date,
+): Promise<InsertedJobRow> {
+  const [row] = await app.db.write
     .insert(Jobs)
     .values({
+      schedule_id: normalizeNullableString(input.schedule_id),
       task_type: input.task_type,
-      queue_name: input.queue_name,
       trigger_source: input.trigger_source,
-      trigger_key: normalizeNullableString(input.trigger_key),
       status: 'PENDING',
-      priority: input.priority ?? 0,
       payload: input.payload,
+      retry_root_job_id: normalizeNullableString(input.retry_root_job_id),
+      retry_parent_job_id: normalizeNullableString(input.retry_parent_job_id),
+      retry_sequence: input.retry_sequence ?? 0,
       run_at: runAt,
-      max_attempts: maxAttempts,
-      dedupe_key: dedupeKey,
-      parent_job_id: normalizeNullableString(input.parent_job_id),
-      root_job_id: normalizeNullableString(input.root_job_id),
-      result: {
-        source_request_id: normalizeNullableString(input.source_request_id) ?? null,
-      },
+      result: {},
     })
-    .onConflictDoNothing({ target: Jobs.dedupe_key })
     .returning({
       id: Jobs.id,
       status: Jobs.status,
       trigger_source: Jobs.trigger_source,
     });
 
-  if (insertedRows.length > 0) {
-    const row = insertedRows[0]!;
-    return {
-      job_id: row.id,
-      status: row.status,
-      deduped: false,
-      trigger_source: row.trigger_source,
-    };
+  if (!row) {
+    throw new Error('JOB_INSERT_FAILED:job insert returned no row');
   }
 
-  const [existingRow] = await app.db.read
-    .select({
-      id: Jobs.id,
-      status: Jobs.status,
-      trigger_source: Jobs.trigger_source,
-    })
-    .from(Jobs)
-    .where(eq(Jobs.dedupe_key, dedupeKey))
-    .limit(1);
+  return row;
+}
 
-  if (!existingRow) {
-    throw new Error('DUPLICATE_JOB:dedupe conflict detected but existing row was not found');
+export async function enqueueJob(
+  app: FastifyInstance,
+  input: EnqueueJobInput,
+): Promise<EnqueueJobResult> {
+  const payloadError = validateTaskPayload(input.task_type, input.payload);
+  if (payloadError) {
+    throw new Error(`PAYLOAD_VIOLATION:${payloadError}`);
   }
+
+  const runAt = input.run_at ?? new Date();
+  const row = await insertJobRow(app, input, runAt);
 
   return {
-    job_id: existingRow.id,
-    status: existingRow.status,
-    deduped: true,
-    trigger_source: existingRow.trigger_source,
+    job_id: row.id,
+    status: row.status,
+    trigger_source: row.trigger_source,
   };
 }
 
@@ -157,32 +178,43 @@ export async function enqueueJobs(
   return { created, failed };
 }
 
-export async function retryDeadLetterJobs(
+export async function requeueJobs(
   app: FastifyInstance,
   jobIDs: string[],
+  allowedStatuses: string[],
 ): Promise<{ retried_count: number }> {
   if (jobIDs.length === 0) {
     return { retried_count: 0 };
   }
 
-  const rows = await app.db.write
-    .update(Jobs)
-    .set({
-      status: 'PENDING',
-      run_at: new Date(),
-      next_retry_time: null,
-      locked_at: null,
-      locked_by: null,
-      heartbeat_time: null,
-      error_code: null,
-      error_message: null,
-      finished_time: null,
-      updated_time: new Date(),
+  const sourceJobs = await app.db.read
+    .select({
+      id: Jobs.id,
+      schedule_id: Jobs.schedule_id,
+      task_type: Jobs.task_type,
+      status: Jobs.status,
+      payload: Jobs.payload,
+      retry_root_job_id: Jobs.retry_root_job_id,
+      retry_sequence: Jobs.retry_sequence,
     })
-    .where(and(inArray(Jobs.id, jobIDs), eq(Jobs.status, 'DEAD_LETTER')))
-    .returning({ id: Jobs.id });
+    .from(Jobs)
+    .where(inArray(Jobs.id, jobIDs));
 
-  return {
-    retried_count: rows.length,
-  };
+  const eligibleJobs = sourceJobs.filter((item) => allowedStatuses.includes(item.status));
+  let retriedCount = 0;
+
+  for (const item of eligibleJobs) {
+    await enqueueJob(app, {
+      schedule_id: item.schedule_id ?? undefined,
+      task_type: item.task_type,
+      trigger_source: 'MANUAL',
+      payload: (item.payload ?? {}) as Record<string, unknown>,
+      retry_root_job_id: item.retry_root_job_id ?? item.id,
+      retry_parent_job_id: item.id,
+      retry_sequence: (item.retry_sequence ?? 0) + 1,
+    });
+    retriedCount += 1;
+  }
+
+  return { retried_count: retriedCount };
 }

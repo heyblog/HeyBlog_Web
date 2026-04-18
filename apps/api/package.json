@@ -9,7 +9,6 @@
     "format:check": "prettier --config ./prettier.config.ts --check \"package.json\" \"*.ts\" \"src/**/*.ts\" \"tests/**/*.ts\"",
     "lint": "eslint --config ./eslint.config.ts \"src/**/*.ts\" \"tests/**/*.ts\" \"*.ts\"",
     "lint:fix": "eslint --config ./eslint.config.ts \"src/**/*.ts\" \"tests/**/*.ts\" \"*.ts\" --fix",
-    "preview": "node dist/index.mjs",
     "start": "node dist/index.mjs",
     "test": "vitest run",
     "test:integration": "vitest run tests/integration",

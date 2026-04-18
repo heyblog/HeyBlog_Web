@@ -64,7 +64,7 @@ const envSchema = {
     },
     API_PORT: {
       type: 'number',
-      default: 9901,
+      default: 9201,
     },
     DATABASE_URL: {
       type: 'string',
@@ -82,12 +82,12 @@ const envSchema = {
     },
     API_WEB_BASE_URL: {
       type: 'string',
-      default: 'http://127.0.0.1:9902',
+      default: 'http://127.0.0.1:9101',
     },
     API_CORS_ORIGINS: {
       type: 'string',
       default:
-        'http://127.0.0.1:4321,http://localhost:4321,http://127.0.0.1:9902,http://localhost:9902',
+        'http://127.0.0.1:4321,http://localhost:4321,http://127.0.0.1:9101,http://localhost:9101',
     },
     API_GITHUB_CLIENT_ID: {
       type: 'string',

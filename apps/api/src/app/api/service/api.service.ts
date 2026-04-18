@@ -15,6 +15,7 @@ import { registerManagementRoutes } from '@/presentation/management/routes/manag
 import { registerManagementAnnouncementRoutes } from '@/presentation/management/routes/management-announcement.controller';
 import { registerPresenceRoutes } from '@/presentation/presence/routes/presence.controller';
 import { registerPublicRoutes } from '@/presentation/public/routes/public.controller';
+import { registerInternalSiteCorrectionRoute } from '@/presentation/sites/routes/internal-site-correction.controller';
 import { registerSiteRoutes } from '@/presentation/sites/routes/site.controller';
 import { registerAdminUserRoutes } from '@/presentation/user/routes/admin-user.controller';
 import { registerSiteDirectoryPreferenceRoutes } from '@/presentation/user/routes/site-directory.controller';
@@ -43,6 +44,7 @@ export function createApp(options: AppBootstrapOptions = {}) {
     registerManagementRoutes(app);
     registerSiteDirectoryPreferenceRoutes(app);
     registerInternalJobRoutes(app);
+    registerInternalSiteCorrectionRoute(app);
     registerPublicRoutes(app);
     registerSiteRoutes(app);
   });

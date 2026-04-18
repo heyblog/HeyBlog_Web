@@ -36,6 +36,15 @@ export function parseEnqueueError(reply: FastifyReply, error: unknown) {
     );
   }
 
+  if (error.message.startsWith('PAYLOAD_VIOLATION:')) {
+    return sendError(
+      reply,
+      422,
+      'PAYLOAD_VIOLATION',
+      error.message.replace('PAYLOAD_VIOLATION:', ''),
+    );
+  }
+
   if (error.message.startsWith('DUPLICATE_JOB:')) {
     return sendError(reply, 409, 'DUPLICATE_JOB', error.message);
   }
