@@ -1,31 +1,15 @@
 export const TASK_TYPES = {
-  RSS_FETCH: {
-    label: 'RSS 抓取',
-    description: '抓取站点 RSS 文章并入库',
+  UPSTREAM_SYNC: {
+    label: '上游同步',
+    description: '从上游博客源同步站点基础信息并生成变更结果',
   },
   SITE_CHECK: {
     label: '站点检测',
-    description: '检测站点可用性、响应时间与访问状态',
+    description: '检测站点可用性、响应时间与信息一致性',
   },
-  DB_MAINTENANCE: {
-    label: '数据库整理',
-    description: '执行数据库整理、清理、归档或维护任务',
-  },
-  STATS_CALC: {
-    label: '统计计算',
-    description: '聚合访问、抓取、状态等业务统计数据',
-  },
-  EMAIL_SEND: {
-    label: '发送邮件',
-    description: '发送通知邮件、审核邮件或系统邮件',
-  },
-  MESSAGE_DISPATCH: {
-    label: '发送消息',
-    description: '定时发送系统消息、通知或站内信',
-  },
-  CUSTOM: {
-    label: '自定义任务',
-    description: '用于兼容临时扩展的自定义任务类型',
+  RSS_FETCH: {
+    label: 'RSS 抓取',
+    description: '抓取站点 RSS/ATOM/JSON Feed 文章并入库',
   },
 } as const;
 
@@ -41,14 +25,6 @@ export const SCHEDULE_MODES = {
   INTERVAL: {
     label: '固定间隔',
     description: '按固定时间间隔持续创建任务',
-  },
-  MANUAL: {
-    label: '手动触发',
-    description: '仅在人工触发时创建任务',
-  },
-  EVENT: {
-    label: '事件触发',
-    description: '由业务事件或关联任务完成后触发创建',
   },
 } as const;
 
@@ -68,18 +44,6 @@ export const JOB_TRIGGER_SOURCES = {
   EVENT: {
     label: '事件触发',
     description: '由业务事件直接触发的任务',
-  },
-  CHAIN: {
-    label: '关联触发',
-    description: '由上游任务完成后派生出的下游任务',
-  },
-  RETRY: {
-    label: '失败重试',
-    description: '由失败任务按策略重新入队的任务',
-  },
-  SYSTEM: {
-    label: '系统触发',
-    description: '由系统内部流程自动产生的任务',
   },
 } as const;
 
@@ -104,15 +68,11 @@ export const JOB_STATUSES = {
   },
   FAILED: {
     label: '已失败',
-    description: '任务执行失败，可能进入重试流程',
+    description: '任务执行失败，等待重试或人工处理',
   },
   CANCELED: {
     label: '已取消',
     description: '任务被人工或系统取消执行',
-  },
-  DEAD_LETTER: {
-    label: '死信',
-    description: '任务多次重试后仍失败，被转入死信状态',
   },
 } as const;
 
@@ -120,31 +80,206 @@ export const JOB_STATUS_KEYS = Object.keys(JOB_STATUSES) as Array<keyof typeof J
 
 export type JobStatusKey = (typeof JOB_STATUS_KEYS)[number];
 
-export const EXECUTION_STATUSES = {
-  RUNNING: {
-    label: '执行中',
-    description: '本次执行尝试正在进行',
+export const REQUEST_TARGET_KINDS = {
+  SITE: {
+    label: '单站点',
+    description: '仅处理一个指定站点',
   },
-  SUCCEEDED: {
-    label: '执行成功',
-    description: '本次执行尝试成功完成',
+  SITE_LIST: {
+    label: '站点列表',
+    description: '处理多个指定站点',
   },
-  FAILED: {
-    label: '执行失败',
-    description: '本次执行尝试失败',
-  },
-  TIMEOUT: {
-    label: '执行超时',
-    description: '本次执行尝试超过超时阈值',
-  },
-  CANCELED: {
-    label: '已取消',
-    description: '本次执行尝试被取消',
+  ALL_VISIBLE: {
+    label: '全部可见站点',
+    description: '处理当前全部前台可见站点',
   },
 } as const;
 
-export const EXECUTION_STATUS_KEYS = Object.keys(EXECUTION_STATUSES) as Array<
-  keyof typeof EXECUTION_STATUSES
+export const REQUEST_TARGET_KIND_KEYS = Object.keys(REQUEST_TARGET_KINDS) as Array<
+  keyof typeof REQUEST_TARGET_KINDS
 >;
 
-export type ExecutionStatusKey = (typeof EXECUTION_STATUS_KEYS)[number];
+export type RequestTargetKindKey = (typeof REQUEST_TARGET_KIND_KEYS)[number];
+
+export const RSS_FEED_MODES = {
+  DEFAULT_ONLY: {
+    label: '默认订阅源',
+    description: '仅抓取默认订阅源',
+  },
+  ALL: {
+    label: '全部订阅源',
+    description: '抓取站点配置中的全部订阅源',
+  },
+} as const;
+
+export const RSS_FEED_MODE_KEYS = Object.keys(RSS_FEED_MODES) as Array<keyof typeof RSS_FEED_MODES>;
+
+export type RSSFeedModeKey = (typeof RSS_FEED_MODE_KEYS)[number];
+
+export const REQUEST_RETRY_STRATEGIES = {
+  FIXED: {
+    label: '固定退避',
+    description: '每次重试使用固定等待时间',
+  },
+  LINEAR: {
+    label: '线性退避',
+    description: '按线性倍率增加等待时间',
+  },
+  EXPONENTIAL: {
+    label: '指数退避',
+    description: '按指数倍率增加等待时间',
+  },
+} as const;
+
+export const REQUEST_RETRY_STRATEGY_KEYS = Object.keys(REQUEST_RETRY_STRATEGIES) as Array<
+  keyof typeof REQUEST_RETRY_STRATEGIES
+>;
+
+export type RequestRetryStrategyKey = (typeof REQUEST_RETRY_STRATEGY_KEYS)[number];
+
+export const SITE_CHECK_MODES = {
+  STANDARD: {
+    label: '标准检测',
+    description: '按历史访问范围策略执行本次站点检测',
+  },
+  GLOBAL_FORCED: {
+    label: '全局检测',
+    description: '强制使用双地域执行本次站点检测',
+  },
+} as const;
+
+export const SITE_CHECK_MODE_KEYS = Object.keys(SITE_CHECK_MODES) as Array<
+  keyof typeof SITE_CHECK_MODES
+>;
+
+export type SiteCheckModeKey = (typeof SITE_CHECK_MODE_KEYS)[number];
+
+export const CONTENT_VALIDATION_STATUSES = {
+  NOT_REQUESTED: {
+    label: '未请求',
+    description: '本次检测未执行站点内容校验',
+  },
+  PASSED: {
+    label: '通过',
+    description: '本次检测执行了站点内容校验并通过',
+  },
+  FAILED: {
+    label: '失败',
+    description: '本次检测执行了站点内容校验但未通过',
+  },
+} as const;
+
+export const CONTENT_VALIDATION_STATUS_KEYS = Object.keys(CONTENT_VALIDATION_STATUSES) as Array<
+  keyof typeof CONTENT_VALIDATION_STATUSES
+>;
+
+export type ContentValidationStatusKey = (typeof CONTENT_VALIDATION_STATUS_KEYS)[number];
+
+export const RSS_FETCH_NETWORK_PATHS = {
+  CN_ONLY: {
+    label: '仅 CN',
+    description: '本次 RSS 抓取只使用国内网络路径',
+  },
+  NON_CN_ONLY: {
+    label: '仅 GLOBAL',
+    description: '本次 RSS 抓取只使用非中国大陆网络路径',
+  },
+  CN_THEN_NON_CN: {
+    label: 'CN 后回退 GLOBAL',
+    description: '优先使用国内网络路径，失败后回退到非中国大陆路径',
+  },
+} as const;
+
+export const RSS_FETCH_NETWORK_PATH_KEYS = Object.keys(RSS_FETCH_NETWORK_PATHS) as Array<
+  keyof typeof RSS_FETCH_NETWORK_PATHS
+>;
+
+export type RSSFetchNetworkPathKey = (typeof RSS_FETCH_NETWORK_PATH_KEYS)[number];
+
+export const RUN_RECORD_STATUSES = {
+  SUCCEEDED: {
+    label: '成功',
+    description: '本次站点级执行成功完成',
+  },
+  FAILED: {
+    label: '失败',
+    description: '本次站点级执行失败',
+  },
+  SKIPPED: {
+    label: '跳过',
+    description: '本次站点级执行被跳过',
+  },
+} as const;
+
+export const RUN_RECORD_STATUS_KEYS = Object.keys(RUN_RECORD_STATUSES) as Array<
+  keyof typeof RUN_RECORD_STATUSES
+>;
+
+export type RunRecordStatusKey = (typeof RUN_RECORD_STATUS_KEYS)[number];
+
+export const SITE_VERIFY_RESULTS = {
+  NOT_REQUESTED: {
+    label: '未请求',
+    description: '本次检测未执行信息复核',
+  },
+  PASSED: {
+    label: '通过',
+    description: '本次检测通过信息复核',
+  },
+  FAILED: {
+    label: '失败',
+    description: '本次检测未通过信息复核',
+  },
+} as const;
+
+export const SITE_VERIFY_RESULT_KEYS = Object.keys(SITE_VERIFY_RESULTS) as Array<
+  keyof typeof SITE_VERIFY_RESULTS
+>;
+
+export type SiteVerifyResultKey = (typeof SITE_VERIFY_RESULT_KEYS)[number];
+
+export const RSS_FEED_FORMATS = {
+  RSS: {
+    label: 'RSS',
+    description: 'RSS XML 订阅源',
+  },
+  ATOM: {
+    label: 'Atom',
+    description: 'Atom XML 订阅源',
+  },
+  JSON: {
+    label: 'JSON Feed',
+    description: 'JSON Feed 订阅源',
+  },
+  UNKNOWN: {
+    label: '未知',
+    description: '未识别或未返回有效格式',
+  },
+} as const;
+
+export const RSS_FEED_FORMAT_KEYS = Object.keys(RSS_FEED_FORMATS) as Array<
+  keyof typeof RSS_FEED_FORMATS
+>;
+
+export type RSSFeedFormatKey = (typeof RSS_FEED_FORMAT_KEYS)[number];
+
+export const RSS_FETCH_SOURCE_KINDS = {
+  LOCAL: {
+    label: '本地抓取',
+    description: '由 Worker 本地直接抓取',
+  },
+  CLOUDFLARE: {
+    label: 'Cloudflare',
+    description: '由 Cloudflare Worker 抓取',
+  },
+  CLOUDFLARE_FALLBACK: {
+    label: 'Cloudflare 回退',
+    description: '本地失败后回退到 Cloudflare 抓取',
+  },
+} as const;
+
+export const RSS_FETCH_SOURCE_KIND_KEYS = Object.keys(RSS_FETCH_SOURCE_KINDS) as Array<
+  keyof typeof RSS_FETCH_SOURCE_KINDS
+>;
+
+export type RSSFetchSourceKindKey = (typeof RSS_FETCH_SOURCE_KIND_KEYS)[number];

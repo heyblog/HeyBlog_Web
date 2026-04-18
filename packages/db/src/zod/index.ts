@@ -28,10 +28,19 @@ import {
   SITE_CLASSIFICATION_STATUS_KEYS,
 } from '../constants/site';
 import {
-  EXECUTION_STATUS_KEYS,
+  CONTENT_VALIDATION_STATUS_KEYS,
   JOB_STATUS_KEYS,
   JOB_TRIGGER_SOURCE_KEYS,
+  REQUEST_RETRY_STRATEGY_KEYS,
+  REQUEST_TARGET_KIND_KEYS,
+  RSS_FEED_FORMAT_KEYS,
+  RSS_FEED_MODE_KEYS,
+  RSS_FETCH_NETWORK_PATH_KEYS,
+  RSS_FETCH_SOURCE_KIND_KEYS,
+  RUN_RECORD_STATUS_KEYS,
   SCHEDULE_MODE_KEYS,
+  SITE_CHECK_MODE_KEYS,
+  SITE_VERIFY_RESULT_KEYS,
   TASK_TYPE_KEYS,
 } from '../constants/task';
 import {
@@ -49,18 +58,19 @@ import {
   ArticleFeedbackAudits,
   Deployments,
   FeedArticles,
-  JobExecutions,
   Jobs,
   LatestSiteChecks,
   Programs,
   ProgramTechnologyStacks,
+  RequestConfigs,
+  RSSFetchRuns,
   SiteAccessCounters,
   SiteAccessEvents,
   SiteAccessEventTypeStats,
   SiteAccessSourceStats,
   SiteArchitectures,
   SiteAudits,
-  SiteChecks,
+  SiteCheckRuns,
   SiteCheckStats,
   SiteClaims,
   SiteFeedArticleStats,
@@ -74,6 +84,9 @@ import {
   TaskSchedules,
   TechnologyCatalogs,
   TechnologyStats,
+  UpstreamSiteBindings,
+  UpstreamSources,
+  UpstreamSyncRuns,
   UserApiTokens,
   UserEmailVerificationTokens,
   UserManagementPermissions,
@@ -135,7 +148,16 @@ export const taskTypeSchema = toEnumSchema(TASK_TYPE_KEYS);
 export const scheduleModeSchema = toEnumSchema(SCHEDULE_MODE_KEYS);
 export const jobTriggerSourceSchema = toEnumSchema(JOB_TRIGGER_SOURCE_KEYS);
 export const jobStatusSchema = toEnumSchema(JOB_STATUS_KEYS);
-export const executionStatusSchema = toEnumSchema(EXECUTION_STATUS_KEYS);
+export const requestTargetKindSchema = toEnumSchema(REQUEST_TARGET_KIND_KEYS);
+export const requestRetryStrategySchema = toEnumSchema(REQUEST_RETRY_STRATEGY_KEYS);
+export const runRecordStatusSchema = toEnumSchema(RUN_RECORD_STATUS_KEYS);
+export const siteVerifyResultSchema = toEnumSchema(SITE_VERIFY_RESULT_KEYS);
+export const siteCheckModeSchema = toEnumSchema(SITE_CHECK_MODE_KEYS);
+export const contentValidationStatusSchema = toEnumSchema(CONTENT_VALIDATION_STATUS_KEYS);
+export const rssFeedModeSchema = toEnumSchema(RSS_FEED_MODE_KEYS);
+export const rssFeedFormatSchema = toEnumSchema(RSS_FEED_FORMAT_KEYS);
+export const rssFetchSourceKindSchema = toEnumSchema(RSS_FETCH_SOURCE_KIND_KEYS);
+export const rssFetchNetworkPathSchema = toEnumSchema(RSS_FETCH_NETWORK_PATH_KEYS);
 export const tagTypeSchema = toEnumSchema(TAG_TYPE_KEYS);
 export const technologyTypeSchema = toEnumSchema(TECHNOLOGY_TYPE_KEYS);
 export const siteTechStackCategorySchema = toEnumSchema(SITE_TECH_STACK_CATEGORY_KEYS);
@@ -399,40 +421,75 @@ export const taskScheduleConfigSchema = z.object({
   end_at: z.string().optional(),
 });
 
-export const taskPayloadTemplateSchema = z.object({
+export const taskTargetSchema = z.object({
+  kind: requestTargetKindSchema,
   site_id: z.uuid().optional(),
   site_ids: z.array(z.uuid()).optional(),
-  feed_url: z.string().optional(),
-  target_email: z.string().optional(),
-  message_channel: z.string().optional(),
-  message_template: z.string().optional(),
+});
+
+export const taskPayloadTemplateSchema = z.object({
+  source_id: z.uuid().optional(),
+  target: taskTargetSchema.optional(),
+  request_config_id: z.uuid().optional(),
   options: jsonRecordSchema.optional(),
 });
 
 const taskPayloadTemplateInputSchema = z.object({
-  site_id: z.uuid().optional(),
-  site_ids: z.array(z.uuid()).optional(),
-  feed_url: optionalPublicSiteUrlSchema,
-  target_email: z.string().optional(),
-  message_channel: z.string().optional(),
-  message_template: z.string().optional(),
+  source_id: z.uuid().optional(),
+  target: taskTargetSchema.optional(),
+  request_config_id: z.uuid().optional(),
   options: jsonRecordSchema.optional(),
 });
 
-export const taskTriggerRuleSchema = z.object({
-  event: z.string().optional(),
-  parent_task_type: taskTypeSchema.optional(),
-  parent_status: jobStatusSchema.optional(),
-  only_on_success: z.boolean().optional(),
-  delay_seconds: z.number().int().optional(),
+export const requestConfigHeaderSchema = z.record(z.string(), z.string());
+
+export const requestConfigSelectSchema = createSelectSchema(RequestConfigs, {
+  task_type: taskTypeSchema,
+  retry_strategy: requestRetryStrategySchema,
+  default_headers: requestConfigHeaderSchema,
+});
+export const requestConfigInsertSchema = createInsertSchema(RequestConfigs, {
+  task_type: taskTypeSchema,
+  retry_strategy: requestRetryStrategySchema,
+  default_headers: requestConfigHeaderSchema.optional(),
+});
+export const requestConfigUpdateSchema = createUpdateSchema(RequestConfigs, {
+  task_type: taskTypeSchema.optional(),
+  retry_strategy: requestRetryStrategySchema.optional(),
+  default_headers: requestConfigHeaderSchema.optional(),
 });
 
-export const jobPolicyConfigSchema = z.object({
-  max_attempts: z.number().int().optional(),
-  timeout_seconds: z.number().int().optional(),
-  retry_backoff_seconds: z.array(z.number().int()).optional(),
-  concurrency_key: z.string().optional(),
-  dedupe_window_seconds: z.number().int().optional(),
+export const siteCheckProbeSummarySchema = z.object({
+  region: siteCheckRegionSchema,
+  result: siteCheckResultSchema,
+  summary_level: siteStatusTypeSchema.optional(),
+  status_code: z.number().int().nullable().optional(),
+  response_time_ms: z.number().int().nullable().optional(),
+  duration_ms: z.number().int().nullable().optional(),
+  final_url: z.string().nullable().optional(),
+  content_verified: z.boolean().optional(),
+  page_title: z.string().nullable().optional(),
+  warning_reason: z.string().nullable().optional(),
+  raw_result: z.string().nullable().optional(),
+  message: z.string().nullable().optional(),
+});
+
+export const contentValidationPayloadSchema = jsonRecordSchema;
+
+export const rssFetchRunSummarySchema = z.object({
+  site_id: z.uuid().optional(),
+  site_name: z.string().optional(),
+  feed_url: z.string().optional(),
+  feed_mode: rssFeedModeSchema.optional(),
+  article_urls: z.array(z.string()).optional(),
+  skipped_reason: z.string().nullable().optional(),
+});
+
+export const upstreamSyncRunSummarySchema = z.object({
+  processed_items: z.number().int().optional(),
+  new_sites: z.array(z.string()).optional(),
+  updated_sites: z.array(z.string()).optional(),
+  skipped_reasons: z.array(z.string()).optional(),
 });
 
 export const siteSelectSchema = createSelectSchema(Sites, {
@@ -523,21 +580,15 @@ export const siteFeedbackAuditUpdateSchema = createUpdateSchema(SiteFeedbackAudi
 
 export const taskScheduleSelectSchema = createSelectSchema(TaskSchedules, {
   schedule_config: taskScheduleConfigSchema.nullable(),
-  trigger_rule: taskTriggerRuleSchema.nullable(),
   payload_template: taskPayloadTemplateSchema.nullable(),
-  policy: jobPolicyConfigSchema.nullable(),
 });
 export const taskScheduleInsertSchema = createInsertSchema(TaskSchedules, {
   schedule_config: taskScheduleConfigSchema.optional(),
-  trigger_rule: taskTriggerRuleSchema.optional(),
   payload_template: taskPayloadTemplateInputSchema.optional(),
-  policy: jobPolicyConfigSchema.optional(),
 });
 export const taskScheduleUpdateSchema = createUpdateSchema(TaskSchedules, {
   schedule_config: taskScheduleConfigSchema.optional(),
-  trigger_rule: taskTriggerRuleSchema.optional(),
   payload_template: taskPayloadTemplateInputSchema.optional(),
-  policy: jobPolicyConfigSchema.optional(),
 });
 
 export const jobSelectSchema = createSelectSchema(Jobs, {
@@ -553,20 +604,72 @@ export const jobUpdateSchema = createUpdateSchema(Jobs, {
   result: jsonRecordSchema.optional(),
 });
 
-export const jobExecutionSelectSchema = createSelectSchema(JobExecutions, {
-  input_payload: jsonRecordSchema.nullable(),
-  output_payload: jsonRecordSchema.nullable(),
-  error_detail: jsonRecordSchema.nullable(),
+export const upstreamSourceSelectSchema = createSelectSchema(UpstreamSources);
+export const upstreamSourceInsertSchema = createInsertSchema(UpstreamSources);
+export const upstreamSourceUpdateSchema = createUpdateSchema(UpstreamSources);
+
+export const upstreamSiteBindingSelectSchema = createSelectSchema(UpstreamSiteBindings);
+export const upstreamSiteBindingInsertSchema = createInsertSchema(UpstreamSiteBindings);
+export const upstreamSiteBindingUpdateSchema = createUpdateSchema(UpstreamSiteBindings);
+
+export const siteCheckRunSelectSchema = createSelectSchema(SiteCheckRuns, {
+  status: runRecordStatusSchema,
+  availability_result: siteCheckResultSchema,
+  verify_result: siteVerifyResultSchema,
+  check_mode: siteCheckModeSchema,
+  content_validation_status: contentValidationStatusSchema,
+  content_validation_payload: contentValidationPayloadSchema.nullable(),
+  probe_summary: z.array(siteCheckProbeSummarySchema).nullable(),
 });
-export const jobExecutionInsertSchema = createInsertSchema(JobExecutions, {
-  input_payload: jsonRecordSchema.optional(),
-  output_payload: jsonRecordSchema.optional(),
-  error_detail: jsonRecordSchema.optional(),
+export const siteCheckRunInsertSchema = createInsertSchema(SiteCheckRuns, {
+  status: runRecordStatusSchema,
+  availability_result: siteCheckResultSchema,
+  verify_result: siteVerifyResultSchema.optional(),
+  check_mode: siteCheckModeSchema.optional(),
+  content_validation_status: contentValidationStatusSchema.optional(),
+  content_validation_payload: contentValidationPayloadSchema.optional(),
+  probe_summary: z.array(siteCheckProbeSummarySchema).optional(),
 });
-export const jobExecutionUpdateSchema = createUpdateSchema(JobExecutions, {
-  input_payload: jsonRecordSchema.optional(),
-  output_payload: jsonRecordSchema.optional(),
-  error_detail: jsonRecordSchema.optional(),
+export const siteCheckRunUpdateSchema = createUpdateSchema(SiteCheckRuns, {
+  status: runRecordStatusSchema.optional(),
+  availability_result: siteCheckResultSchema.optional(),
+  verify_result: siteVerifyResultSchema.optional(),
+  check_mode: siteCheckModeSchema.optional(),
+  content_validation_status: contentValidationStatusSchema.optional(),
+  content_validation_payload: contentValidationPayloadSchema.optional(),
+  probe_summary: z.array(siteCheckProbeSummarySchema).optional(),
+});
+
+export const rssFetchRunSelectSchema = createSelectSchema(RSSFetchRuns, {
+  status: runRecordStatusSchema,
+  feed_format: rssFeedFormatSchema,
+  source_kind: rssFetchSourceKindSchema.nullable(),
+  network_path: rssFetchNetworkPathSchema,
+  summary_payload: rssFetchRunSummarySchema.nullable(),
+});
+export const rssFetchRunInsertSchema = createInsertSchema(RSSFetchRuns, {
+  status: runRecordStatusSchema,
+  feed_format: rssFeedFormatSchema.optional(),
+  source_kind: rssFetchSourceKindSchema.optional(),
+  network_path: rssFetchNetworkPathSchema.optional(),
+  summary_payload: rssFetchRunSummarySchema.optional(),
+});
+export const rssFetchRunUpdateSchema = createUpdateSchema(RSSFetchRuns, {
+  status: runRecordStatusSchema.optional(),
+  feed_format: rssFeedFormatSchema.optional(),
+  source_kind: rssFetchSourceKindSchema.optional(),
+  network_path: rssFetchNetworkPathSchema.optional(),
+  summary_payload: rssFetchRunSummarySchema.optional(),
+});
+
+export const upstreamSyncRunSelectSchema = createSelectSchema(UpstreamSyncRuns, {
+  summary_payload: upstreamSyncRunSummarySchema.nullable(),
+});
+export const upstreamSyncRunInsertSchema = createInsertSchema(UpstreamSyncRuns, {
+  summary_payload: upstreamSyncRunSummarySchema.optional(),
+});
+export const upstreamSyncRunUpdateSchema = createUpdateSchema(UpstreamSyncRuns, {
+  summary_payload: upstreamSyncRunSummarySchema.optional(),
 });
 
 export const tagDefinitionSelectSchema = createSelectSchema(TagDefinitions);
@@ -650,9 +753,9 @@ export const siteWarningTagSelectSchema = createSelectSchema(SiteWarningTags);
 export const siteWarningTagInsertSchema = createInsertSchema(SiteWarningTags);
 export const siteWarningTagUpdateSchema = createUpdateSchema(SiteWarningTags);
 
-export const siteCheckSelectSchema = createSelectSchema(SiteChecks);
-export const siteCheckInsertSchema = createInsertSchema(SiteChecks);
-export const siteCheckUpdateSchema = createUpdateSchema(SiteChecks);
+export const siteCheckSelectSchema = siteCheckRunSelectSchema;
+export const siteCheckInsertSchema = siteCheckRunInsertSchema;
+export const siteCheckUpdateSchema = siteCheckRunUpdateSchema;
 
 export const deploymentSelectSchema = createSelectSchema(Deployments, {
   modules: z.array(deploymentModuleSchema),
@@ -695,7 +798,16 @@ export type TaskType = z.infer<typeof taskTypeSchema>;
 export type ScheduleMode = z.infer<typeof scheduleModeSchema>;
 export type JobTriggerSource = z.infer<typeof jobTriggerSourceSchema>;
 export type JobStatus = z.infer<typeof jobStatusSchema>;
-export type ExecutionStatus = z.infer<typeof executionStatusSchema>;
+export type RequestTargetKind = z.infer<typeof requestTargetKindSchema>;
+export type RequestRetryStrategy = z.infer<typeof requestRetryStrategySchema>;
+export type RunRecordStatus = z.infer<typeof runRecordStatusSchema>;
+export type SiteVerifyResult = z.infer<typeof siteVerifyResultSchema>;
+export type SiteCheckMode = z.infer<typeof siteCheckModeSchema>;
+export type ContentValidationStatus = z.infer<typeof contentValidationStatusSchema>;
+export type RSSFeedMode = z.infer<typeof rssFeedModeSchema>;
+export type RSSFeedFormat = z.infer<typeof rssFeedFormatSchema>;
+export type RSSFetchSourceKind = z.infer<typeof rssFetchSourceKindSchema>;
+export type RSSFetchNetworkPath = z.infer<typeof rssFetchNetworkPathSchema>;
 export type TagType = z.infer<typeof tagTypeSchema>;
 export type TechnologyType = z.infer<typeof technologyTypeSchema>;
 export type UserRole = z.infer<typeof userRoleSchema>;
@@ -713,6 +825,10 @@ export type SiteAuditArchitectureData = z.infer<typeof siteAuditArchitectureSche
 export type SiteAuditSnapshotData = z.infer<typeof siteAuditSnapshotSchema>;
 export type SiteAuditDiffItemData = z.infer<typeof siteAuditDiffItemSchema>;
 export type TaskScheduleConfigData = z.infer<typeof taskScheduleConfigSchema>;
+export type TaskTargetData = z.infer<typeof taskTargetSchema>;
 export type TaskPayloadTemplateData = z.infer<typeof taskPayloadTemplateSchema>;
-export type TaskTriggerRuleData = z.infer<typeof taskTriggerRuleSchema>;
-export type JobPolicyConfigData = z.infer<typeof jobPolicyConfigSchema>;
+export type RequestConfigHeaderData = z.infer<typeof requestConfigHeaderSchema>;
+export type SiteCheckProbeSummaryData = z.infer<typeof siteCheckProbeSummarySchema>;
+export type ContentValidationPayloadData = z.infer<typeof contentValidationPayloadSchema>;
+export type RSSFetchRunSummaryData = z.infer<typeof rssFetchRunSummarySchema>;
+export type UpstreamSyncRunSummaryData = z.infer<typeof upstreamSyncRunSummarySchema>;

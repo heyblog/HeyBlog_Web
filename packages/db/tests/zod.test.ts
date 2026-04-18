@@ -99,18 +99,23 @@ describe('db zod site url validation', () => {
     expectFailurePath(result, 'proposed_snapshot.link_page');
   });
 
-  it('validates payload_template.feed_url', () => {
+  it('validates payload_template.target.site_id', () => {
     const result = taskScheduleInsertSchema.safeParse({
-      name: 'Manual Feed Fetch',
+      name: 'Feed Fetch Schedule',
       task_type: 'RSS_FETCH',
-      queue_name: 'rss',
-      schedule_mode: 'MANUAL',
+      schedule_mode: 'CRON',
+      schedule_config: {
+        cron: '0 0 * * *',
+      },
       payload_template: {
-        feed_url: 'https://localhost/feed.xml',
+        target: {
+          kind: 'SITE',
+          site_id: 'not-a-uuid',
+        },
       },
     });
 
-    expectFailurePath(result, 'payload_template.feed_url');
+    expectFailurePath(result, 'payload_template.target.site_id');
   });
 
   it('accepts empty feed arrays', () => {
