@@ -1,0 +1,21 @@
+{
+  "extends": "@zhblogs/configs/tsconfig.base.json",
+  "compilerOptions": {
+    "target": "es2024",
+    "module": "es2022",
+    "moduleResolution": "Bundler",
+    "moduleDetection": "force",
+    "lib": ["es2024"],
+    "types": [
+      "./worker-configuration.d.ts",
+      "@types/node",
+      "@types/service-worker-mock",
+      "node",
+      "vitest/globals"
+    ],
+    "verbatimModuleSyntax": false,
+    "allowJs": true
+  },
+  "include": ["src", "tests", "worker-configuration.d.ts", "vitest.config.ts"],
+  "exclude": ["node_modules", "dist"]
+}

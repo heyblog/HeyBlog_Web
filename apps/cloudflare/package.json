@@ -1,0 +1,30 @@
+{
+  "name": "@zhblogs/cloudflare",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "cf-typegen": "wrangler types",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "format": "prettier --config ./prettier.config.ts --write \"package.json\" \"wrangler.jsonc\" \"*.ts\" \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format:check": "prettier --config ./prettier.config.ts --check \"package.json\" \"wrangler.jsonc\" \"*.ts\" \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "lint": "eslint --config ./eslint.config.ts \"src/**/*.ts\" \"tests/**/*.ts\" \"eslint.config.ts\" \"prettier.config.ts\" \"vitest.config.ts\"",
+    "lint:fix": "eslint --config ./eslint.config.ts \"src/**/*.ts\" \"tests/**/*.ts\" \"eslint.config.ts\" \"prettier.config.ts\" \"vitest.config.ts\" --fix",
+    "start": "wrangler dev",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@zhblogs/configs": "workspace:*",
+    "chanfana": "^2.6.3",
+    "hono": "^4.6.20",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.13.0",
+    "@types/service-worker-mock": "^2.0.4",
+    "wrangler": "^4.81.1"
+  }
+}
