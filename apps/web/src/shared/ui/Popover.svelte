@@ -5,13 +5,17 @@
   let {
     title = '',
     placement = 'bottom',
-    widthClass = 'w-[18rem]',
+    align = 'center',
+    widthClass = 'w-[min(22rem,calc(100vw-1.5rem))]',
+    maxHeightClass = 'max-h-[min(32rem,calc(100dvh-1.5rem))]',
     trigger,
     children,
   }: {
     title?: string;
     placement?: 'top' | 'bottom';
+    align?: 'start' | 'center' | 'end';
     widthClass?: string;
+    maxHeightClass?: string;
     trigger?: Snippet;
     children?: Snippet;
   } = $props();
@@ -41,6 +45,11 @@
     const viewportHeight = window.innerHeight;
 
     let left = triggerRect.left + triggerRect.width / 2 - panelRect.width / 2;
+    if (align === 'start') {
+      left = triggerRect.left;
+    } else if (align === 'end') {
+      left = triggerRect.right - panelRect.width;
+    }
     left = Math.min(Math.max(gap, left), viewportWidth - panelRect.width - gap);
 
     let top =
@@ -125,7 +134,7 @@
   {#if open}
     <div
       bind:this={panel}
-      class={`fixed z-30 rounded-md border border-(--color-line-med) bg-(--color-bg-raised) p-4 shadow-[0_18px_40px_rgba(28,25,23,0.14)] dark:shadow-[0_18px_40px_rgba(0,0,0,0.34)] ${widthClass}`}
+      class={`fixed z-[70] overflow-hidden rounded-md border border-(--color-line-med) bg-(--color-bg-raised) p-4 shadow-[0_18px_40px_rgba(28,25,23,0.14)] dark:shadow-[0_18px_40px_rgba(0,0,0,0.34)] ${widthClass} ${maxHeightClass}`}
       style={panelStyle}
       role="dialog"
       aria-modal="false"
@@ -135,8 +144,8 @@
       {/if}
       <div
         class={title
-          ? 'mt-2 text-sm leading-6 text-(--color-fg-2)'
-          : 'text-sm leading-6 text-(--color-fg-2)'}
+          ? 'mt-2 overflow-y-auto text-sm leading-6 text-(--color-fg-2)'
+          : 'overflow-y-auto text-sm leading-6 text-(--color-fg-2)'}
       >
         {@render children?.()}
       </div>

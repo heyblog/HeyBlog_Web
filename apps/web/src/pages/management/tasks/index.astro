@@ -1,0 +1,84 @@
+---
+export const prerender = false;
+
+import { fetchProtectedJson } from '@/application/auth/auth.server';
+import type { TaskCatalog } from '@/components/management/tasks/task-management.types';
+import TaskManagementPanel from '@/components/management/tasks/TaskManagementPanel.svelte';
+import ManagementLayout from '@/layouts/ManagementLayout.astro';
+
+const status = Astro.url.searchParams.get('status') ?? '';
+const taskType = Astro.url.searchParams.get('task_type') ?? '';
+const triggerSource = Astro.url.searchParams.get('trigger_source') ?? '';
+const siteId = Astro.url.searchParams.get('site_id') ?? '';
+const createdFrom = Astro.url.searchParams.get('created_from') ?? '';
+const createdTo = Astro.url.searchParams.get('created_to') ?? '';
+const panel = Astro.url.searchParams.get('panel') ?? '';
+
+const query = new URLSearchParams();
+if (status) query.set('status', status);
+if (taskType) query.set('task_type', taskType);
+if (triggerSource) query.set('trigger_source', triggerSource);
+if (siteId) query.set('site_id', siteId);
+if (createdFrom) query.set('created_from', createdFrom);
+if (createdTo) query.set('created_to', createdTo);
+
+const [catalogPayload, overviewPayload, requestConfigPayload] = await Promise.all([
+  fetchProtectedJson<{
+    ok: boolean;
+    data: {
+      task_types: Array<{ key: string; label: string; description?: string }>;
+      schedule_modes: Array<{ key: string; label: string; description?: string }>;
+      trigger_sources: Array<{ key: string; label: string; description?: string }>;
+      job_statuses: Array<{ key: string; label: string; description?: string }>;
+      request_target_kinds: Array<{ key: string; label: string; description?: string }>;
+      request_retry_strategies: Array<{ key: string; label: string; description?: string }>;
+      rss_feed_modes: Array<{ key: string; label: string; description?: string }>;
+      presets: {
+        manual: Array<Record<string, unknown>>;
+      };
+    };
+  }>(Astro.request, '/api/management/tasks/catalog'),
+  fetchProtectedJson<{
+    ok: boolean;
+    data: {
+      schedules: Array<Record<string, unknown>>;
+      jobs: Array<Record<string, unknown>>;
+    };
+  }>(
+    Astro.request,
+    `/api/management/tasks/overview${query.toString() ? `?${query.toString()}` : ''}`,
+  ),
+  fetchProtectedJson<{
+    ok: boolean;
+    data: Array<Record<string, unknown>>;
+  }>(Astro.request, '/api/management/tasks/request-configs'),
+]);
+
+const catalog = catalogPayload.data as TaskCatalog;
+const overview = overviewPayload.data;
+const requestConfigs = requestConfigPayload.data;
+---
+
+<ManagementLayout
+  title="任务中心"
+  currentPath="/management/tasks"
+  eyebrow="management / tasks"
+  heading="任务中心"
+>
+  <TaskManagementPanel
+    client:load
+    {catalog}
+    schedules={overview.schedules}
+    requestConfigs={requestConfigs}
+    jobs={overview.jobs}
+    initialPanel={panel}
+    initialFilters={{
+      status,
+      task_type: taskType,
+      trigger_source: triggerSource,
+      site_id: siteId,
+      created_from: createdFrom,
+      created_to: createdTo,
+    }}
+  />
+</ManagementLayout>

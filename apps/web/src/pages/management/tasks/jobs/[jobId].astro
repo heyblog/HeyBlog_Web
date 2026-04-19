@@ -1,0 +1,47 @@
+---
+export const prerender = false;
+
+import { getApiBaseUrl } from '@/application/auth/auth.server';
+import {
+  readJobDetailRecord,
+  sanitizeTaskReturnTo,
+} from '@/components/management/tasks/task-management.helpers';
+import type { TaskJobDetailRecord } from '@/components/management/tasks/task-management.types';
+import TaskJobDetailPage from '@/components/management/tasks/TaskJobDetailPage.svelte';
+import ManagementLayout from '@/layouts/ManagementLayout.astro';
+
+const jobId = Astro.params.jobId ?? '';
+const returnTo = sanitizeTaskReturnTo(Astro.url.searchParams.get('return_to'));
+const headers = {
+  accept: 'application/json',
+  cookie: Astro.request.headers.get('cookie') ?? '',
+};
+
+let initialJob: TaskJobDetailRecord | null = null;
+let initialError = '';
+
+const detailResponse = await fetch(`${getApiBaseUrl()}/api/management/tasks/jobs/${jobId}`, {
+  headers,
+});
+
+if (detailResponse.status === 404) {
+  initialError = '目标任务不存在或已被删除。';
+} else if (!detailResponse.ok) {
+  throw new Error(`task detail request failed with status ${detailResponse.status}`);
+} else {
+  const detailPayload = (await detailResponse.json()) as {
+    ok: boolean;
+    data?: Record<string, unknown>;
+  };
+  initialJob = readJobDetailRecord(detailPayload.data);
+}
+---
+
+<ManagementLayout
+  title="任务详情"
+  currentPath="/management/tasks"
+  eyebrow="management / task detail"
+  heading="任务详情"
+>
+  <TaskJobDetailPage client:load {jobId} {returnTo} {initialJob} {initialError} />
+</ManagementLayout>

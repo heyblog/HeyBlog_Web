@@ -11,9 +11,11 @@
     description = '',
     content = '',
     tone = 'neutral',
+    panelClass = '',
     confirmLabel = '确定',
     cancelLabel = '取消',
     dismissible = true,
+    showHeaderClose = true,
     onConfirm,
     onCancel,
     children: childContent,
@@ -23,9 +25,11 @@
     description?: string;
     content?: string;
     tone?: ModalTone;
+    panelClass?: string;
     confirmLabel?: string;
     cancelLabel?: string;
     dismissible?: boolean;
+    showHeaderClose?: boolean;
     onConfirm?: () => void;
     onCancel?: () => void;
     children?: Snippet;
@@ -37,9 +41,11 @@
   {title}
   {description}
   {tone}
+  {panelClass}
   {confirmLabel}
   {cancelLabel}
   {dismissible}
+  {showHeaderClose}
   showCancel={true}
   {onConfirm}
   {onCancel}

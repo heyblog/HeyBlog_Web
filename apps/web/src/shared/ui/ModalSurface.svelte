@@ -11,6 +11,7 @@
     title = '',
     description = '',
     tone = 'neutral',
+    panelClass = '',
     confirmLabel = '确定',
     cancelLabel = '取消',
     dismissible = true,
@@ -27,6 +28,7 @@
     title?: string;
     description?: string;
     tone?: ModalTone;
+    panelClass?: string;
     confirmLabel?: string;
     cancelLabel?: string;
     dismissible?: boolean;
@@ -112,7 +114,7 @@
 
 {#if open}
   <div
-    class="fixed inset-0 z-80 flex items-center justify-center bg-[color-mix(in_srgb,var(--color-bg)_28%,rgba(12,10,9,0.72))] px-4 py-8"
+    class="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto overscroll-contain bg-[color-mix(in_srgb,var(--color-bg)_28%,rgba(12,10,9,0.72))] px-3 py-3 sm:px-4 sm:py-6 lg:py-8"
     in:fade={backdropMotion}
     out:fade={backdropExitMotion}
     onclick={(event) => {
@@ -123,7 +125,7 @@
     role="presentation"
   >
     <div
-      class="relative w-full max-w-136 rounded-md border border-(--color-line-med) bg-(--color-bg-raised) p-5 shadow-[0_22px_48px_rgba(28,25,23,0.18)] dark:shadow-[0_22px_48px_rgba(0,0,0,0.42)] sm:p-6"
+      class={`relative my-auto flex w-[min(42rem,calc(100vw-1.5rem))] max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-md border border-(--color-line-med) bg-(--color-bg-raised) p-4 shadow-[0_22px_48px_rgba(28,25,23,0.18)] dark:shadow-[0_22px_48px_rgba(0,0,0,0.42)] sm:max-h-[calc(100dvh-3rem)] sm:p-5 lg:max-h-[calc(100dvh-4rem)] lg:p-6 ${panelClass}`}
       in:scale={panelEnterMotion}
       out:scale={panelExitMotion}
       role="dialog"
@@ -153,12 +155,12 @@
         {/if}
       </div>
 
-      <div class="mt-4 text-sm leading-7 text-(--color-fg-2)">
+      <div class="mt-4 min-h-0 flex-1 overflow-y-auto pr-1 text-sm leading-7 text-(--color-fg-2)">
         {@render children?.()}
       </div>
 
       {#if showFooter}
-        <div class="mt-6 flex flex-wrap justify-end gap-3">
+        <div class="mt-4 flex shrink-0 flex-wrap justify-end gap-3 pt-2">
           {#if showCancel}
             <button
               class="rounded-md px-4 py-2 text-sm text-(--color-fg-2) transition hover:bg-[color-mix(in_srgb,var(--color-bg)_76%,transparent)] hover:text-(--color-fg)"
