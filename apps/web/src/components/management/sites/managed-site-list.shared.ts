@@ -4,8 +4,8 @@ export type ManagedSiteListItem = {
   name: string;
   url: string;
   classification_status: 'COMPLETE' | 'NEEDS_REVIEW';
-  access_scope: 'CN_ONLY' | 'GLOBAL_ONLY' | 'BOTH';
-  status: 'OK' | 'ERROR' | 'SSLERROR';
+  access_scope: 'CN_ONLY' | 'NON_CN_ONLY' | 'ALL';
+  status: 'OK' | 'WARNING' | 'ERROR';
   is_show: boolean;
   recommend: boolean;
   main_tag_id: string | null;

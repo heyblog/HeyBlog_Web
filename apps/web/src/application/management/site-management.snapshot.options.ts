@@ -2,8 +2,8 @@ import type { FeedTypeKey, SiteSnapshotDraft } from './site-management.snapshot.
 
 export const SITE_STATUS_OPTIONS: Array<{ value: SiteSnapshotDraft['status']; label: string }> = [
   { value: 'OK', label: '正常' },
+  { value: 'WARNING', label: '警告' },
   { value: 'ERROR', label: '异常' },
-  { value: 'SSLERROR', label: 'SSL 证书错误' },
 ];
 
 export const SITE_CLASSIFICATION_STATUS_OPTIONS: Array<{
@@ -18,9 +18,9 @@ export const SITE_ACCESS_SCOPE_OPTIONS: Array<{
   value: SiteSnapshotDraft['access_scope'];
   label: string;
 }> = [
-  { value: 'BOTH', label: '国内外可访问' },
+  { value: 'ALL', label: '国内外可访问' },
   { value: 'CN_ONLY', label: '仅国内可访问' },
-  { value: 'GLOBAL_ONLY', label: '仅海外可访问' },
+  { value: 'NON_CN_ONLY', label: '仅海外可访问' },
 ];
 
 export const FEED_TYPE_OPTIONS: Array<{ value: FeedTypeKey; label: string }> = [

@@ -125,11 +125,10 @@ export const createDraftFromSnapshot = (
     is_show: snapshot?.is_show ?? true,
     recommend: snapshot?.recommend ?? false,
     access_scope:
-      snapshot?.access_scope === 'CN_ONLY' || snapshot?.access_scope === 'GLOBAL_ONLY'
+      snapshot?.access_scope === 'CN_ONLY' || snapshot?.access_scope === 'NON_CN_ONLY'
         ? snapshot.access_scope
-        : 'BOTH',
-    status:
-      snapshot?.status === 'ERROR' || snapshot?.status === 'SSLERROR' ? snapshot.status : 'OK',
+        : 'ALL',
+    status: snapshot?.status === 'WARNING' || snapshot?.status === 'ERROR' ? snapshot.status : 'OK',
     from: normalizeStringList(snapshot?.from ?? ['WEB_SUBMIT']),
     main_tag_id: trimText(snapshot?.main_tag?.tag_id),
     sub_tags: normalizeSubTags(snapshot?.sub_tags ?? []),

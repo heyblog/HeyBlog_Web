@@ -46,8 +46,8 @@ export interface SiteAuditSnapshot {
   classification_status?: string | null;
   sitemap?: string | null;
   link_page?: string | null;
-  access_scope?: 'CN_ONLY' | 'GLOBAL_ONLY' | 'BOTH' | null;
-  status?: 'OK' | 'ERROR' | 'SSLERROR' | null;
+  access_scope?: 'CN_ONLY' | 'NON_CN_ONLY' | 'ALL' | null;
+  status?: 'OK' | 'WARNING' | 'ERROR' | null;
   is_show?: boolean | null;
   recommend?: boolean | null;
   reason?: string | null;
@@ -89,8 +89,8 @@ export interface SiteSnapshotDraft {
   reason: string;
   is_show: boolean;
   recommend: boolean;
-  access_scope: 'CN_ONLY' | 'GLOBAL_ONLY' | 'BOTH';
-  status: 'OK' | 'ERROR' | 'SSLERROR';
+  access_scope: 'CN_ONLY' | 'NON_CN_ONLY' | 'ALL';
+  status: 'OK' | 'WARNING' | 'ERROR';
   from: string[];
   main_tag_id: string;
   sub_tags: SiteSubTagSnapshot[];
