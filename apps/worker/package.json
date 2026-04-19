@@ -1,0 +1,13 @@
+{
+  "name": "@zhblogs/worker",
+  "private": true,
+  "scripts": {
+    "build": "mkdir -p ./bin && bash ./scripts/with-go-env.sh go build -o ./bin/worker ./",
+    "dev": "bash ./scripts/with-go-env.sh go run .",
+    "start": "./bin/worker",
+    "format": "find . -type f -name '*.go' -not -path './vendor/*' -print0 | xargs -0 gofmt -w",
+    "format:check": "test -z \"$(find . -type f -name '*.go' -not -path './vendor/*' -print0 | xargs -0 gofmt -l)\"",
+    "lint": "bash ./scripts/with-go-env.sh go vet ./...",
+    "test": "bash ./scripts/with-go-env.sh bash ./scripts/run-go-tests.sh"
+  }
+}
