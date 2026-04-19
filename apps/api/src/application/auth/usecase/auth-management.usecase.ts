@@ -26,6 +26,47 @@ type ManagementDeps = {
   ) => Promise<UserRow>;
 };
 
+const ensureCanManageUsers = (actor: AuthUser): void => {
+  if (!canManageUsers(actor)) {
+    throw new AuthError('forbidden', 'user.manage required', 403);
+  }
+};
+
+const ensureNotManagingSelf = (actor: AuthUser, targetUserId: string): void => {
+  if (actor.id === targetUserId) {
+    throw new AuthError('forbidden', 'Cannot modify your own role or permissions', 403);
+  }
+};
+
+const ensurePermissionScope = (
+  actor: AuthUser,
+  currentPermissions: ManagementPermissionKey[],
+  nextPermissions: ManagementPermissionKey[],
+): void => {
+  if (actor.role === 'SYS_ADMIN') {
+    return;
+  }
+
+  const actorPermissionSet = new Set(actor.permissions);
+  const outOfScopeCurrent = currentPermissions.find(
+    (permission) => !actorPermissionSet.has(permission),
+  );
+
+  if (outOfScopeCurrent) {
+    throw new AuthError(
+      'forbidden',
+      'Target user has permissions outside your authorization scope',
+      403,
+    );
+  }
+
+  const outOfScopeNext = nextPermissions.find((permission) => !actorPermissionSet.has(permission));
+
+  if (outOfScopeNext) {
+    throw new AuthError('forbidden', `Cannot assign permission: ${outOfScopeNext}`, 403);
+  }
+};
+
 export const createManagementService = (deps: ManagementDeps) => ({
   listManagedUsers: async (): Promise<ManagedUserSnapshot[]> => {
     const users = await deps.listUsers();
@@ -49,9 +90,8 @@ export const createManagementService = (deps: ManagementDeps) => ({
   },
 
   grantAdminRole: async (actor: AuthUser, targetUserId: string): Promise<ManagedUserSnapshot> => {
-    if (!canManageUsers(actor)) {
-      throw new AuthError('forbidden', 'user.manage required', 403);
-    }
+    ensureCanManageUsers(actor);
+    ensureNotManagingSelf(actor, targetUserId);
 
     const target = await deps.readUserById(targetUserId);
 
@@ -60,7 +100,7 @@ export const createManagementService = (deps: ManagementDeps) => ({
     }
 
     if (target.role === 'SYS_ADMIN') {
-      return buildManagedUserSnapshot(target, [], await deps.readUserHasGithub(target.id));
+      throw new AuthError('forbidden', 'SYS_ADMIN role cannot be changed through this flow', 403);
     }
 
     const updatedUser = await deps.updateUserRole(target, 'ADMIN', actor.id);
@@ -73,9 +113,8 @@ export const createManagementService = (deps: ManagementDeps) => ({
   },
 
   revokeAdminRole: async (actor: AuthUser, targetUserId: string): Promise<ManagedUserSnapshot> => {
-    if (!canManageUsers(actor)) {
-      throw new AuthError('forbidden', 'user.manage required', 403);
-    }
+    ensureCanManageUsers(actor);
+    ensureNotManagingSelf(actor, targetUserId);
 
     const target = await deps.readUserById(targetUserId);
 
@@ -91,6 +130,9 @@ export const createManagementService = (deps: ManagementDeps) => ({
       );
     }
 
+    const currentPermissions = await deps.readUserPermissions(target.id);
+    ensurePermissionScope(actor, currentPermissions, currentPermissions);
+
     await deps.clearUserPermissions(target.id);
     const updatedUser = await deps.updateUserRole(target, 'USER', null);
     return buildManagedUserSnapshot(updatedUser, [], await deps.readUserHasGithub(updatedUser.id));
@@ -101,9 +143,8 @@ export const createManagementService = (deps: ManagementDeps) => ({
     targetUserId: string,
     permissions: ManagementPermissionKey[],
   ): Promise<ManagedUserSnapshot> => {
-    if (!canManageUsers(actor)) {
-      throw new AuthError('forbidden', 'user.manage required', 403);
-    }
+    ensureCanManageUsers(actor);
+    ensureNotManagingSelf(actor, targetUserId);
 
     const target = await deps.readUserById(targetUserId);
 
@@ -114,6 +155,9 @@ export const createManagementService = (deps: ManagementDeps) => ({
     if (target.role !== 'ADMIN') {
       throw new AuthError('forbidden', 'Only ADMIN users can receive management permissions', 403);
     }
+
+    const currentPermissions = await deps.readUserPermissions(target.id);
+    ensurePermissionScope(actor, currentPermissions, permissions);
 
     await deps.replaceUserPermissions(target.id, permissions, actor.id);
     const updatedPermissions = await deps.readUserPermissions(target.id);
