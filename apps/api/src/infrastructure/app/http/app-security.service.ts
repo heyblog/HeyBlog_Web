@@ -24,7 +24,7 @@ export const securityPlugin = fp(
 
         callback(null, allowlist.includes(origin));
       },
-      methods: ['GET', 'POST', 'OPTIONS'],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
       credentials: true,
     });
