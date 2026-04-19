@@ -1,0 +1,338 @@
+---
+export const prerender = false;
+
+import { fetchProtectedJson } from '@/application/auth/auth.server';
+import ManagementLayout from '@/layouts/ManagementLayout.astro';
+
+const payload = await fetchProtectedJson<{
+  ok: boolean;
+  data: {
+    tags: Array<{
+      id: string;
+      name: string;
+      machine_key: string | null;
+      tag_type: 'MAIN' | 'SUB' | 'WARNING';
+      description: string | null;
+      is_enabled: boolean;
+      merged_into_tag_id: string | null;
+      merged_by: string | null;
+      merged_time: string | null;
+    }>;
+    technologies: Array<{
+      id: string;
+      name: string;
+      technology_type: 'FRAMEWORK' | 'LANGUAGE';
+      description: string | null;
+      official_url: string | null;
+      is_enabled: boolean;
+    }>;
+  };
+}>(Astro.request, '/api/management/taxonomy/overview');
+
+const activeTags = payload.data.tags.filter(
+  (entry) => entry.is_enabled && !entry.merged_into_tag_id,
+);
+---
+
+<ManagementLayout
+  title="标签与技术目录"
+  currentPath="/management/taxonomy"
+  eyebrow="management / taxonomy"
+  heading="标签与技术目录"
+>
+  <div class="grid gap-6 xl:grid-cols-2">
+    <section class="page-section">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">
+            <span class="status-dot" style="--status-dot: var(--color-info-dot)"></span>
+            taxonomy / new tag
+          </p>
+          <h2 class="section-title">新建标签</h2>
+        </div>
+      </div>
+      <form action="/management/taxonomy/tag" class="grid gap-3" method="post">
+        <input
+          class="rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+          name="name"
+          placeholder="标签名称"
+          required
+          type="text"
+        />
+        <select
+          class="rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+          name="tag_type"
+        >
+          <option value="MAIN">MAIN</option>
+          <option value="SUB">SUB</option>
+          <option value="WARNING">WARNING</option>
+        </select>
+        <input
+          class="rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+          name="machine_key"
+          placeholder="WARNING 标签需要 machine_key"
+          type="text"
+        />
+        <textarea
+          class="min-h-24 rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+          name="description"
+          placeholder="描述"></textarea>
+        <label class="inline-check">
+          <input checked name="is_enabled" type="checkbox" value="true" />
+          <span>启用</span>
+        </label>
+        <button
+          class="inline-flex items-center rounded-sm border border-(--color-line-med) px-4 py-2 text-sm font-medium"
+          type="submit"
+        >
+          保存标签
+        </button>
+      </form>
+    </section>
+
+    <section class="page-section">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">
+            <span class="status-dot" style="--status-dot: var(--color-warn-dot)"></span>
+            taxonomy / merge
+          </p>
+          <h2 class="section-title">标签合并</h2>
+        </div>
+      </div>
+      <form action="/management/taxonomy/merge" class="grid gap-3" method="post">
+        <select
+          class="rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+          name="source_tag_id"
+        >
+          {
+            activeTags.map((entry) => (
+              <option value={entry.id}>
+                {entry.tag_type} / {entry.name}
+              </option>
+            ))
+          }
+        </select>
+        <select
+          class="rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+          name="target_tag_id"
+        >
+          {
+            activeTags.map((entry) => (
+              <option value={entry.id}>
+                {entry.tag_type} / {entry.name}
+              </option>
+            ))
+          }
+        </select>
+        <p class="text-xs leading-6 text-(--color-fg-3)">
+          仅允许同类型合并，源标签会被禁用并保留历史。系统会同步迁移线上引用并改写待审核申请。
+        </p>
+        <button
+          class="inline-flex items-center rounded-sm border border-(--color-line-med) px-4 py-2 text-sm font-medium"
+          type="submit"
+        >
+          执行合并
+        </button>
+      </form>
+    </section>
+  </div>
+
+  <div class="page-section">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">
+          <span class="status-dot" style="--status-dot: var(--color-info-dot)"></span>
+          taxonomy / tags
+        </p>
+        <h2 class="section-title">标签列表</h2>
+      </div>
+    </div>
+    <div class="space-y-4">
+      {
+        payload.data.tags.map((entry) => (
+          <details class="rounded-sm border border-(--color-line) p-4">
+            <summary class="cursor-pointer list-none">
+              <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <div class="text-sm font-medium">{entry.name}</div>
+                  <p class="mt-1 text-xs text-(--color-fg-3)">
+                    {entry.tag_type} / {entry.is_enabled ? '启用' : '停用'} / machine_key:
+                    {entry.machine_key ?? '—'}
+                  </p>
+                </div>
+                <div class="text-xs text-(--color-fg-3)">
+                  {entry.merged_into_tag_id ? `已合并到 ${entry.merged_into_tag_id}` : '未合并'}
+                </div>
+              </div>
+            </summary>
+
+            <form action="/management/taxonomy/tag" class="mt-4 grid gap-3" method="post">
+              <input type="hidden" name="id" value={entry.id} />
+              <input
+                class="rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+                name="name"
+                required
+                type="text"
+                value={entry.name}
+              />
+              <select
+                class="rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+                name="tag_type"
+              >
+                <option selected={entry.tag_type === 'MAIN'} value="MAIN">
+                  MAIN
+                </option>
+                <option selected={entry.tag_type === 'SUB'} value="SUB">
+                  SUB
+                </option>
+                <option selected={entry.tag_type === 'WARNING'} value="WARNING">
+                  WARNING
+                </option>
+              </select>
+              <input
+                class="rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+                name="machine_key"
+                type="text"
+                value={entry.machine_key ?? ''}
+              />
+              <textarea
+                class="min-h-24 rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+                name="description"
+              >
+                {entry.description ?? ''}
+              </textarea>
+              <label class="inline-check">
+                <input checked={entry.is_enabled} name="is_enabled" type="checkbox" value="true" />
+                <span>启用</span>
+              </label>
+              <button
+                class="inline-flex items-center rounded-sm border border-(--color-line-med) px-4 py-2 text-sm font-medium"
+                type="submit"
+              >
+                更新标签
+              </button>
+            </form>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="page-section">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">
+          <span class="status-dot" style="--status-dot: var(--color-ok-dot)"></span>
+          taxonomy / technology
+        </p>
+        <h2 class="section-title">技术目录</h2>
+      </div>
+    </div>
+
+    <form
+      action="/management/taxonomy/technology"
+      class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_11rem_1fr_auto_auto]"
+      method="post"
+    >
+      <input
+        class="rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+        name="name"
+        placeholder="技术名称"
+        required
+        type="text"
+      />
+      <select
+        class="rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+        name="technology_type"
+      >
+        <option value="FRAMEWORK">FRAMEWORK</option>
+        <option value="LANGUAGE">LANGUAGE</option>
+      </select>
+      <input
+        class="rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+        name="official_url"
+        placeholder="官网链接"
+        type="url"
+      />
+      <label class="inline-check">
+        <input checked name="is_enabled" type="checkbox" value="true" />
+        <span>启用</span>
+      </label>
+      <button
+        class="inline-flex items-center justify-center rounded-sm border border-(--color-line-med) px-4 py-2 text-sm font-medium"
+        type="submit"
+      >
+        保存目录
+      </button>
+      <textarea
+        class="xl:col-span-5 min-h-24 rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+        name="description"
+        placeholder="描述"></textarea>
+    </form>
+
+    <div class="mt-5 space-y-4">
+      {
+        payload.data.technologies.map((entry) => (
+          <details class="rounded-sm border border-(--color-line) p-4">
+            <summary class="cursor-pointer list-none">
+              <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <div class="text-sm font-medium">{entry.name}</div>
+                  <p class="mt-1 text-xs text-(--color-fg-3)">
+                    {entry.technology_type} / {entry.is_enabled ? '启用' : '停用'}
+                  </p>
+                </div>
+                <div class="text-xs text-(--color-fg-3)">{entry.official_url ?? '无官网链接'}</div>
+              </div>
+            </summary>
+
+            <form action="/management/taxonomy/technology" class="mt-4 grid gap-3" method="post">
+              <input type="hidden" name="id" value={entry.id} />
+              <input
+                class="rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+                name="name"
+                required
+                type="text"
+                value={entry.name}
+              />
+              <select
+                class="rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+                name="technology_type"
+              >
+                <option selected={entry.technology_type === 'FRAMEWORK'} value="FRAMEWORK">
+                  FRAMEWORK
+                </option>
+                <option selected={entry.technology_type === 'LANGUAGE'} value="LANGUAGE">
+                  LANGUAGE
+                </option>
+              </select>
+              <input
+                class="rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+                name="official_url"
+                type="url"
+                value={entry.official_url ?? ''}
+              />
+              <textarea
+                class="min-h-24 rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
+                name="description"
+              >
+                {entry.description ?? ''}
+              </textarea>
+              <label class="inline-check">
+                <input checked={entry.is_enabled} name="is_enabled" type="checkbox" value="true" />
+                <span>启用</span>
+              </label>
+              <button
+                class="inline-flex items-center rounded-sm border border-(--color-line-med) px-4 py-2 text-sm font-medium"
+                type="submit"
+              >
+                更新目录
+              </button>
+            </form>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</ManagementLayout>
