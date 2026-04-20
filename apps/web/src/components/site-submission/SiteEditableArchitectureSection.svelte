@@ -136,7 +136,7 @@
   <div class="grid gap-4 md:grid-cols-2">
     <div class="space-y-2 md:col-span-2">
       <label class="block text-sm" for={`${idPrefix}-architecture-program`}>程序</label>
-      <div class={isAutoFillMissing('architecture') ? 'rounded-md autofill-missing' : ''}>
+      <div class={isAutoFillMissing('architecture') ? 'autofill-missing rounded-md' : ''}>
         <SingleSelectCombobox
           inputId={`${idPrefix}-architecture-program`}
           options={programOptions}

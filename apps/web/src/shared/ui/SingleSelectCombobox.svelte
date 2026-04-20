@@ -255,7 +255,7 @@
                 <span>{option.name}</span>
                 {#if selectedId === option.id}
                   <span
-                    class="font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-info)"
+                    class="font-mono text-[11px] tracking-[0.18em] text-(--color-info) uppercase"
                     >已选</span
                   >
                 {/if}

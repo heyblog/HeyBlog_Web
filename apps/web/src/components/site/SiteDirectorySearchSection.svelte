@@ -166,7 +166,7 @@
               onToggle={(item) => onSearchDrivenFilter?.('program', item, false)}
             />
           </div>
-          <div class="shrink-0 hidden sm:block">
+          <div class="hidden shrink-0 sm:block">
             <SiteDirectoryFilterPopover
               label="警示标签"
               title="筛选警示标签"
@@ -181,7 +181,7 @@
               onToggle={(item) => onSearchDrivenFilter?.('warning', item, true)}
             />
           </div>
-          <div class="shrink-0 hidden sm:block">
+          <div class="hidden shrink-0 sm:block">
             <SiteDirectoryFilterPopover
               label="访问范围"
               title="筛选访问范围"

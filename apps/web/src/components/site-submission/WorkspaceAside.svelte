@@ -72,7 +72,7 @@
 
 <aside class="order-1 space-y-5 rounded-md border border-(--color-line-med) p-6 sm:p-7 lg:order-2">
   <div>
-    <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">
+    <p class="font-mono text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase">
       {content.eyebrow}
     </p>
     <p class="mt-3 text-base leading-7 text-(--color-fg)">{content.title}</p>

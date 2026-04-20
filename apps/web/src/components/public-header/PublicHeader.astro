@@ -100,30 +100,30 @@ const { activePrimaryKey, activeProjectKey, projectActive } = resolvePublicHeade
   data-public-header
   data-home={isHome ? 'true' : 'false'}
 >
-  <div class="mx-auto flex w-full max-w-368 items-center gap-4 px-3.5 py-3 xs:px-4 sm:px-6 lg:px-8">
+  <div class="xs:px-4 mx-auto flex w-full max-w-368 items-center gap-4 px-3.5 py-3 sm:px-6 lg:px-8">
     <a
       class="inline-flex min-w-0 items-center gap-3 text-(--color-fg) transition hover:text-red-700 dark:hover:text-red-400"
       href="/"
     >
       <span
-        class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-(--color-line-med) text-red-700 transition transform-[scaleX(-1)] dark:text-red-400"
+        class="inline-flex h-12 w-12 shrink-0 transform-[scaleX(-1)] items-center justify-center rounded-md border border-(--color-line-med) text-red-700 transition dark:text-red-400"
       >
         <IconListTree size={28} stroke={2.45} class="block" />
       </span>
       <span
-        class="flex min-w-0 max-w-0 flex-col overflow-hidden whitespace-nowrap transition-all duration-300 ease-out-smooth data-[visible=true]:max-w-56"
+        class="ease-out-smooth flex max-w-0 min-w-0 flex-col overflow-hidden whitespace-nowrap transition-all duration-300 data-[visible=true]:max-w-56"
         data-brand-shell
         data-visible={isHome ? 'false' : 'true'}
       >
         <span
-          class="font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3) transition-all duration-300 ease-out-smooth data-[visible=false]:translate-x-2 data-[visible=false]:opacity-0 data-[visible=true]:translate-x-0 data-[visible=true]:opacity-100"
+          class="ease-out-smooth font-mono text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase transition-all duration-300 data-[visible=false]:translate-x-2 data-[visible=false]:opacity-0 data-[visible=true]:translate-x-0 data-[visible=true]:opacity-100"
           data-brand-node
           data-visible={isHome ? 'false' : 'true'}
         >
           原中文博客列表导航
         </span>
         <span
-          class="text-base font-medium tracking-[0.04em] transition-all duration-300 ease-out-smooth data-[visible=false]:translate-x-2 data-[visible=false]:opacity-0 data-[visible=true]:translate-x-0 data-[visible=true]:opacity-100"
+          class="ease-out-smooth text-base font-medium tracking-[0.04em] transition-all duration-300 data-[visible=false]:translate-x-2 data-[visible=false]:opacity-0 data-[visible=true]:translate-x-0 data-[visible=true]:opacity-100"
           data-brand-node
           data-visible={isHome ? 'false' : 'true'}
         >

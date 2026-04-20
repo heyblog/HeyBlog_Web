@@ -15,7 +15,7 @@ const { title, description, createTime, tags, category } = Astro.props;
 <EntryHeader title={title} description={description} dateLabel="发布时间" dateValue={createTime}>
   <div class="mt-6 flex flex-wrap items-center gap-2">
     <span
-      class="rounded-md border border-(--color-line) px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.16em] text-(--color-fg-3)"
+      class="rounded-md border border-(--color-line) px-2.5 py-1 font-mono text-[11px] tracking-[0.16em] text-(--color-fg-3) uppercase"
     >
       分类 · {category}
     </span>

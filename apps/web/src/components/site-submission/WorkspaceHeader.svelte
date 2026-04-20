@@ -6,7 +6,7 @@
 
 <div class="flex flex-wrap items-start justify-between gap-4 border-b border-(--color-line) pb-5">
   <div class="space-y-2">
-    <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-red-700 dark:text-red-400">
+    <p class="font-mono text-[11px] tracking-[0.18em] text-red-700 uppercase dark:text-red-400">
       公开提交流程
     </p>
     <h2 class="text-[clamp(1.8rem,4vw,2.7rem)] leading-[1.04] tracking-[-0.04em]">

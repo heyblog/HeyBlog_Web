@@ -156,11 +156,11 @@
         >
           {#if displaySummary.leading.length > 0}
             <div class="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
-              <div class="flex min-w-0 max-w-[55%] items-center gap-1 overflow-hidden">
+              <div class="flex max-w-[55%] min-w-0 items-center gap-1 overflow-hidden">
                 {#each displaySummary.leading as token (token)}
                   {#if token.kind === 'structured'}
                     <span
-                      class="inline-flex min-w-0 max-w-30 items-baseline gap-0.5 overflow-hidden rounded-[4px] bg-[color-mix(in_srgb,var(--color-info)_8%,transparent)] px-1.5 py-1 align-middle text-[13px]"
+                      class="inline-flex max-w-30 min-w-0 items-baseline gap-0.5 overflow-hidden rounded-[4px] bg-[color-mix(in_srgb,var(--color-info)_8%,transparent)] px-1.5 py-1 align-middle text-[13px]"
                     >
                       <span class="shrink-0 font-mono text-(--color-info)">
                         {token.field}

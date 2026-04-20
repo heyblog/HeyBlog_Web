@@ -123,7 +123,7 @@
       <div class="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {#each [{ label: '今日更新', value: result.summary.todayArticles }, { label: '近 7 天更新', value: result.summary.weekArticles }, { label: '文章总数', value: result.summary.totalArticles }, { label: '涉及站点', value: result.summary.siteCount }] as card (card.label)}
           <article class="rounded-md border border-(--color-line) bg-(--color-bg) px-4 py-4">
-            <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">
+            <p class="font-mono text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase">
               {card.label}
             </p>
             <p class="mt-3 text-3xl font-medium tracking-[-0.04em] text-(--color-fg)">

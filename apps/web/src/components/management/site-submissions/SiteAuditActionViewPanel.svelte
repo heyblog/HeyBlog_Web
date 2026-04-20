@@ -78,8 +78,8 @@
               <dt class="text-xs text-(--color-fg-3)">{item.label}</dt>
               <dd
                 class={isInlineTagField(item.field)
-                  ? 'overflow-x-auto whitespace-nowrap text-sm'
-                  : 'whitespace-pre-wrap break-all text-sm'}
+                  ? 'overflow-x-auto text-sm whitespace-nowrap'
+                  : 'text-sm break-all whitespace-pre-wrap'}
               >
                 {item.value_display || '—'}
               </dd>
@@ -105,25 +105,25 @@
             <div
               class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_30%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_7%,transparent)] px-3 py-2"
             >
-              <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
+              <p class="text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase">修改前</p>
               {#if isInlineTagField(change.field)}
-                <p class="mt-2 overflow-x-auto whitespace-nowrap text-xs">
+                <p class="mt-2 overflow-x-auto text-xs whitespace-nowrap">
                   {change.before_display || '—'}
                 </p>
               {:else}
-                <pre class="mt-2 whitespace-pre-wrap text-xs">{change.before_display || '—'}</pre>
+                <pre class="mt-2 text-xs whitespace-pre-wrap">{change.before_display || '—'}</pre>
               {/if}
             </div>
             <div
               class="rounded-sm border border-[color-mix(in_srgb,var(--color-ok)_30%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-ok)_8%,transparent)] px-3 py-2"
             >
-              <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改后</p>
+              <p class="text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase">修改后</p>
               {#if isInlineTagField(change.field)}
-                <p class="mt-2 overflow-x-auto whitespace-nowrap text-xs">
+                <p class="mt-2 overflow-x-auto text-xs whitespace-nowrap">
                   {change.after_display || '—'}
                 </p>
               {:else}
-                <pre class="mt-2 whitespace-pre-wrap text-xs">{change.after_display || '—'}</pre>
+                <pre class="mt-2 text-xs whitespace-pre-wrap">{change.after_display || '—'}</pre>
               {/if}
             </div>
           </div>
@@ -144,8 +144,8 @@
               <dt class="text-xs text-(--color-fg-3)">{item.label}</dt>
               <dd
                 class={isInlineTagField(item.field)
-                  ? 'overflow-x-auto whitespace-nowrap text-sm'
-                  : 'whitespace-pre-wrap break-all text-sm'}
+                  ? 'overflow-x-auto text-sm whitespace-nowrap'
+                  : 'text-sm break-all whitespace-pre-wrap'}
               >
                 {item.value_display || '—'}
               </dd>
@@ -158,7 +158,7 @@
         <p class="text-xs text-(--color-fg-3)">
           {detail.action_view.kind === 'DELETE' ? '删除原因' : '恢复说明'}
         </p>
-        <p class="mt-2 whitespace-pre-wrap text-sm leading-7">
+        <p class="mt-2 text-sm leading-7 whitespace-pre-wrap">
           {detail.action_view.reason ?? detail.submit_reason ?? '—'}
         </p>
       </div>

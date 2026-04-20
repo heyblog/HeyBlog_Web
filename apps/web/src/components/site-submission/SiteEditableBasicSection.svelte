@@ -70,7 +70,7 @@
       <label class="block text-sm" for={`${idPrefix}-url`}
         >站点地址<span class="ml-1 text-(--color-fail)" aria-hidden="true">✱</span></label
       >
-      <div class="flex gap-3 items-stretch">
+      <div class="flex items-stretch gap-3">
         <input
           id={`${idPrefix}-url`}
           class={`${inputClass} flex-1`}

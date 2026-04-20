@@ -125,7 +125,7 @@
     role="presentation"
   >
     <div
-      class={`relative my-auto flex w-[min(42rem,calc(100vw-1.5rem))] max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-md border border-(--color-line-med) bg-(--color-bg-raised) p-4 shadow-[0_22px_48px_rgba(28,25,23,0.18)] dark:shadow-[0_22px_48px_rgba(0,0,0,0.42)] sm:max-h-[calc(100dvh-3rem)] sm:p-5 lg:max-h-[calc(100dvh-4rem)] lg:p-6 ${panelClass}`}
+      class={`relative my-auto flex w-[min(42rem,calc(100vw-1.5rem))] max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-md border border-(--color-line-med) bg-(--color-bg-raised) p-4 shadow-[0_22px_48px_rgba(28,25,23,0.18)] sm:max-h-[calc(100dvh-3rem)] sm:p-5 lg:max-h-[calc(100dvh-4rem)] lg:p-6 dark:shadow-[0_22px_48px_rgba(0,0,0,0.42)] ${panelClass}`}
       in:scale={panelEnterMotion}
       out:scale={panelExitMotion}
       role="dialog"
@@ -134,7 +134,7 @@
     >
       {#if showHeaderClose}
         <button
-          class="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-md border border-(--color-line-med) text-(--color-fg-2) transition hover:border-(--color-line-strong) hover:text-(--color-fg)"
+          class="absolute top-4 right-4 inline-flex h-8 w-8 items-center justify-center rounded-md border border-(--color-line-med) text-(--color-fg-2) transition hover:border-(--color-line-strong) hover:text-(--color-fg)"
           type="button"
           aria-label={headerCloseAriaLabel}
           onclick={handleCancel}

@@ -131,12 +131,12 @@
             <h2 class="mt-4 text-xl font-medium tracking-[-0.02em]">{item.title}</h2>
 
             {#if item.content}
-              <div class="mt-2 whitespace-pre-wrap text-sm leading-7 text-(--color-fg)">
+              <div class="mt-2 text-sm leading-7 whitespace-pre-wrap text-(--color-fg)">
                 {item.content}
               </div>
             {/if}
             <div
-              class="space-y-1 w-full text-xs text-(--color-fg-3) flex flex-col xs:flex-row xs:gap-2 mt-2 justify-end"
+              class="xs:flex-row xs:gap-2 mt-2 flex w-full flex-col justify-end space-y-1 text-xs text-(--color-fg-3)"
             >
               <p>开始时间：{formatDate(item.publishTime)}</p>
               <p>结束时间：{formatDate(item.expireTime)}</p>

@@ -65,7 +65,7 @@ const headings = Astro.props.headings || [];
 
   <main class="flex-1">
     <div
-      class="mx-auto flex w-full max-w-368 flex-col gap-8 px-3.5 py-6 xs:px-4 sm:px-6 lg:px-8 lg:py-8"
+      class="xs:px-4 mx-auto flex w-full max-w-368 flex-col gap-8 px-3.5 py-6 sm:px-6 lg:px-8 lg:py-8"
     >
       <section class="grid gap-8 xl:grid-cols-[minmax(0,1fr)_16rem]" data-content-shell>
         <article class="space-y-8" data-content-article>
@@ -79,7 +79,7 @@ const headings = Astro.props.headings || [];
               showSecondaryUpdate ? (
                 <p
                   slot="meta"
-                  class="font-mono text-[11px] uppercase tracking-[0.16em] text-(--color-fg-3)"
+                  class="font-mono text-[11px] tracking-[0.16em] text-(--color-fg-3) uppercase"
                 >
                   最后更新 · {formattedUpdateTime}
                 </p>

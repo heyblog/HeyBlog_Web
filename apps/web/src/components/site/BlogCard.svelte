@@ -90,9 +90,9 @@
 
 <article
   class={[
-    'flex h-64 flex-col overflow-hidden rounded-md border border-(--color-line-med) bg-transparent p-2 transition-[background-color,border-color,transform] duration-150 ease-out-smooth hover:-translate-y-px hover:bg-(--color-bg-raised) hover:border-[color-mix(in_srgb,var(--card-accent)_18%,var(--color-line-med))] xs:h-63 xs:p-5',
-    '[--card-accent:var(--color-info)] [--card-accent-dot:var(--color-info-dot)]',
-    '[--card-updated-fg:var(--color-ok)] [--card-updated-dot:var(--color-ok-dot)]',
+    'ease-out-smooth xs:h-63 xs:p-5 flex h-64 flex-col overflow-hidden rounded-md border border-(--color-line-med) bg-transparent p-2 transition-[background-color,border-color,transform] duration-150 hover:-translate-y-px hover:border-[color-mix(in_srgb,var(--card-accent)_18%,var(--color-line-med))] hover:bg-(--color-bg-raised)',
+    '[--card-accent-dot:var(--color-info-dot)] [--card-accent:var(--color-info)]',
+    '[--card-updated-dot:var(--color-ok-dot)] [--card-updated-fg:var(--color-ok)]',
     toneClass[entry.tone],
     entry.updatedTone ? updatedToneClass[entry.updatedTone] : '',
   ].join(' ')}
@@ -121,7 +121,7 @@
         >
           <div class="flex flex-wrap items-start gap-x-1 gap-y-0.5">
             <h2
-              class="overflow-hidden text-[15px] leading-[1.3] font-medium text-(--color-fg) transition-colors duration-150 ease-out-smooth [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] group-hover:text-(--card-accent)"
+              class="ease-out-smooth [display:-webkit-box] overflow-hidden text-[15px] leading-[1.3] font-medium text-(--color-fg) transition-colors duration-150 [-webkit-box-orient:vertical] [-webkit-line-clamp:2] group-hover:text-(--card-accent)"
             >
               {entry.name}
             </h2>
@@ -139,7 +139,7 @@
             {/if}
           </div>
           <p
-            class="mt-0.75 overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[11px] leading-[1.35] text-(--color-fg-3) transition-colors duration-150 ease-out-smooth group-hover:text-(--card-accent)"
+            class="ease-out-smooth mt-0.75 overflow-hidden font-mono text-[11px] leading-[1.35] text-ellipsis whitespace-nowrap text-(--color-fg-3) transition-colors duration-150 group-hover:text-(--card-accent)"
           >
             {entry.domain}
           </p>
@@ -151,7 +151,7 @@
       <div class="flex min-h-0 flex-1 flex-col">
         <div class="flex h-[3.36rem] items-center overflow-hidden">
           <p
-            class="overflow-hidden text-base leading-[1.68] text-(--color-fg-2) [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
+            class="[display:-webkit-box] overflow-hidden text-base leading-[1.68] text-(--color-fg-2) [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
           >
             {entry.summary}
           </p>
@@ -237,7 +237,7 @@
             <div class="inline-flex shrink-0 items-center gap-1.5">
               {#if onFeedback}
                 <button
-                  class="inline-flex min-h-6.5 shrink-0 items-center gap-1 rounded-sm px-2.5 py-1 text-[12px] leading-none font-medium text-(--color-fg-2) transition-[background-color,color] duration-150 ease-out-smooth hover:bg-(--color-bg-raised) hover:text-(--card-accent) focus-visible:outline-none focus-visible:bg-(--color-bg-raised)"
+                  class="ease-out-smooth inline-flex min-h-6.5 shrink-0 items-center gap-1 rounded-sm px-2.5 py-1 text-[12px] leading-none font-medium text-(--color-fg-2) transition-[background-color,color] duration-150 hover:bg-(--color-bg-raised) hover:text-(--card-accent) focus-visible:bg-(--color-bg-raised) focus-visible:outline-none"
                   type="button"
                   onclick={() => onFeedback?.(entry)}
                   aria-label={`反馈 ${entry.name} 的站点问题`}
@@ -248,7 +248,7 @@
                 </button>
               {/if}
               <a
-                class="inline-flex min-h-6.5 shrink-0 items-center gap-1 rounded-sm px-2.5 py-1 text-[12px] leading-none font-medium text-(--color-fg-2) transition-[background-color,color] duration-150 ease-out-smooth hover:bg-(--color-bg-raised) hover:text-(--card-accent) focus-visible:outline-none focus-visible:bg-(--color-bg-raised)"
+                class="ease-out-smooth inline-flex min-h-6.5 shrink-0 items-center gap-1 rounded-sm px-2.5 py-1 text-[12px] leading-none font-medium text-(--color-fg-2) transition-[background-color,color] duration-150 hover:bg-(--color-bg-raised) hover:text-(--card-accent) focus-visible:bg-(--color-bg-raised) focus-visible:outline-none"
                 href={detailHref}
               >
                 详情

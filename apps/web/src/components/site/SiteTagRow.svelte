@@ -38,7 +38,7 @@
 
 <div
   class={singleLine
-    ? 'flex items-center gap-1 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
+    ? 'flex items-center gap-1 overflow-x-auto whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
     : 'flex flex-wrap items-center gap-2'}
 >
   {#if primaryTag}

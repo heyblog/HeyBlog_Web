@@ -273,7 +273,7 @@
         id={inputId}
         bind:this={input}
         bind:value={query}
-        class="min-w-36 h-8 flex-1 bg-transparent py-0 text-sm leading-8 text-(--color-fg) outline-none placeholder:text-(--color-fg-3)"
+        class="h-8 min-w-36 flex-1 bg-transparent py-0 text-sm leading-8 text-(--color-fg) outline-none placeholder:text-(--color-fg-3)"
         {disabled}
         placeholder={selectedOptions.length === 0 && customItems.length === 0
           ? placeholder
@@ -325,7 +325,7 @@
                 </span>
                 {#if frameworkIds.includes(option.id) || languageIds.includes(option.id)}
                   <span
-                    class="font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-info)"
+                    class="font-mono text-[11px] tracking-[0.18em] text-(--color-info) uppercase"
                     >已选</span
                   >
                 {/if}

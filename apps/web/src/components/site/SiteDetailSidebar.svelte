@@ -31,7 +31,7 @@
   }
 </script>
 
-<aside class="min-w-0 xl:border-l xl:border-(--color-line) xl:pl-8 pt-2">
+<aside class="min-w-0 pt-2 xl:border-l xl:border-(--color-line) xl:pl-8">
   <div class="space-y-6">
     <section>
       <p class="font-mono text-base tracking-[0.16em] text-(--color-fg-3) uppercase">站点信息</p>

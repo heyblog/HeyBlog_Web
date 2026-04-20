@@ -222,7 +222,7 @@
         id={inputId}
         bind:this={input}
         bind:value={query}
-        class="combobox-input-reset min-w-36 h-8 flex-1 bg-transparent py-0 text-sm leading-8 text-(--color-fg) outline-none placeholder:text-(--color-fg-3)"
+        class="combobox-input-reset h-8 min-w-36 flex-1 bg-transparent py-0 text-sm leading-8 text-(--color-fg) outline-none placeholder:text-(--color-fg-3)"
         {disabled}
         placeholder={items.length === 0 ? placeholder : '继续搜索或添加'}
         onfocus={open}
@@ -268,7 +268,7 @@
                 <span>{option.name}</span>
                 {#if items.some((item) => item.tag_id === option.id)}
                   <span
-                    class="font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-info)"
+                    class="font-mono text-[11px] tracking-[0.18em] text-(--color-info) uppercase"
                     >已选</span
                   >
                 {/if}

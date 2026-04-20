@@ -37,7 +37,7 @@ const { items, classificationOptions, accessScopeOptions, siteStatusOptions, pag
             <tr class="border-b border-(--color-line) last:border-b-0">
               <td class="px-4 py-4 align-middle">
                 <div class="mt-1 text-xs text-(--color-fg-3)">BID: {entry.bid ?? '—'}</div>
-                <div class="mt-1 not-[]:font-medium">{entry.name}</div>
+                <div class="not-[]:font-medium mt-1">{entry.name}</div>
                 <div class="mt-1 text-xs text-(--color-fg-3)">{entry.url}</div>
                 <div class="mt-1 text-xs text-(--color-fg-3)">{entry.id}</div>
                 <div class="mt-1 text-xs text-(--color-fg-3)">{readManagedSiteFlags(entry)}</div>

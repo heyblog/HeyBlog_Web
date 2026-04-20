@@ -50,7 +50,7 @@
   role={tone === 'error' ? 'alert' : 'status'}
 >
   {#if eyebrow}
-    <p class={`font-mono text-[11px] uppercase tracking-[0.18em] ${toneClass.eyebrow}`}>
+    <p class={`font-mono text-[11px] tracking-[0.18em] uppercase ${toneClass.eyebrow}`}>
       {eyebrow}
     </p>
   {/if}

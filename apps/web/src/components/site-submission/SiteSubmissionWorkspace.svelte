@@ -598,7 +598,7 @@
     <div class="space-y-4">
       {#if createDuplicateDialog.review.strong.length > 0}
         <div class="space-y-3">
-          <p class="text-xs uppercase tracking-[0.18em] text-(--color-fg-3)">已命中站点</p>
+          <p class="text-xs tracking-[0.18em] text-(--color-fg-3) uppercase">已命中站点</p>
           {#each createDuplicateDialog.review.strong as candidate (candidate.site_id)}
             <article class="rounded-md border border-(--color-line-med) bg-(--color-bg) px-4 py-4">
               <div class="flex flex-wrap items-center gap-2 text-sm text-(--color-fg)">
@@ -611,7 +611,7 @@
                   </span>
                 {/if}
               </div>
-              <p class="mt-2 break-all text-sm text-(--color-fg-2)">{candidate.url}</p>
+              <p class="mt-2 text-sm break-all text-(--color-fg-2)">{candidate.url}</p>
               <p class="mt-2 text-xs text-(--color-fg-3)">{candidate.reason}</p>
               <a
                 class="mt-3 inline-flex items-center rounded-md border border-(--color-line-med) px-3 py-1.5 text-xs text-(--color-fg) transition hover:border-(--color-line-strong)"
@@ -628,7 +628,7 @@
 
       {#if createDuplicateDialog.review.weak.length > 0}
         <div class="space-y-3">
-          <p class="text-xs uppercase tracking-[0.18em] text-(--color-fg-3)">疑似重复候选</p>
+          <p class="text-xs tracking-[0.18em] text-(--color-fg-3) uppercase">疑似重复候选</p>
           {#each createDuplicateDialog.review.weak as candidate (candidate.site_id)}
             <article class="rounded-md border border-(--color-line-med) bg-(--color-bg) px-4 py-4">
               <div class="flex flex-wrap items-center gap-2 text-sm text-(--color-fg)">
@@ -641,7 +641,7 @@
                   </span>
                 {/if}
               </div>
-              <p class="mt-2 break-all text-sm text-(--color-fg-2)">{candidate.url}</p>
+              <p class="mt-2 text-sm break-all text-(--color-fg-2)">{candidate.url}</p>
               <p class="mt-2 text-xs text-(--color-fg-3)">{candidate.reason}</p>
               <a
                 class="mt-3 inline-flex items-center rounded-md border border-(--color-line-med) px-3 py-1.5 text-xs text-(--color-fg) transition hover:border-(--color-line-strong)"
@@ -704,7 +704,7 @@
   {#if activeSubmissionResult}
     <div class="space-y-4">
       <div class="rounded-md border border-(--color-line-med) bg-(--color-bg) px-4 py-4">
-        <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-info)">
+        <p class="font-mono text-[11px] tracking-[0.18em] text-(--color-info) uppercase">
           查询编号
         </p>
         <p class="mt-3 font-mono text-sm text-(--color-fg)">{activeSubmissionResult.audit_id}</p>

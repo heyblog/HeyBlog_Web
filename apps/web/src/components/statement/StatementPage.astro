@@ -24,11 +24,11 @@ const { title, eyebrow, summary, sections } = Astro.props;
 
   <main class="flex-1">
     <div
-      class="mx-auto flex w-full max-w-368 flex-col gap-8 px-3.5 py-6 xs:px-4 sm:px-6 lg:px-8 lg:py-8"
+      class="xs:px-4 mx-auto flex w-full max-w-368 flex-col gap-8 px-3.5 py-6 sm:px-6 lg:px-8 lg:py-8"
     >
       <section class="border-b border-(--color-line) pb-8">
         <p
-          class="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-red-700 dark:text-red-400"
+          class="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.18em] text-red-700 uppercase dark:text-red-400"
         >
           {eyebrow}
         </p>

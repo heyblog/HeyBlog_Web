@@ -15,7 +15,7 @@ const { title, description, createTime, editors, groups } = Astro.props;
 <EntryHeader title={title} description={description} dateLabel="发布时间" dateValue={createTime}>
   <div class="mt-6 grid gap-3 text-sm text-(--color-fg-2)">
     <p class="flex flex-wrap items-center gap-2">
-      <span class="font-mono text-[11px] uppercase tracking-[0.16em] text-(--color-fg-3)"
+      <span class="font-mono text-[11px] tracking-[0.16em] text-(--color-fg-3) uppercase"
         >维护者</span
       >
       {
@@ -26,7 +26,7 @@ const { title, description, createTime, editors, groups } = Astro.props;
     </p>
 
     <p class="flex flex-wrap items-center gap-2">
-      <span class="font-mono text-[11px] uppercase tracking-[0.16em] text-(--color-fg-3)">分组</span
+      <span class="font-mono text-[11px] tracking-[0.16em] text-(--color-fg-3) uppercase">分组</span
       >
       {
         groups.map((group) => (

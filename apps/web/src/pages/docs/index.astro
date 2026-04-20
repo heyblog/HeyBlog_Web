@@ -39,11 +39,11 @@ const docsIndexDescription = '按类别浏览集博栈项目文档，查看协�
 
   <main class="flex-1">
     <div
-      class="mx-auto flex w-full max-w-[92rem] flex-col gap-8 px-[14px] py-6 xs:px-4 sm:px-6 lg:px-8 lg:py-8"
+      class="xs:px-4 mx-auto flex w-full max-w-[92rem] flex-col gap-8 px-[14px] py-6 sm:px-6 lg:px-8 lg:py-8"
     >
       <section class="border-b border-[color:var(--color-line)] pb-8">
         <p
-          class="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-red-700 dark:text-red-400"
+          class="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.18em] text-red-700 uppercase dark:text-red-400"
         >
           <BookIcon size={14} stroke={1.9} class="block" />
           项目文档
@@ -70,7 +70,7 @@ const docsIndexDescription = '按类别浏览集博栈项目文档，查看协�
                   {group.title}
                 </h2>
                 <p class="mt-3 text-sm leading-7 text-[color:var(--color-fg-2)]">{group.summary}</p>
-                <p class="mt-4 font-mono text-[11px] uppercase tracking-[0.16em] text-[color:var(--color-fg-3)]">
+                <p class="mt-4 font-mono text-[11px] tracking-[0.16em] text-[color:var(--color-fg-3)] uppercase">
                   {group.entries.length} 篇内容
                 </p>
               </a>
@@ -90,7 +90,7 @@ const docsIndexDescription = '按类别浏览集博栈项目文档，查看协�
                   <Icon size={17} stroke={1.9} class="block" />
                 </span>
                 <div>
-                  <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-fg-3)]">
+                  <p class="font-mono text-[11px] tracking-[0.18em] text-[color:var(--color-fg-3)] uppercase">
                     文档分类
                   </p>
                   <h2 class="mt-1 text-2xl leading-tight tracking-[-0.03em]">{group.title}</h2>
@@ -103,7 +103,7 @@ const docsIndexDescription = '按类别浏览集博栈项目文档，查看协�
                     class="group rounded-[5px] border border-[color:var(--color-line)] p-5 transition hover:border-red-700/25 hover:bg-[color:var(--color-bg-raised)] dark:hover:border-red-400/25"
                     href={`/docs/${entry.id}`}
                   >
-                    <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-fg-3)]">
+                    <p class="font-mono text-[11px] tracking-[0.18em] text-[color:var(--color-fg-3)] uppercase">
                       {formatDate(entry.data.create_time)}
                     </p>
                     <div class="mt-3 flex items-start justify-between gap-4">

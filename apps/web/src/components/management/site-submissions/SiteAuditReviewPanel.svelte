@@ -201,7 +201,7 @@
     {#if showSummaryReason}
       <div>
         <p class="text-xs text-(--color-fg-3)">提交原因</p>
-        <p class="mt-2 whitespace-pre-wrap text-sm leading-7">{detail.submit_reason}</p>
+        <p class="mt-2 text-sm leading-7 whitespace-pre-wrap">{detail.submit_reason}</p>
       </div>
     {/if}
   </section>

@@ -37,8 +37,8 @@
         <div
           class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_32%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_8%,transparent)] px-3 py-2"
         >
-          <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
-          <p class="mt-1 whitespace-pre-wrap text-xs text-(--color-fg)">{fieldAlerts.name.value}</p>
+          <p class="text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase">修改前</p>
+          <p class="mt-1 text-xs whitespace-pre-wrap text-(--color-fg)">{fieldAlerts.name.value}</p>
         </div>
       {/if}
       <label class="block text-sm" for={`${idPrefix}-name`}
@@ -60,8 +60,8 @@
         <div
           class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_32%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_8%,transparent)] px-3 py-2"
         >
-          <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
-          <p class="mt-1 whitespace-pre-wrap text-xs text-(--color-fg)">{fieldAlerts.url.value}</p>
+          <p class="text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase">修改前</p>
+          <p class="mt-1 text-xs whitespace-pre-wrap text-(--color-fg)">{fieldAlerts.url.value}</p>
         </div>
       {/if}
       <label class="block text-sm" for={`${idPrefix}-url`}
@@ -83,8 +83,8 @@
         <div
           class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_32%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_8%,transparent)] px-3 py-2"
         >
-          <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
-          <p class="mt-1 whitespace-pre-wrap text-xs text-(--color-fg)">{fieldAlerts.sign.value}</p>
+          <p class="text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase">修改前</p>
+          <p class="mt-1 text-xs whitespace-pre-wrap text-(--color-fg)">{fieldAlerts.sign.value}</p>
         </div>
       {/if}
       <label class="block text-sm" for={`${idPrefix}-sign`}
@@ -107,8 +107,8 @@
         <div
           class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_32%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_8%,transparent)] px-3 py-2"
         >
-          <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
-          <p class="mt-1 whitespace-pre-wrap text-xs text-(--color-fg)">
+          <p class="text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase">修改前</p>
+          <p class="mt-1 text-xs whitespace-pre-wrap text-(--color-fg)">
             {fieldAlerts.main_tag.value}
           </p>
         </div>
@@ -137,8 +137,8 @@
         <div
           class="rounded-sm border border-[color-mix(in_srgb,var(--color-fail)_32%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_8%,transparent)] px-3 py-2"
         >
-          <p class="text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">修改前</p>
-          <p class="mt-1 whitespace-pre-wrap text-xs text-(--color-fg)">
+          <p class="text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase">修改前</p>
+          <p class="mt-1 text-xs whitespace-pre-wrap text-(--color-fg)">
             {fieldAlerts.sub_tags.value}
           </p>
         </div>

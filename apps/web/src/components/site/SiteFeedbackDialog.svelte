@@ -73,7 +73,7 @@
       >
       <select
         bind:value={reasonType}
-        class="w-full rounded-md border border-(--color-line-med) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-fg) outline-none transition focus:border-(--color-info-dot)"
+        class="w-full rounded-md border border-(--color-line-med) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-fg) transition outline-none focus:border-(--color-info-dot)"
       >
         {#each reasonOptions as option (option.value)}
           <option value={option.value}>{option.label}</option>
@@ -89,7 +89,7 @@
         bind:value={feedbackContent}
         rows="5"
         placeholder="请写明问题现象、涉及链接或你观察到的具体情况。"
-        class="w-full rounded-md border border-(--color-line-med) bg-(--color-bg) px-3 py-2.5 text-sm leading-6 text-(--color-fg) outline-none transition placeholder:text-(--color-fg-3) focus:border-(--color-info-dot)"
+        class="w-full rounded-md border border-(--color-line-med) bg-(--color-bg) px-3 py-2.5 text-sm leading-6 text-(--color-fg) transition outline-none placeholder:text-(--color-fg-3) focus:border-(--color-info-dot)"
       ></textarea>
     </label>
 
@@ -101,7 +101,7 @@
         <input
           bind:value={reporterName}
           placeholder="可选"
-          class="w-full rounded-md border border-(--color-line-med) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-fg) outline-none transition placeholder:text-(--color-fg-3) focus:border-(--color-info-dot)"
+          class="w-full rounded-md border border-(--color-line-med) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-fg) transition outline-none placeholder:text-(--color-fg-3) focus:border-(--color-info-dot)"
         />
       </label>
 
@@ -113,7 +113,7 @@
           bind:value={reporterEmail}
           inputmode="email"
           placeholder="可选"
-          class="w-full rounded-md border border-(--color-line-med) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-fg) outline-none transition placeholder:text-(--color-fg-3) focus:border-(--color-info-dot)"
+          class="w-full rounded-md border border-(--color-line-med) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-fg) transition outline-none placeholder:text-(--color-fg-3) focus:border-(--color-info-dot)"
         />
       </label>
     </div>

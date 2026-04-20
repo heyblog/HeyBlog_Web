@@ -95,7 +95,7 @@
 </script>
 
 <section
-  class="order-2 rounded-md border border-(--color-line-med) p-5 sm:py-8 sm:px-10 lg:order-1"
+  class="order-2 rounded-md border border-(--color-line-med) p-5 sm:px-10 sm:py-8 lg:order-1"
 >
   <WorkspaceHeader {activePage} />
 

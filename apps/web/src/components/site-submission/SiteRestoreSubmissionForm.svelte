@@ -197,7 +197,7 @@
     {@const auditId = success.audit_id}
     <div class="space-y-4">
       <div class="rounded-md border border-(--color-line-med) bg-(--color-bg) px-4 py-4">
-        <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-info)">
+        <p class="font-mono text-[11px] tracking-[0.18em] text-(--color-info) uppercase">
           查询编号
         </p>
         <p class="mt-3 font-mono text-sm text-(--color-fg)">{auditId}</p>

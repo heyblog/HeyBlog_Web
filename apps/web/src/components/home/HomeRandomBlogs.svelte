@@ -35,7 +35,7 @@
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div class="space-y-2">
       <p
-        class="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-red-700 dark:text-red-400"
+        class="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.18em] text-red-700 uppercase dark:text-red-400"
       >
         <IconDice size={14} stroke={1.9} class="block" />
         随机访问

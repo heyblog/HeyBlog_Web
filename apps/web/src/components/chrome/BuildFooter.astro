@@ -32,7 +32,7 @@ const friendLinks = [
 
 <footer class="border-t border-(--color-line) bg-(--color-bg-soft)/45">
   <div
-    class="mx-auto grid w-full max-w-368 gap-8 px-3.5 py-8 text-sm xs:px-4 sm:px-6 lg:grid-cols-3 lg:items-start lg:gap-10 lg:px-8 lg:py-10"
+    class="xs:px-4 mx-auto grid w-full max-w-368 gap-8 px-3.5 py-8 text-sm sm:px-6 lg:grid-cols-3 lg:items-start lg:gap-10 lg:px-8 lg:py-10"
   >
     <div class="grid gap-3 text-sm leading-7 text-(--color-fg-2)">
       <p>
@@ -50,7 +50,7 @@ const friendLinks = [
         <div class="group relative max-w-full" data-build-info-root>
           <button
             aria-haspopup="dialog"
-            class="inline-flex max-w-full items-center gap-2 rounded-[999px] border border-(--color-line) bg-(--color-bg-soft)/65 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3) transition hover:border-(--color-line-med) hover:text-(--color-fg-2) focus:outline-none focus-visible:border-(--color-line-med) focus-visible:text-(--color-fg-2)"
+            class="inline-flex max-w-full items-center gap-2 rounded-[999px] border border-(--color-line) bg-(--color-bg-soft)/65 px-3 py-1 font-mono text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase transition hover:border-(--color-line-med) hover:text-(--color-fg-2) focus:outline-none focus-visible:border-(--color-line-med) focus-visible:text-(--color-fg-2)"
             data-build-info-trigger
             type="button"
           >
@@ -61,7 +61,7 @@ const friendLinks = [
             <span class="truncate">{buildSummaryText}</span>
           </button>
           <div
-            class="pointer-events-none absolute bottom-[calc(100%+0.75rem)] left-0 z-20 max-h-[calc(100vh-2rem)] w-[min(22rem,calc(100vw-2rem))] overflow-auto rounded-md border border-(--color-line-med) bg-(--color-bg-raised) p-4 text-sm opacity-0 shadow-[0_14px_36px_rgba(15,23,42,0.08)] transition duration-200 data-[popover-side=above]:translate-y-2 data-[popover-side=below]:-translate-y-2 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100 lg:left-auto lg:right-0"
+            class="pointer-events-none absolute bottom-[calc(100%+0.75rem)] left-0 z-20 max-h-[calc(100vh-2rem)] w-[min(22rem,calc(100vw-2rem))] overflow-auto rounded-md border border-(--color-line-med) bg-(--color-bg-raised) p-4 text-sm opacity-0 shadow-[0_14px_36px_rgba(15,23,42,0.08)] transition duration-200 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 data-[popover-side=above]:translate-y-2 data-[popover-side=below]:-translate-y-2 lg:right-0 lg:left-auto"
             data-build-info-panel
             data-popover-side="above"
             role="dialog"
@@ -123,7 +123,7 @@ const friendLinks = [
           </div>
         </div>
         <span
-          class="inline-flex items-center gap-2 rounded-[999px] border border-emerald-700/18 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.18em] text-emerald-700 dark:border-emerald-400/20 dark:text-emerald-400"
+          class="inline-flex items-center gap-2 rounded-[999px] border border-emerald-700/18 px-3 py-1 font-mono text-[11px] tracking-[0.18em] text-emerald-700 uppercase dark:border-emerald-400/20 dark:text-emerald-400"
         >
           <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
           <span>在线人数</span>
@@ -133,7 +133,7 @@ const friendLinks = [
     </div>
 
     <div class="flex flex-col gap-4 lg:px-6">
-      <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">站点声明</p>
+      <p class="font-mono text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase">站点声明</p>
       <ul class="grid gap-3">
         {
           statementLinks.map((item) => (
@@ -151,7 +151,7 @@ const friendLinks = [
     </div>
 
     <div class="flex flex-col gap-4">
-      <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">友情链接</p>
+      <p class="font-mono text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase">友情链接</p>
       <ul class="grid gap-3">
         {
           friendLinks.map((item) => (

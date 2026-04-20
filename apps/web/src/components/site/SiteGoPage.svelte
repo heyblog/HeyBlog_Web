@@ -123,7 +123,7 @@
         </span>
 
         <div class="min-w-0 flex-1">
-          <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">
+          <p class="font-mono text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase">
             随机前往
           </p>
 
@@ -154,7 +154,7 @@
             >
               {#each infoItems as item (item.label)}
                 <div>
-                  <dt class="font-mono text-[10px] uppercase tracking-[0.16em] text-(--color-fg-3)">
+                  <dt class="font-mono text-[10px] tracking-[0.16em] text-(--color-fg-3) uppercase">
                     {item.label}
                   </dt>
                   <dd class="mt-2 break-all text-(--color-fg)">{item.value}</dd>
@@ -166,7 +166,7 @@
               class="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-(--color-line) pt-5"
             >
               <div>
-                <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">
+                <p class="font-mono text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase">
                   倒计时
                 </p>
                 <p
@@ -206,7 +206,7 @@
             </p>
 
             <div class="mt-6 border-t border-(--color-line) pt-5">
-              <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)">
+              <p class="font-mono text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase">
                 参数说明
               </p>
               <div class="mt-4 grid gap-3 text-sm leading-7 text-(--color-fg-2)">
@@ -228,7 +228,7 @@
 
               {#if result.availableTypes.length > 0}
                 <p
-                  class="mt-6 font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-fg-3)"
+                  class="mt-6 font-mono text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase"
                 >
                   可用主标签
                 </p>

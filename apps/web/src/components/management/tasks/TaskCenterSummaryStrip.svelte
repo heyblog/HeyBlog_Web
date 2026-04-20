@@ -33,7 +33,7 @@
 
 <section class="rounded-[5px] border border-(--color-line) bg-(--color-bg-raised) p-5">
   <div>
-    <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-(--color-info)">TASK CENTER</p>
+    <p class="font-mono text-[11px] tracking-[0.18em] text-(--color-info) uppercase">TASK CENTER</p>
     <h1 class="mt-2 text-[20px] font-medium text-(--color-fg)">后台任务中心</h1>
     <p class="mt-2 text-sm leading-6 text-(--color-fg-3)">
       使用选项卡切换调度定义、请求配置、手动执行和作业记录，当前页只保留一个入口层级。
