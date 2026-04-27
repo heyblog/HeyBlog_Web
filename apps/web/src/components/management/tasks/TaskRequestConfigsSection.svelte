@@ -24,14 +24,14 @@
   let pendingDeleteId = $state<string | null>(null);
 </script>
 
-<section class="space-y-4 rounded-[5px] border border-(--color-line) bg-(--color-bg-raised) p-5">
+<section class="space-y-4 rounded-md border border-(--color-line) bg-(--color-bg-raised) p-5">
   <div class="flex flex-wrap items-center justify-between gap-3">
     <div>
       <h2 class="text-base font-semibold text-(--color-fg)">请求配置</h2>
       <p class="mt-1 text-sm text-(--color-fg-3)">统一管理 UA、超时、重试和默认请求头。</p>
     </div>
     <button
-      class="rounded-[5px] border border-(--color-line-med) px-4 py-2 text-sm"
+      class="rounded-md border border-(--color-line-med) px-4 py-2 text-sm"
       type="button"
       onclick={onCreate}
     >
@@ -56,10 +56,10 @@
                 <h3 class="text-sm font-medium text-(--color-fg)">{row.name}</h3>
                 <span class="text-xs text-(--color-fg-3)">{row.task_type}</span>
                 <span
-                  class={`rounded-[999px] px-2 py-0.5 text-[11px] ${
+                  class={`rounded-full px-2 py-0.5 text-[11px] ${
                     row.is_enabled
-                      ? 'bg-[color:color-mix(in_srgb,var(--color-ok)_16%,transparent)] text-(--color-ok)'
-                      : 'bg-[color:color-mix(in_srgb,var(--color-line)_72%,transparent)] text-(--color-fg-3)'
+                      ? 'bg-[color-mix(in_srgb,var(--color-ok)_16%,transparent)] text-(--color-ok)'
+                      : 'bg-[color-mix(in_srgb,var(--color-line)_72%,transparent)] text-(--color-fg-3)'
                   }`}
                 >
                   {row.is_enabled ? '已启用' : '已停用'}
@@ -75,12 +75,12 @@
 
             <div class="flex flex-wrap gap-2">
               <button
-                class="rounded-[5px] border border-(--color-line-med) px-3 py-1.5 text-sm"
+                class="rounded-md border border-(--color-line-med) px-3 py-1.5 text-sm"
                 type="button"
                 onclick={() => onEdit?.(row)}>编辑</button
               >
               <button
-                class="rounded-[5px] border border-(--color-line-med) px-3 py-1.5 text-sm"
+                class="rounded-md border border-(--color-line-med) px-3 py-1.5 text-sm"
                 type="button"
                 disabled={busy}
                 onclick={() => onToggle?.(row.id)}
@@ -88,7 +88,7 @@
                 {row.is_enabled ? '停用' : '启用'}
               </button>
               <button
-                class="rounded-[5px] border border-(--color-line-med) px-3 py-1.5 text-sm text-(--color-fail)"
+                class="rounded-md border border-(--color-line-med) px-3 py-1.5 text-sm text-(--color-fail)"
                 type="button"
                 onclick={() => {
                   pendingDeleteId = row.id;

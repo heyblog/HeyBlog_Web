@@ -15,7 +15,7 @@
   } = $props();
 </script>
 
-<section class="rounded-[5px] border border-(--color-line) bg-(--color-bg-raised) p-5">
+<section class="rounded-md border border-(--color-line) bg-(--color-bg-raised) p-5">
   <div>
     <h2 class="text-base font-semibold text-(--color-fg)">重试链路</h2>
     <p class="mt-1 text-sm text-(--color-fg-3)">每次重试都会新建 job，旧 job 保留原状态。</p>
@@ -38,7 +38,7 @@
             <div class="min-w-0">
               <div class="flex flex-wrap items-center gap-2">
                 <span
-                  class="rounded-[999px] bg-[color:color-mix(in_srgb,var(--color-info)_16%,transparent)] px-2 py-0.5 text-[11px] text-(--color-info)"
+                  class="rounded-full bg-[color-mix(in_srgb,var(--color-info)_16%,transparent)] px-2 py-0.5 text-[11px] text-(--color-info)"
                 >
                   第 {row.retry_sequence ?? 0} 次
                 </span>
@@ -60,7 +60,7 @@
 
             {#if row.id !== currentJobId}
               <a
-                class="rounded-[5px] border border-(--color-line-med) px-3 py-1.5 text-sm"
+                class="rounded-md border border-(--color-line-med) px-3 py-1.5 text-sm"
                 href={`/management/tasks/jobs/${row.id}?return_to=${encodeURIComponent(returnTo)}`}
               >
                 查看

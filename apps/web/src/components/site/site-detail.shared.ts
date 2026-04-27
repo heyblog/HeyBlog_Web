@@ -17,37 +17,37 @@ const SITE_CHECK_RESULT_META: Record<string, { label: string; dot: string; textC
   SUCCESS: {
     label: '访问正常',
     dot: 'var(--color-ok-dot)',
-    textClass: 'text-[color:var(--color-ok)]',
+    textClass: 'text-(--color-ok)',
   },
   FAILURE: {
     label: '访问失败',
     dot: 'var(--color-fail-dot)',
-    textClass: 'text-[color:var(--color-fail)]',
+    textClass: 'text-(--color-fail)',
   },
   TIMEOUT: {
     label: '请求超时',
     dot: 'var(--color-fail-dot)',
-    textClass: 'text-[color:var(--color-fail)]',
+    textClass: 'text-(--color-fail)',
   },
   DNS_ERROR: {
     label: 'DNS 异常',
     dot: 'var(--color-fail-dot)',
-    textClass: 'text-[color:var(--color-fail)]',
+    textClass: 'text-(--color-fail)',
   },
   SSL_ERROR: {
     label: '证书异常',
     dot: 'var(--color-warn-dot)',
-    textClass: 'text-[color:var(--color-warn)]',
+    textClass: 'text-(--color-warn)',
   },
   HTTP_ERROR: {
     label: 'HTTP 异常',
     dot: 'var(--color-warn-dot)',
-    textClass: 'text-[color:var(--color-warn)]',
+    textClass: 'text-(--color-warn)',
   },
   BLOCKED: {
     label: '访问受限',
     dot: 'var(--color-warn-dot)',
-    textClass: 'text-[color:var(--color-warn)]',
+    textClass: 'text-(--color-warn)',
   },
 };
 
@@ -116,14 +116,14 @@ export function resolveSiteCheckTextClass(result: string): string {
 
 export function resolveSiteStatusToneClass(value: string): string {
   if (value === 'OK') {
-    return 'text-[color:var(--color-ok)]';
+    return 'text-(--color-ok)';
   }
 
   if (value === 'ERROR') {
-    return 'text-[color:var(--color-fail)]';
+    return 'text-(--color-fail)';
   }
 
-  return 'text-[color:var(--color-warn)]';
+  return 'text-(--color-warn)';
 }
 
 export function resolveHeartbeatSlotCount(viewportWidth: number): number {

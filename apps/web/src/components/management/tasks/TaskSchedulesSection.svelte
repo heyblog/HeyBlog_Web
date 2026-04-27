@@ -57,7 +57,7 @@
               <div class="flex flex-wrap items-center gap-2">
                 <h3 class="text-sm font-medium text-(--color-fg)">{row.name}</h3>
                 <span
-                  class={`rounded-[999px] px-2 py-0.5 text-[11px] ${
+                  class={`rounded-full px-2 py-0.5 text-[11px] ${
                     row.is_enabled
                       ? 'bg-[color-mix(in_srgb,var(--color-ok)_16%,transparent)] text-(--color-ok)'
                       : 'bg-[color-mix(in_srgb,var(--color-line)_72%,transparent)] text-(--color-fg-3)'

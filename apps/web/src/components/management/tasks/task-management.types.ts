@@ -207,15 +207,15 @@ export type RequestConfigFormState = {
 export const FALLBACK_TIMEZONE = 'Asia/Shanghai';
 
 export const STATUS_CLASS_MAP: Record<string, string> = {
-  PENDING: 'text-[color:var(--color-info)]',
-  RUNNING: 'text-[color:var(--color-info)]',
-  SUCCEEDED: 'text-[color:var(--color-ok)]',
-  FAILED: 'text-[color:var(--color-fail)]',
-  CANCELED: 'text-[color:var(--color-warn)]',
-  SKIPPED: 'text-[color:var(--color-warn)]',
-  OK: 'text-[color:var(--color-ok)]',
-  WARNING: 'text-[color:var(--color-warn)]',
-  ERROR: 'text-[color:var(--color-fail)]',
+  PENDING: 'text-(--color-info)',
+  RUNNING: 'text-(--color-info)',
+  SUCCEEDED: 'text-(--color-ok)',
+  FAILED: 'text-(--color-fail)',
+  CANCELED: 'text-(--color-warn)',
+  SKIPPED: 'text-(--color-warn)',
+  OK: 'text-(--color-ok)',
+  WARNING: 'text-(--color-warn)',
+  ERROR: 'text-(--color-fail)',
 };
 
 export const TERMINAL_JOB_STATUS = new Set(['SUCCEEDED', 'FAILED', 'CANCELED']);

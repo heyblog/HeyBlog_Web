@@ -113,7 +113,7 @@
 <section class="page-section flex min-h-[calc(100vh-15rem)] items-center justify-center py-6">
   <div class="w-full max-w-232">
     <article
-      class="rounded-[6px] border border-(--color-line-med) bg-(--color-bg) p-5 shadow-none sm:p-7"
+      class="rounded-md border border-(--color-line-med) bg-(--color-bg) p-5 shadow-none sm:p-7"
     >
       <div class="flex items-start gap-4">
         <span
@@ -133,7 +133,7 @@
             >
               {target.name}
             </h1>
-            <p class="mt-4 font-mono text-[12px] leading-6 text-(--color-fg-3)">
+            <p class="mt-4 font-mono text-xs leading-6 text-(--color-fg-3)">
               {target.url}
             </p>
             <p class="mt-5 max-w-3xl text-[16px] leading-8 text-(--color-fg-2)">

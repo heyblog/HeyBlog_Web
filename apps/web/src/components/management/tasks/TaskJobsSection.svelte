@@ -34,10 +34,10 @@
   } = $props();
 
   const inputClass =
-    'w-full rounded-[5px] border border-(--color-line) bg-(--color-bg-raised) px-3 py-2 text-sm text-(--color-fg) outline-none transition focus:border-(--color-info)';
+    'w-full rounded-md border border-(--color-line) bg-(--color-bg-raised) px-3 py-2 text-sm text-(--color-fg) outline-none transition focus:border-(--color-info)';
 </script>
 
-<section class="space-y-4 rounded-[5px] border border-(--color-line) bg-(--color-bg-raised) p-5">
+<section class="space-y-4 rounded-md border border-(--color-line) bg-(--color-bg-raised) p-5">
   <div class="flex flex-wrap items-center justify-between gap-3">
     <div>
       <h2 class="text-base font-semibold text-(--color-fg)">任务实例</h2>
@@ -47,12 +47,12 @@
     </div>
     <div class="flex flex-wrap gap-2">
       <button
-        class="rounded-[5px] border border-(--color-line-med) px-4 py-2 text-sm"
+        class="rounded-md border border-(--color-line-med) px-4 py-2 text-sm"
         type="button"
         onclick={onResetFilters}>清空筛选</button
       >
       <button
-        class="rounded-[5px] border border-(--color-line-med) px-4 py-2 text-sm"
+        class="rounded-md border border-(--color-line-med) px-4 py-2 text-sm"
         type="button"
         onclick={onRefresh}>应用筛选</button
       >
@@ -119,7 +119,7 @@
 
             <div class="flex flex-wrap gap-2">
               <a
-                class="rounded-[5px] border border-(--color-line-med) px-3 py-1.5 text-sm"
+                class="rounded-md border border-(--color-line-med) px-3 py-1.5 text-sm"
                 href={`/management/tasks/jobs/${row.id}?return_to=${encodeURIComponent(returnTo)}`}
               >
                 详情
@@ -128,7 +128,7 @@
               {#if row.status === 'FAILED' || row.status === 'CANCELED'}
                 <Tooltip content="重试会新建一个 job，旧 job 保持原状态" placement="bottom">
                   <button
-                    class="rounded-[5px] border border-(--color-line-med) px-3 py-1.5 text-sm"
+                    class="rounded-md border border-(--color-line-med) px-3 py-1.5 text-sm"
                     type="button"
                     onclick={() => onRetry?.(row.id)}
                   >
@@ -145,7 +145,7 @@
                   placement="bottom"
                 >
                   <button
-                    class="rounded-[5px] border border-(--color-line-med) px-3 py-1.5 text-sm"
+                    class="rounded-md border border-(--color-line-med) px-3 py-1.5 text-sm"
                     type="button"
                     onclick={() => onCancel?.(row)}
                   >
@@ -157,7 +157,7 @@
               {#if row.status === 'SUCCEEDED' || row.status === 'FAILED' || row.status === 'CANCELED'}
                 <Tooltip content="只删除当前 job 记录，不影响已有运行摘要" placement="bottom">
                   <button
-                    class="rounded-[5px] border border-(--color-line-med) px-3 py-1.5 text-sm"
+                    class="rounded-md border border-(--color-line-med) px-3 py-1.5 text-sm"
                     type="button"
                     onclick={() => onDelete?.(row)}
                   >

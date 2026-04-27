@@ -58,7 +58,7 @@
       <h3 class="text-lg leading-tight">{querySuccess.site_name ?? '待审核确认'}</h3>
       <div class="flex flex-wrap items-center justify-between gap-3">
         <span
-          class={`inline-flex rounded-[999px] border px-3 py-1 text-xs font-medium ${statusToneClass(querySuccess.status)}`}
+          class={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${statusToneClass(querySuccess.status)}`}
         >
           {ACTION_LABELS[querySuccess.action] ?? querySuccess.action} · {AUDIT_STATUS_META[
             querySuccess.status

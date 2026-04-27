@@ -30,7 +30,9 @@ const friendLinks = [
 ];
 ---
 
-<footer class="border-t border-(--color-line) bg-(--color-bg-soft)/45">
+<footer
+  class="border-t border-(--color-line) bg-[color-mix(in_srgb,var(--color-bg-raised)_45%,transparent)]"
+>
   <div
     class="xs:px-4 mx-auto grid w-full max-w-368 gap-8 px-3.5 py-8 text-sm sm:px-6 lg:grid-cols-3 lg:items-start lg:gap-10 lg:px-8 lg:py-10"
   >
@@ -50,7 +52,7 @@ const friendLinks = [
         <div class="group relative max-w-full" data-build-info-root>
           <button
             aria-haspopup="dialog"
-            class="inline-flex max-w-full items-center gap-2 rounded-[999px] border border-(--color-line) bg-(--color-bg-soft)/65 px-3 py-1 font-mono text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase transition hover:border-(--color-line-med) hover:text-(--color-fg-2) focus:outline-none focus-visible:border-(--color-line-med) focus-visible:text-(--color-fg-2)"
+            class="inline-flex max-w-full items-center gap-2 rounded-full border border-(--color-line) bg-[color-mix(in_srgb,var(--color-bg-raised)_65%,transparent)] px-3 py-1 font-mono text-[11px] tracking-[0.18em] text-(--color-fg-3) uppercase transition hover:border-(--color-line-med) hover:text-(--color-fg-2) focus:outline-none focus-visible:border-(--color-line-med) focus-visible:text-(--color-fg-2)"
             data-build-info-trigger
             type="button"
           >
@@ -71,7 +73,7 @@ const friendLinks = [
                 <p class="font-medium text-(--color-fg)">{buildInfo.packageName}</p>
               </div>
               <span
-                class="rounded-[4px] border border-(--color-line) px-2 py-1 font-mono text-[11px] text-(--color-fg-3)"
+                class="rounded-sm border border-(--color-line) px-2 py-1 font-mono text-[11px] text-(--color-fg-3)"
               >
                 {buildInfo.branch}
               </span>
@@ -123,7 +125,7 @@ const friendLinks = [
           </div>
         </div>
         <span
-          class="inline-flex items-center gap-2 rounded-[999px] border border-emerald-700/18 px-3 py-1 font-mono text-[11px] tracking-[0.18em] text-emerald-700 uppercase dark:border-emerald-400/20 dark:text-emerald-400"
+          class="inline-flex items-center gap-2 rounded-full border border-emerald-700/18 px-3 py-1 font-mono text-[11px] tracking-[0.18em] text-emerald-700 uppercase dark:border-emerald-400/20 dark:text-emerald-400"
         >
           <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
           <span>在线人数</span>

@@ -17,10 +17,10 @@
   }
 
   const toneClassMap: Record<ToastTone, string> = {
-    info: 'text-[color:var(--color-info)]',
-    success: 'text-[color:var(--color-ok)]',
-    warning: 'text-[color:var(--color-warn)]',
-    error: 'text-[color:var(--color-fail)]',
+    info: 'text-(--color-info)',
+    success: 'text-(--color-ok)',
+    warning: 'text-(--color-warn)',
+    error: 'text-(--color-fail)',
   };
 
   const borderColorMap: Record<ToastTone, string> = {

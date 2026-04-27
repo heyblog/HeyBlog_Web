@@ -577,7 +577,7 @@
       <p>提交动作：{blockedSubmission.submission.action}</p>
       <p>提交时间：{formatAuditTime(blockedSubmission.submission.created_time)}</p>
       <a
-        class="inline-flex items-center rounded-md border border-(--color-line-med) px-3 py-1.5 text-xs text-(--color-fg) transition hover:border-(--color-line-strong)"
+        class="inline-flex items-center rounded-md border border-(--color-line-med) px-3 py-1.5 text-xs text-(--color-fg) transition hover:border-(--color-line-med)"
         href={blockedSubmissionQueryHref}
       >
         打开查询页
@@ -630,7 +630,7 @@
               <p class="mt-2 text-sm break-all text-(--color-fg-2)">{candidate.url}</p>
               <p class="mt-2 text-xs text-(--color-fg-3)">{candidate.reason}</p>
               <a
-                class="mt-3 inline-flex items-center rounded-md border border-(--color-line-med) px-3 py-1.5 text-xs text-(--color-fg) transition hover:border-(--color-line-strong)"
+                class="mt-3 inline-flex items-center rounded-md border border-(--color-line-med) px-3 py-1.5 text-xs text-(--color-fg) transition hover:border-(--color-line-med)"
                 href={candidate.url}
                 rel="noreferrer"
                 target="_blank"
@@ -660,7 +660,7 @@
               <p class="mt-2 text-sm break-all text-(--color-fg-2)">{candidate.url}</p>
               <p class="mt-2 text-xs text-(--color-fg-3)">{candidate.reason}</p>
               <a
-                class="mt-3 inline-flex items-center rounded-md border border-(--color-line-med) px-3 py-1.5 text-xs text-(--color-fg) transition hover:border-(--color-line-strong)"
+                class="mt-3 inline-flex items-center rounded-md border border-(--color-line-med) px-3 py-1.5 text-xs text-(--color-fg) transition hover:border-(--color-line-med)"
                 href={candidate.url}
                 rel="noreferrer"
                 target="_blank"
@@ -676,7 +676,7 @@
         <div class="flex flex-wrap gap-3">
           {#if publicContactMailtoHref}
             <a
-              class="inline-flex items-center rounded-md border border-(--color-line-med) px-4 py-2 text-sm text-(--color-fg) transition hover:border-(--color-line-strong)"
+              class="inline-flex items-center rounded-md border border-(--color-line-med) px-4 py-2 text-sm text-(--color-fg) transition hover:border-(--color-line-med)"
               href={publicContactMailtoHref}
             >
               通过邮箱反馈
@@ -693,7 +693,7 @@
       {#if createDuplicateDialog.code === 'SITE_RESTORE_REQUIRED' && primaryStrongDuplicate}
         <div class="flex flex-wrap gap-3">
           <a
-            class="inline-flex items-center rounded-md border border-(--color-line-med) px-4 py-2 text-sm text-(--color-fg) transition hover:border-(--color-line-strong)"
+            class="inline-flex items-center rounded-md border border-(--color-line-med) px-4 py-2 text-sm text-(--color-fg) transition hover:border-(--color-line-med)"
             href={`/site/submit/restore?site_id=${encodeURIComponent(primaryStrongDuplicate.site_id)}`}
           >
             前往恢复申请
@@ -728,14 +728,14 @@
 
       <div class="flex flex-wrap gap-3">
         <button
-          class="rounded-md border border-(--color-line-med) px-4 py-2 text-sm text-(--color-fg) transition hover:border-(--color-line-strong)"
+          class="rounded-md border border-(--color-line-med) px-4 py-2 text-sm text-(--color-fg) transition hover:border-(--color-line-med)"
           type="button"
           onclick={() => handleCopyAuditId(activeSubmissionResult.audit_id)}
         >
           {copiedAuditId === activeSubmissionResult.audit_id ? '已复制查询 ID' : '复制查询 ID'}
         </button>
         <a
-          class="inline-flex items-center rounded-md border border-(--color-line-med) px-4 py-2 text-sm text-(--color-fg) transition hover:border-(--color-line-strong)"
+          class="inline-flex items-center rounded-md border border-(--color-line-med) px-4 py-2 text-sm text-(--color-fg) transition hover:border-(--color-line-med)"
           href={buildSubmissionQueryHref(activeSubmissionResult.audit_id)}
         >
           前往查询页

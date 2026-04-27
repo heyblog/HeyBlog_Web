@@ -33,16 +33,16 @@
 </script>
 
 <div
-  class="grid gap-2 rounded-[5px] border border-(--color-line) bg-(--color-bg-raised) p-2 md:grid-cols-2 xl:grid-cols-4"
+  class="grid gap-2 rounded-md border border-(--color-line) bg-(--color-bg-raised) p-2 md:grid-cols-2 xl:grid-cols-4"
   role="tablist"
   aria-label={ariaLabel}
 >
   {#each items as item, index (item.key)}
     <button
       id={`task-tab-${item.key}`}
-      class={`rounded-[5px] border px-4 py-3 text-left transition ${
+      class={`rounded-md border px-4 py-3 text-left transition ${
         activeKey === item.key
-          ? 'border-[color:color-mix(in_srgb,var(--color-info)_24%,var(--color-line))] bg-(--color-bg-raised)'
+          ? 'border-[color-mix(in_srgb,var(--color-info)_24%,var(--color-line))] bg-(--color-bg-raised)'
           : 'border-transparent bg-transparent hover:border-(--color-line-med) hover:bg-(--color-bg-raised)'
       }`}
       role="tab"
@@ -57,10 +57,10 @@
         <span class="text-sm font-medium text-(--color-fg)">{item.label}</span>
         {#if typeof item.count === 'number'}
           <span
-            class={`rounded-[999px] px-2 py-0.5 text-[11px] ${
+            class={`rounded-full px-2 py-0.5 text-[11px] ${
               activeKey === item.key
-                ? 'bg-[color:color-mix(in_srgb,var(--color-info)_16%,transparent)] text-(--color-info)'
-                : 'bg-[color:color-mix(in_srgb,var(--color-line)_72%,transparent)] text-(--color-fg-3)'
+                ? 'bg-[color-mix(in_srgb,var(--color-info)_16%,transparent)] text-(--color-info)'
+                : 'bg-[color-mix(in_srgb,var(--color-line)_72%,transparent)] text-(--color-fg-3)'
             }`}
           >
             {item.count}

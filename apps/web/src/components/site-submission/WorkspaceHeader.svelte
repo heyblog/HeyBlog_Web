@@ -30,7 +30,7 @@
 
   <nav class="flex flex-wrap gap-2 text-sm">
     <a
-      class={`rounded-[4px] border px-3 py-2 transition ${
+      class={`rounded-sm border px-3 py-2 transition ${
         activePage === 'create'
           ? 'border-(--color-line-med) text-(--color-fg)'
           : 'border-(--color-line) text-(--color-fg-2) hover:text-(--color-fg)'
@@ -40,7 +40,7 @@
       新增
     </a>
     <a
-      class={`rounded-[4px] border px-3 py-2 transition ${
+      class={`rounded-sm border px-3 py-2 transition ${
         activePage === 'update'
           ? 'border-(--color-line-med) text-(--color-fg)'
           : 'border-(--color-line) text-(--color-fg-2) hover:text-(--color-fg)'
@@ -50,7 +50,7 @@
       修订
     </a>
     <a
-      class={`rounded-[4px] border px-3 py-2 transition ${
+      class={`rounded-sm border px-3 py-2 transition ${
         activePage === 'delete'
           ? 'border-(--color-line-med) text-(--color-fg)'
           : 'border-(--color-line) text-(--color-fg-2) hover:text-(--color-fg)'
@@ -60,7 +60,7 @@
       删除
     </a>
     <a
-      class={`rounded-[4px] border px-3 py-2 transition ${
+      class={`rounded-sm border px-3 py-2 transition ${
         activePage === 'restore'
           ? 'border-(--color-line-med) text-(--color-fg)'
           : 'border-(--color-line) text-(--color-fg-2) hover:text-(--color-fg)'
@@ -70,7 +70,7 @@
       恢复
     </a>
     <a
-      class={`rounded-[4px] border px-3 py-2 transition ${
+      class={`rounded-sm border px-3 py-2 transition ${
         activePage === 'query'
           ? 'border-(--color-line-med) text-(--color-fg)'
           : 'border-(--color-line) text-(--color-fg-2) hover:text-(--color-fg)'

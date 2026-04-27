@@ -72,7 +72,7 @@ const statusMessage = getAuthStatusMessage(Astro.url.searchParams.get('status'))
 
         <div class="flex justify-end text-sm">
           <a
-            class="text-(--color-fg-3) underline decoration-[color:var(--color-line-med)] underline-offset-[0.18em] transition hover:text-(--color-fg)"
+            class="text-(--color-fg-3) underline decoration-(--color-line-med) underline-offset-[0.18em] transition hover:text-(--color-fg)"
             href={`/login${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ''}`}
           >
             返回登录

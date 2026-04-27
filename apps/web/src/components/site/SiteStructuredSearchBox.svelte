@@ -160,7 +160,7 @@
                 {#each displaySummary.leading as token (token)}
                   {#if token.kind === 'structured'}
                     <span
-                      class="inline-flex max-w-30 min-w-0 items-baseline gap-0.5 overflow-hidden rounded-[4px] bg-[color-mix(in_srgb,var(--color-info)_8%,transparent)] px-1.5 py-1 align-middle text-[13px]"
+                      class="inline-flex max-w-30 min-w-0 items-baseline gap-0.5 overflow-hidden rounded-sm bg-[color-mix(in_srgb,var(--color-info)_8%,transparent)] px-1.5 py-1 align-middle text-[13px]"
                     >
                       <span class="shrink-0 font-mono text-(--color-info)">
                         {token.field}
@@ -226,7 +226,7 @@
           aria-label="清空搜索"
         >
           <span
-            class="inline-flex size-7 items-center justify-center rounded-[4px] hover:bg-(--color-bg-raised)"
+            class="inline-flex size-7 items-center justify-center rounded-sm hover:bg-(--color-bg-raised)"
           >
             <IconX size={15} stroke={1.9} class="block" />
           </span>

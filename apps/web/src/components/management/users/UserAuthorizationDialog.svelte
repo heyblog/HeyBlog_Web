@@ -161,7 +161,7 @@
   }
 
   .permission-option:hover {
-    border-color: var(--color-line-strong);
+    border-color: var(--color-line-med);
   }
 
   .permission-option:focus-within {

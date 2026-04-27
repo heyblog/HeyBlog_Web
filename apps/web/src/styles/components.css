@@ -295,7 +295,7 @@
 
   .choice-button:hover {
     transform: translateY(-1px);
-    border-color: var(--color-line-strong);
+    border-color: var(--color-line-med);
   }
 
   .choice-button:focus-visible {
@@ -342,7 +342,7 @@
 
   .toggle-check:hover {
     transform: translateY(-1px);
-    border-color: var(--color-line-strong);
+    border-color: var(--color-line-med);
   }
 
   .toggle-check-box {
@@ -976,7 +976,7 @@
   }
 
   .subscription-feed-add-button:hover {
-    border-color: var(--color-line-strong);
+    border-color: var(--color-line-med);
     background: color-mix(in srgb, var(--color-bg) 84%, var(--color-bg-raised));
     color: var(--color-fg);
     transform: translateY(-1px);
@@ -1053,7 +1053,7 @@
   }
 
   .sidebar-collapsible-toggle:hover {
-    border-color: var(--color-line-strong);
+    border-color: var(--color-line-med);
     background: color-mix(in srgb, var(--color-bg) 74%, var(--color-bg-raised));
   }
 
@@ -1149,7 +1149,7 @@
 
   .dashboard-menu-link:hover {
     transform: translateY(-1px);
-    border-color: var(--color-line-strong);
+    border-color: var(--color-line-med);
     background: color-mix(in srgb, var(--color-bg) 68%, var(--color-bg-raised));
   }
 

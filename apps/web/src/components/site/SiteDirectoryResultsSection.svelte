@@ -47,7 +47,7 @@
         <p class="font-mono text-[11px] tracking-[0.16em] text-(--color-fg-3) uppercase">Results</p>
         <div class="inline-flex items-center rounded-md border border-(--color-line-med) p-0.5">
           <button
-            class={`inline-flex items-center rounded-[4px] px-2.5 py-1.5 text-sm transition ${
+            class={`inline-flex items-center rounded-sm px-2.5 py-1.5 text-sm transition ${
               result.query.statusMode === 'normal'
                 ? 'bg-(--color-bg-raised) text-(--color-fg)'
                 : 'text-(--color-fg-3) hover:text-(--color-fg)'
@@ -58,7 +58,7 @@
             正常站点
           </button>
           <button
-            class={`inline-flex items-center rounded-[4px] px-2.5 py-1.5 text-sm transition ${
+            class={`inline-flex items-center rounded-sm px-2.5 py-1.5 text-sm transition ${
               result.query.statusMode === 'abnormal'
                 ? 'bg-(--color-bg-raised) text-(--color-fg)'
                 : 'text-(--color-fg-3) hover:text-(--color-fg)'
@@ -78,7 +78,7 @@
 
     <div class="flex flex-wrap items-center justify-end gap-2">
       <button
-        class={`inline-flex h-8 items-center gap-1.5 rounded-[4px] border px-2.5 text-sm transition ${
+        class={`inline-flex h-8 items-center gap-1.5 rounded-sm border px-2.5 text-sm transition ${
           result.query.random && !result.query.sort
             ? 'border-[color-mix(in_srgb,var(--color-info)_22%,var(--color-line-med))] bg-[color-mix(in_srgb,var(--color-info)_6%,var(--color-bg))] text-(--color-info)'
             : 'border-(--color-line-med) text-(--color-fg-2) hover:bg-(--color-bg-raised) hover:text-(--color-fg)'
@@ -108,7 +108,7 @@
 
       {#if result.query.sort}
         <button
-          class="inline-flex h-6 items-center rounded-[4px] px-0 text-sm text-(--color-fg-3) transition hover:text-(--color-fg)"
+          class="inline-flex h-6 items-center rounded-sm px-0 text-sm text-(--color-fg-3) transition hover:text-(--color-fg)"
           type="button"
           onclick={onOrderToggle}
         >

@@ -54,8 +54,8 @@
   {#snippet trigger()}
     <button
       class={triggerVariant === 'ghost'
-        ? 'inline-flex h-6 items-center gap-1.5 rounded-[4px] px-0 text-sm text-(--color-fg-3) transition hover:text-(--color-fg)'
-        : 'inline-flex h-10 items-center gap-2 rounded-md border border-(--color-line-med) bg-(--color-bg-raised) px-3 text-sm text-(--color-fg-2) transition hover:border-(--color-line-strong) hover:text-(--color-fg)'}
+        ? 'inline-flex h-6 items-center gap-1.5 rounded-sm px-0 text-sm text-(--color-fg-3) transition hover:text-(--color-fg)'
+        : 'inline-flex h-10 items-center gap-2 rounded-md border border-(--color-line-med) bg-(--color-bg-raised) px-3 text-sm text-(--color-fg-2) transition hover:border-(--color-line-med) hover:text-(--color-fg)'}
       type="button"
     >
       <span>{label}</span>
@@ -63,7 +63,7 @@
         <span
           class={triggerVariant === 'ghost'
             ? 'inline-flex items-center text-[11px] text-(--color-fg)'
-            : 'inline-flex items-center rounded-[999px] bg-(--color-bg) px-2 py-0.5 text-[11px] text-(--color-fg)'}
+            : 'inline-flex items-center rounded-full bg-(--color-bg) px-2 py-0.5 text-[11px] text-(--color-fg)'}
         >
           {selectedSummary}
         </span>
@@ -71,7 +71,7 @@
         <span
           class={triggerVariant === 'ghost'
             ? 'inline-flex min-w-4 justify-center text-[11px] text-(--color-fg)'
-            : 'inline-flex min-w-5 justify-center rounded-[999px] bg-(--color-bg) px-1.5 py-0.5 text-[11px] text-(--color-fg)'}
+            : 'inline-flex min-w-5 justify-center rounded-full bg-(--color-bg) px-1.5 py-0.5 text-[11px] text-(--color-fg)'}
         >
           {selected.length}
         </span>

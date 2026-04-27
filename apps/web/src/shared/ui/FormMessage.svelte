@@ -17,28 +17,28 @@
 
   const toneClassMap = {
     info: {
-      border: 'border-[color:color-mix(in_srgb,var(--color-info)_24%,var(--color-line))]',
-      eyebrow: 'text-[color:var(--color-info)]',
-      title: 'text-[color:var(--color-fg)]',
-      text: 'text-[color:var(--color-fg-2)]',
+      border: 'border-[color-mix(in_srgb,var(--color-info)_24%,var(--color-line))]',
+      eyebrow: 'text-(--color-info)',
+      title: 'text-(--color-fg)',
+      text: 'text-(--color-fg-2)',
     },
     success: {
-      border: 'border-[color:color-mix(in_srgb,var(--color-ok)_24%,var(--color-line))]',
-      eyebrow: 'text-[color:var(--color-ok)]',
-      title: 'text-[color:var(--color-fg)]',
-      text: 'text-[color:var(--color-fg-2)]',
+      border: 'border-[color-mix(in_srgb,var(--color-ok)_24%,var(--color-line))]',
+      eyebrow: 'text-(--color-ok)',
+      title: 'text-(--color-fg)',
+      text: 'text-(--color-fg-2)',
     },
     warning: {
-      border: 'border-[color:color-mix(in_srgb,var(--color-warn)_24%,var(--color-line))]',
-      eyebrow: 'text-[color:var(--color-warn)]',
-      title: 'text-[color:var(--color-fg)]',
-      text: 'text-[color:var(--color-fg-2)]',
+      border: 'border-[color-mix(in_srgb,var(--color-warn)_24%,var(--color-line))]',
+      eyebrow: 'text-(--color-warn)',
+      title: 'text-(--color-fg)',
+      text: 'text-(--color-fg-2)',
     },
     error: {
-      border: 'border-[color:color-mix(in_srgb,var(--color-fail)_24%,var(--color-line))]',
-      eyebrow: 'text-[color:var(--color-fail)]',
-      title: 'text-[color:var(--color-fg)]',
-      text: 'text-[color:var(--color-fg-2)]',
+      border: 'border-[color-mix(in_srgb,var(--color-fail)_24%,var(--color-line))]',
+      eyebrow: 'text-(--color-fail)',
+      title: 'text-(--color-fg)',
+      text: 'text-(--color-fg-2)',
     },
   } as const;
 
@@ -46,7 +46,7 @@
 </script>
 
 <section
-  class={`rounded-[5px] border bg-[color:var(--color-bg-raised)] p-4 ${toneClass.border}`}
+  class={`rounded-md border bg-(--color-bg-raised) p-4 ${toneClass.border}`}
   role={tone === 'error' ? 'alert' : 'status'}
 >
   {#if eyebrow}

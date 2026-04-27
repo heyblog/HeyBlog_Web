@@ -31,7 +31,7 @@
   ];
 </script>
 
-<section class="space-y-4 rounded-[5px] border border-(--color-line) bg-(--color-bg-raised) p-5">
+<section class="space-y-4 rounded-md border border-(--color-line) bg-(--color-bg-raised) p-5">
   <div>
     <h2 class="text-base font-semibold text-(--color-fg)">手动触发</h2>
     <p class="mt-1 text-sm text-(--color-fg-3)">
@@ -48,7 +48,7 @@
 
   <div class="grid gap-4 lg:grid-cols-2">
     {#each cards as card (card.kind)}
-      <article class="rounded-[5px] bg-(--color-bg-raised) p-5">
+      <article class="rounded-md bg-(--color-bg-raised) p-5">
         <div class="flex items-start justify-between gap-3">
           <div>
             <h3 class="text-sm font-medium text-(--color-fg)">{card.title}</h3>
@@ -59,7 +59,7 @@
             </p>
           </div>
           <button
-            class="shrink-0 rounded-[5px] border border-(--color-line-med) px-3 py-1.5 text-sm text-(--color-fg-2) transition hover:border-(--color-line) hover:bg-(--color-bg) hover:text-(--color-fg)"
+            class="shrink-0 rounded-md border border-(--color-line-med) px-3 py-1.5 text-sm text-(--color-fg-2) transition hover:border-(--color-line) hover:bg-(--color-bg) hover:text-(--color-fg)"
             type="button"
             onclick={() => onOpen?.(card.kind)}
           >

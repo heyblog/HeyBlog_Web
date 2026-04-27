@@ -16,11 +16,11 @@
   const categoryMeta: Record<TechCategory, { label: string; chip: string }> = {
     FRAMEWORK: {
       label: '框架',
-      chip: 'bg-[color:color-mix(in_srgb,var(--color-info)_14%,transparent)] text-[color:var(--color-info)]',
+      chip: 'bg-[color-mix(in_srgb,var(--color-info)_14%,transparent)] text-(--color-info)',
     },
     LANGUAGE: {
       label: '语言',
-      chip: 'bg-[color:color-mix(in_srgb,var(--color-warn)_14%,transparent)] text-[color:var(--color-warn)]',
+      chip: 'bg-[color-mix(in_srgb,var(--color-warn)_14%,transparent)] text-(--color-warn)',
     },
   };
 
@@ -225,10 +225,10 @@
     <div class="flex flex-wrap items-center gap-2">
       {#each selectedOptions as option (option.category + ':' + option.id)}
         <span
-          class="inline-flex items-center gap-2 rounded-[999px] border border-(--color-line-med) px-3 py-1 text-xs text-(--color-fg)"
+          class="inline-flex items-center gap-2 rounded-full border border-(--color-line-med) px-3 py-1 text-xs text-(--color-fg)"
         >
           <span
-            class={`inline-flex rounded-[999px] px-2 py-0.5 text-[10px] font-medium ${categoryMeta[option.category].chip}`}
+            class={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${categoryMeta[option.category].chip}`}
           >
             {categoryMeta[option.category].label}
           </span>
@@ -248,10 +248,10 @@
       {/each}
       {#each customItems as item (item.category + ':' + item.name)}
         <span
-          class="inline-flex items-center gap-2 rounded-[999px] border border-dashed border-(--color-line-med) px-3 py-1 text-xs text-(--color-fg)"
+          class="inline-flex items-center gap-2 rounded-full border border-dashed border-(--color-line-med) px-3 py-1 text-xs text-(--color-fg)"
         >
           <span
-            class={`inline-flex rounded-[999px] px-2 py-0.5 text-[10px] font-medium ${categoryMeta[item.category].chip}`}
+            class={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${categoryMeta[item.category].chip}`}
           >
             {categoryMeta[item.category].label}
           </span>
@@ -317,7 +317,7 @@
               >
                 <span class="flex items-center gap-2">
                   <span
-                    class={`inline-flex rounded-[999px] px-2 py-0.5 text-[10px] font-medium ${categoryMeta[getOptionCategory(option)].chip}`}
+                    class={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${categoryMeta[getOptionCategory(option)].chip}`}
                   >
                     {categoryMeta[getOptionCategory(option)].label}
                   </span>
@@ -337,10 +337,10 @@
               <div class="space-y-3 px-1">
                 <div class="flex items-center gap-2 px-2">
                   <span class="text-xs text-(--color-fg-3)">自定义类型</span>
-                  <div class="inline-flex rounded-[999px] border border-(--color-line-med) p-1">
+                  <div class="inline-flex rounded-full border border-(--color-line-med) p-1">
                     {#each ['FRAMEWORK', 'LANGUAGE'] as category (category)}
                       <button
-                        class={`rounded-[999px] px-3 py-1 text-xs transition ${
+                        class={`rounded-full px-3 py-1 text-xs transition ${
                           customCategory === category
                             ? 'bg-(--color-bg) text-(--color-fg)'
                             : 'text-(--color-fg-3) hover:text-(--color-fg)'
@@ -363,7 +363,7 @@
                   <span>添加自定义技术栈</span>
                   <span class="flex items-center gap-2">
                     <span
-                      class={`inline-flex rounded-[999px] px-2 py-0.5 text-[10px] font-medium ${categoryMeta[customCategory].chip}`}
+                      class={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${categoryMeta[customCategory].chip}`}
                     >
                       {categoryMeta[customCategory].label}
                     </span>
@@ -377,10 +377,10 @@
           <div class="space-y-3 px-1 py-1">
             <div class="flex items-center gap-2 px-2">
               <span class="text-xs text-(--color-fg-3)">自定义类型</span>
-              <div class="inline-flex rounded-[999px] border border-(--color-line-med) p-1">
+              <div class="inline-flex rounded-full border border-(--color-line-med) p-1">
                 {#each ['FRAMEWORK', 'LANGUAGE'] as category (category)}
                   <button
-                    class={`rounded-[999px] px-3 py-1 text-xs transition ${
+                    class={`rounded-full px-3 py-1 text-xs transition ${
                       customCategory === category
                         ? 'bg-(--color-bg) text-(--color-fg)'
                         : 'text-(--color-fg-3) hover:text-(--color-fg)'
@@ -403,7 +403,7 @@
               <span>添加自定义技术栈</span>
               <span class="flex items-center gap-2">
                 <span
-                  class={`inline-flex rounded-[999px] px-2 py-0.5 text-[10px] font-medium ${categoryMeta[customCategory].chip}`}
+                  class={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${categoryMeta[customCategory].chip}`}
                 >
                   {categoryMeta[customCategory].label}
                 </span>

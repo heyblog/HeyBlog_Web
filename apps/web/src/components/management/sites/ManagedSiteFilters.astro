@@ -37,17 +37,17 @@ const {
 <form class="space-y-4" method="get">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
     <label class="min-w-0 flex-1 space-y-1">
-      <span class="text-xs text-[var(--color-fg-3)]">关键词</span>
+      <span class="text-xs text-(--color-fg-3)">关键词</span>
       <div class="relative" data-keyword-field>
         <input
-          class="h-[42px] w-full rounded-[var(--radius-sm)] border border-[var(--color-line-med)] px-3 py-2 pr-10 text-sm"
+          class="h-[42px] w-full rounded-sm border border-(--color-line-med) px-3 py-2 pr-10 text-sm"
           name="q"
           placeholder="按站点名、URL 或 BID 搜索"
           type="text"
           value={keyword}
         />
         <button
-          class="absolute top-1/2 right-2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-base leading-none text-[var(--color-fg-3)] transition hover:bg-[var(--color-bg)] hover:text-[var(--color-fg)]"
+          class="absolute top-1/2 right-2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-base leading-none text-(--color-fg-3) transition hover:bg-(--color-bg) hover:text-(--color-fg)"
           type="button"
           aria-label="清空关键词"
           onclick="const wrapper = this.closest('[data-keyword-field]'); const input = wrapper?.querySelector('input[name=q]'); if (input instanceof HTMLInputElement) { input.value = ''; input.focus(); }"
@@ -63,12 +63,12 @@ const {
   </div>
 
   <div
-    class="grid grid-cols-2 gap-x-3 gap-y-2 rounded-[var(--radius-sm)] border border-[var(--color-line)] bg-[var(--color-bg-raised)] p-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-[repeat(6,minmax(0,1fr))_auto] lg:items-end"
+    class="grid grid-cols-2 gap-x-3 gap-y-2 rounded-sm border border-(--color-line) bg-(--color-bg-raised) p-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-[repeat(6,minmax(0,1fr))_auto] lg:items-end"
   >
     <label class="space-y-1">
-      <span class="text-xs text-[var(--color-fg-3)]">主分类</span>
+      <span class="text-xs text-(--color-fg-3)">主分类</span>
       <select
-        class="h-[42px] w-full rounded-[var(--radius-sm)] border border-[var(--color-line-med)] px-3 py-2 text-sm"
+        class="h-[42px] w-full rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
         name="main_tag_id"
       >
         <option value="">全部主分类</option>
@@ -83,9 +83,9 @@ const {
     </label>
 
     <label class="space-y-1">
-      <span class="text-xs text-[var(--color-fg-3)]">分类状态</span>
+      <span class="text-xs text-(--color-fg-3)">分类状态</span>
       <select
-        class="h-[42px] w-full rounded-[var(--radius-sm)] border border-[var(--color-line-med)] px-3 py-2 text-sm"
+        class="h-[42px] w-full rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
         name="classification_status"
       >
         <option value="">全部分类状态</option>
@@ -100,9 +100,9 @@ const {
     </label>
 
     <label class="space-y-1">
-      <span class="text-xs text-[var(--color-fg-3)]">访问范围</span>
+      <span class="text-xs text-(--color-fg-3)">访问范围</span>
       <select
-        class="h-[42px] w-full rounded-[var(--radius-sm)] border border-[var(--color-line-med)] px-3 py-2 text-sm"
+        class="h-[42px] w-full rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
         name="access_scope"
       >
         <option value="">全部访问范围</option>
@@ -117,9 +117,9 @@ const {
     </label>
 
     <label class="space-y-1">
-      <span class="text-xs text-[var(--color-fg-3)]">站点状态</span>
+      <span class="text-xs text-(--color-fg-3)">站点状态</span>
       <select
-        class="h-[42px] w-full rounded-[var(--radius-sm)] border border-[var(--color-line-med)] px-3 py-2 text-sm"
+        class="h-[42px] w-full rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
         name="status"
       >
         <option value="">全部站点状态</option>
@@ -134,9 +134,9 @@ const {
     </label>
 
     <label class="space-y-1">
-      <span class="text-xs text-[var(--color-fg-3)]">前台显示</span>
+      <span class="text-xs text-(--color-fg-3)">前台显示</span>
       <select
-        class="h-[42px] w-full rounded-[var(--radius-sm)] border border-[var(--color-line-med)] px-3 py-2 text-sm"
+        class="h-[42px] w-full rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
         name="is_show"
       >
         <option value="">全部</option>
@@ -151,9 +151,9 @@ const {
     </label>
 
     <label class="space-y-1">
-      <span class="text-xs text-[var(--color-fg-3)]">推荐站点</span>
+      <span class="text-xs text-(--color-fg-3)">推荐站点</span>
       <select
-        class="h-[42px] w-full rounded-[var(--radius-sm)] border border-[var(--color-line-med)] px-3 py-2 text-sm"
+        class="h-[42px] w-full rounded-sm border border-(--color-line-med) px-3 py-2 text-sm"
         name="recommend"
       >
         <option value="">全部</option>

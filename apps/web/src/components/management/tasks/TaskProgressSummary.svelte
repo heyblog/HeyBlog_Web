@@ -23,7 +23,7 @@
   );
 </script>
 
-<section class="rounded-[5px] border border-(--color-line) bg-(--color-bg-raised) p-5">
+<section class="rounded-md border border-(--color-line) bg-(--color-bg-raised) p-5">
   <div class="flex flex-wrap items-center justify-between gap-3">
     <div>
       <h2 class="text-base font-semibold text-(--color-fg)">任务摘要</h2>
@@ -38,17 +38,17 @@
 
   {#if summary}
     <div
-      class="mt-3 h-2 overflow-hidden rounded-[5px] bg-[color:color-mix(in_srgb,var(--color-line)_72%,transparent)]"
+      class="mt-3 h-2 overflow-hidden rounded-md bg-[color-mix(in_srgb,var(--color-line)_72%,transparent)]"
     >
       <div
-        class="h-full rounded-[5px] bg-(--color-info) transition-[width]"
+        class="h-full rounded-md bg-(--color-info) transition-[width]"
         style={`width:${summary.ratio}%`}
       ></div>
     </div>
 
     <div class="mt-4 grid gap-3 sm:grid-cols-5">
       {#each metricItems as item (item.label)}
-        <div class="rounded-[5px] bg-(--color-bg-raised) px-3 py-3">
+        <div class="rounded-md bg-(--color-bg-raised) px-3 py-3">
           <p class="text-xs text-(--color-fg-3)">{item.label}</p>
           <p class={`mt-1 text-sm font-medium ${item.tone}`}>{item.value}</p>
         </div>

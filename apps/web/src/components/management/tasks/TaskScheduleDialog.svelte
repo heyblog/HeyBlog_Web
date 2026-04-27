@@ -28,7 +28,7 @@
   } = $props();
 
   const inputClass =
-    'w-full rounded-[5px] border border-(--color-line) bg-(--color-bg-raised) px-3 py-2 text-sm text-(--color-fg) outline-none transition focus:border-(--color-info)';
+    'w-full rounded-md border border-(--color-line) bg-(--color-bg-raised) px-3 py-2 text-sm text-(--color-fg) outline-none transition focus:border-(--color-info)';
   const textareaClass = `${inputClass} min-h-24 resize-y`;
 
   let taskTypeOptions = $derived(

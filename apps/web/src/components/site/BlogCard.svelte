@@ -81,11 +81,10 @@
   });
 
   const iconActionClass =
-    'inline-flex size-6.5 items-center justify-center rounded-[4px] text-[color:var(--color-fg-3)] transition-[background-color,color] duration-150 ease-out-smooth hover:bg-[color:var(--color-bg-raised)] hover:text-[color:var(--card-accent)] focus-visible:outline-none focus-visible:bg-[color:var(--color-bg-raised)]';
+    'inline-flex size-6.5 items-center justify-center rounded-sm text-(--color-fg-3) transition-[background-color,color] duration-150 ease-out-smooth hover:bg-(--color-bg-raised) hover:text-(--card-accent) focus-visible:outline-none focus-visible:bg-(--color-bg-raised)';
   const metricLabelClass =
-    'font-mono text-[10px] leading-[1.2] tracking-[0.16em] text-[color:var(--color-fg-3)] uppercase';
-  const metricValueClass =
-    'mt-1 text-[14px] leading-[1.2] font-medium text-[color:var(--color-fg)]';
+    'font-mono text-[10px] leading-[1.2] tracking-[0.16em] text-(--color-fg-3) uppercase';
+  const metricValueClass = 'mt-1 text-[14px] leading-[1.2] font-medium text-(--color-fg)';
 </script>
 
 <article
@@ -237,7 +236,7 @@
             <div class="inline-flex shrink-0 items-center gap-1.5">
               {#if onFeedback}
                 <button
-                  class="ease-out-smooth inline-flex min-h-6.5 shrink-0 items-center gap-1 rounded-sm px-2.5 py-1 text-[12px] leading-none font-medium text-(--color-fg-2) transition-[background-color,color] duration-150 hover:bg-(--color-bg-raised) hover:text-(--card-accent) focus-visible:bg-(--color-bg-raised) focus-visible:outline-none"
+                  class="ease-out-smooth inline-flex min-h-6.5 shrink-0 items-center gap-1 rounded-sm px-2.5 py-1 text-xs leading-none font-medium text-(--color-fg-2) transition-[background-color,color] duration-150 hover:bg-(--color-bg-raised) hover:text-(--card-accent) focus-visible:bg-(--color-bg-raised) focus-visible:outline-none"
                   type="button"
                   onclick={() => onFeedback?.(entry)}
                   aria-label={`反馈 ${entry.name} 的站点问题`}
@@ -248,7 +247,7 @@
                 </button>
               {/if}
               <a
-                class="ease-out-smooth inline-flex min-h-6.5 shrink-0 items-center gap-1 rounded-sm px-2.5 py-1 text-[12px] leading-none font-medium text-(--color-fg-2) transition-[background-color,color] duration-150 hover:bg-(--color-bg-raised) hover:text-(--card-accent) focus-visible:bg-(--color-bg-raised) focus-visible:outline-none"
+                class="ease-out-smooth inline-flex min-h-6.5 shrink-0 items-center gap-1 rounded-sm px-2.5 py-1 text-xs leading-none font-medium text-(--color-fg-2) transition-[background-color,color] duration-150 hover:bg-(--color-bg-raised) hover:text-(--card-accent) focus-visible:bg-(--color-bg-raised) focus-visible:outline-none"
                 href={detailHref}
               >
                 详情

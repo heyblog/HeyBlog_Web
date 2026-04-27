@@ -213,7 +213,7 @@
     <div class="flex flex-wrap items-center gap-2">
       {#if selectedDisplayName}
         <span
-          class="inline-flex items-center gap-2 rounded-[999px] border border-(--color-line-med) px-3 py-1 text-xs text-(--color-fg)"
+          class="inline-flex items-center gap-2 rounded-full border border-(--color-line-med) px-3 py-1 text-xs text-(--color-fg)"
         >
           {selectedDisplayName}
         </span>

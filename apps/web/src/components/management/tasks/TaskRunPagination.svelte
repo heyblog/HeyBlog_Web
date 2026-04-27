@@ -31,7 +31,7 @@
 
   <div class="flex flex-wrap items-center gap-2">
     <select
-      class="rounded-[5px] border border-(--color-line) bg-(--color-bg-raised) px-3 py-2 text-sm text-(--color-fg)"
+      class="rounded-md border border-(--color-line) bg-(--color-bg-raised) px-3 py-2 text-sm text-(--color-fg)"
       value={String(pageSize)}
       onchange={handlePageSizeChange}
     >
@@ -41,7 +41,7 @@
     </select>
 
     <button
-      class="rounded-[5px] border border-(--color-line-med) px-3 py-2 text-sm"
+      class="rounded-md border border-(--color-line-med) px-3 py-2 text-sm"
       type="button"
       disabled={page <= 1}
       onclick={() => (page = Math.max(1, page - 1))}
@@ -50,7 +50,7 @@
     </button>
 
     <button
-      class="rounded-[5px] border border-(--color-line-med) px-3 py-2 text-sm"
+      class="rounded-md border border-(--color-line-med) px-3 py-2 text-sm"
       type="button"
       disabled={page >= totalPages}
       onclick={() => (page = Math.min(totalPages, page + 1))}

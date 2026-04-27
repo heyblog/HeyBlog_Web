@@ -20,19 +20,19 @@
 
   const primaryToneClass = {
     amber:
-      'border-[color:color-mix(in_srgb,var(--color-warn)_24%,var(--color-line))] bg-[color:color-mix(in_srgb,var(--color-warn)_7%,transparent)] text-[color:var(--color-warn)]',
-    blue: 'border-[color:color-mix(in_srgb,var(--color-info)_24%,var(--color-line))] bg-[color:color-mix(in_srgb,var(--color-info)_7%,transparent)] text-[color:var(--color-info)]',
+      'border-[color-mix(in_srgb,var(--color-warn)_24%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-warn)_7%,transparent)] text-(--color-warn)',
+    blue: 'border-[color-mix(in_srgb,var(--color-info)_24%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-info)_7%,transparent)] text-(--color-info)',
     emerald:
-      'border-[color:color-mix(in_srgb,var(--color-ok)_24%,var(--color-line))] bg-[color:color-mix(in_srgb,var(--color-ok)_7%,transparent)] text-[color:var(--color-ok)]',
-    red: 'border-[color:color-mix(in_srgb,var(--color-fail)_24%,var(--color-line))] bg-[color:color-mix(in_srgb,var(--color-fail)_7%,transparent)] text-[color:var(--color-fail)]',
+      'border-[color-mix(in_srgb,var(--color-ok)_24%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-ok)_7%,transparent)] text-(--color-ok)',
+    red: 'border-[color-mix(in_srgb,var(--color-fail)_24%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-fail)_7%,transparent)] text-(--color-fail)',
     stone:
-      'border-[color:color-mix(in_srgb,var(--color-fg-2)_18%,var(--color-line))] bg-[color:var(--color-bg-raised)] text-[color:var(--color-fg-2)]',
+      'border-[color-mix(in_srgb,var(--color-fg-2)_18%,var(--color-line))] bg-(--color-bg-raised) text-(--color-fg-2)',
   } satisfies Record<BlogCardTone, string>;
 
   const baseClass = $derived(
     compact
-      ? 'inline-flex items-center rounded-[4px] border px-2 py-1 font-mono text-[10px] leading-none'
-      : 'inline-flex items-center rounded-[4px] border px-2.5 py-1.5 font-mono text-[11px] leading-none',
+      ? 'inline-flex items-center rounded-sm border px-2 py-1 font-mono text-[10px] leading-none'
+      : 'inline-flex items-center rounded-sm border px-2.5 py-1.5 font-mono text-[11px] leading-none',
   );
 </script>
 

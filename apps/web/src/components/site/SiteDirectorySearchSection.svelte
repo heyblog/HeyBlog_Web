@@ -203,7 +203,7 @@
 
       {#snippet footerEnd()}
         <button
-          class="inline-flex h-6 items-center gap-1.5 rounded-[4px] px-0 text-sm text-(--color-fg-3) transition hover:text-(--color-fg)"
+          class="inline-flex h-6 items-center gap-1.5 rounded-sm px-0 text-sm text-(--color-fg-3) transition hover:text-(--color-fg)"
           type="button"
           onclick={onSyntaxToggle}
           aria-expanded={syntaxHelpOpen}
@@ -224,7 +224,7 @@
             <div class="flex flex-wrap gap-2">
               {#each SITE_DIRECTORY_SEARCH_HINTS as hint (hint.field)}
                 <button
-                  class="inline-flex items-center rounded-[4px] border border-(--color-line) px-2 py-1 font-mono text-[11px] text-(--color-fg-3) transition hover:border-(--color-line-med) hover:bg-(--color-bg) hover:text-(--color-fg)"
+                  class="inline-flex items-center rounded-sm border border-(--color-line) px-2 py-1 font-mono text-[11px] text-(--color-fg-3) transition hover:border-(--color-line-med) hover:bg-(--color-bg) hover:text-(--color-fg)"
                   type="button"
                   onclick={() => onInsertSyntaxSnippet?.(hint.snippet)}
                 >
@@ -235,7 +235,7 @@
 
             <div class="space-y-2">
               {#each SITE_DIRECTORY_SEARCH_HINTS as hint (hint.field)}
-                <div class="rounded-[4px] px-2 py-1.5">
+                <div class="rounded-sm px-2 py-1.5">
                   <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
                     <button
                       class="font-mono text-[11px] text-(--color-info) transition hover:text-(--color-fg)"

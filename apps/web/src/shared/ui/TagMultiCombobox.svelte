@@ -184,7 +184,7 @@
     <div class="flex flex-wrap items-center gap-2">
       {#each selectedOptions as option (option.id)}
         <span
-          class="inline-flex items-center gap-2 rounded-[999px] border border-(--color-line-med) px-3 py-1 text-xs text-(--color-fg)"
+          class="inline-flex items-center gap-2 rounded-full border border-(--color-line-med) px-3 py-1 text-xs text-(--color-fg)"
         >
           {option.name}
           <button
@@ -202,7 +202,7 @@
       {/each}
       {#each customItems as value (value.name_normalized ?? value.name ?? '')}
         <span
-          class="inline-flex items-center gap-2 rounded-[999px] border border-dashed border-(--color-line-med) px-3 py-1 text-xs text-(--color-fg)"
+          class="inline-flex items-center gap-2 rounded-full border border-dashed border-(--color-line-med) px-3 py-1 text-xs text-(--color-fg)"
         >
           {value.name}
           <button

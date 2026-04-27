@@ -43,10 +43,10 @@
   } = $props();
 
   const headingToneClassMap: Record<ModalTone, string> = {
-    neutral: 'text-[color:var(--color-fg)]',
-    info: 'text-[color:var(--color-info)]',
-    warning: 'text-[color:var(--color-warn)]',
-    danger: 'text-[color:var(--color-fail)]',
+    neutral: 'text-(--color-fg)',
+    info: 'text-(--color-info)',
+    warning: 'text-(--color-warn)',
+    danger: 'text-(--color-fail)',
   };
 
   let previousOverflow = '';
@@ -134,7 +134,7 @@
     >
       {#if showHeaderClose}
         <button
-          class="absolute top-4 right-4 inline-flex h-8 w-8 items-center justify-center rounded-md border border-(--color-line-med) text-(--color-fg-2) transition hover:border-(--color-line-strong) hover:text-(--color-fg)"
+          class="absolute top-4 right-4 inline-flex h-8 w-8 items-center justify-center rounded-md border border-(--color-line-med) text-(--color-fg-2) transition hover:border-(--color-line-med) hover:text-(--color-fg)"
           type="button"
           aria-label={headerCloseAriaLabel}
           onclick={handleCancel}

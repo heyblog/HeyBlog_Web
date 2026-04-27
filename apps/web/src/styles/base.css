@@ -2,7 +2,6 @@
   :root {
     color-scheme: light;
     --color-bg: #f5f5f4;
-    --color-bg-soft: #f0ede8;
     --color-bg-raised: #fafaf9;
     --color-fg: #1c1917;
     --color-fg-2: #44403c;
@@ -26,7 +25,6 @@
   :root[data-theme='dark'] {
     color-scheme: dark;
     --color-bg: #0c0a09;
-    --color-bg-soft: #171311;
     --color-bg-raised: #1c1917;
     --color-fg: #fafaf9;
     --color-fg-2: #d6d3d1;
@@ -43,7 +41,6 @@
     :root:not([data-theme]) {
       color-scheme: dark;
       --color-bg: #0c0a09;
-      --color-bg-soft: #171311;
       --color-bg-raised: #1c1917;
       --color-fg: #fafaf9;
       --color-fg-2: #d6d3d1;

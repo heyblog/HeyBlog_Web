@@ -18,10 +18,10 @@
   }
 
   const toneClassMap: Record<SnackbarTone, string> = {
-    info: 'text-[color:var(--color-info)]',
-    success: 'text-[color:var(--color-ok)]',
-    warning: 'text-[color:var(--color-warn)]',
-    error: 'text-[color:var(--color-fail)]',
+    info: 'text-(--color-info)',
+    success: 'text-(--color-ok)',
+    warning: 'text-(--color-warn)',
+    error: 'text-(--color-fail)',
   };
 
   const progressColorMap: Record<SnackbarTone, string> = {
@@ -116,7 +116,7 @@
         animate:flip={listMotion}
         in:fly={enterMotion}
         out:fly={exitMotion}
-        class="pointer-events-auto relative overflow-hidden rounded-[5px] border border-(--color-line-med) bg-(--color-bg-raised) p-4 shadow-[0_18px_40px_rgba(28,25,23,0.14)] dark:shadow-[0_18px_40px_rgba(0,0,0,0.34)]"
+        class="pointer-events-auto relative overflow-hidden rounded-md border border-(--color-line-med) bg-(--color-bg-raised) p-4 shadow-[0_18px_40px_rgba(28,25,23,0.14)] dark:shadow-[0_18px_40px_rgba(0,0,0,0.34)]"
       >
         <div class="grid gap-2">
           <div class="flex items-start justify-between gap-3">

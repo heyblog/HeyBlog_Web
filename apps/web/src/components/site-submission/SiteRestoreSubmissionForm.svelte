@@ -172,7 +172,7 @@
 
       <div class="flex flex-wrap justify-end gap-3">
         <button
-          class="inline-flex items-center rounded-md border border-(--color-line-med) px-4 py-2 text-sm text-(--color-fg) transition hover:border-(--color-line-strong) disabled:cursor-not-allowed disabled:opacity-60"
+          class="inline-flex items-center rounded-md border border-(--color-line-med) px-4 py-2 text-sm text-(--color-fg) transition hover:border-(--color-line-med) disabled:cursor-not-allowed disabled:opacity-60"
           disabled={pending}
           type="button"
           onclick={() => void submitRestore()}
@@ -209,14 +209,14 @@
 
       <div class="flex flex-wrap gap-3">
         <button
-          class="rounded-md border border-(--color-line-med) px-4 py-2 text-sm text-(--color-fg) transition hover:border-(--color-line-strong)"
+          class="rounded-md border border-(--color-line-med) px-4 py-2 text-sm text-(--color-fg) transition hover:border-(--color-line-med)"
           type="button"
           onclick={() => void handleCopyAuditId(auditId)}
         >
           {copiedAuditId === auditId ? '已复制查询 ID' : '复制查询 ID'}
         </button>
         <a
-          class="inline-flex items-center rounded-md border border-(--color-line-med) px-4 py-2 text-sm text-(--color-fg) transition hover:border-(--color-line-strong)"
+          class="inline-flex items-center rounded-md border border-(--color-line-med) px-4 py-2 text-sm text-(--color-fg) transition hover:border-(--color-line-med)"
           href={buildSubmissionQueryHref(auditId)}
         >
           前往查询页
