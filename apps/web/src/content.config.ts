@@ -35,6 +35,18 @@ const docs = defineCollection({
   }),
 });
 
+const pages = defineCollection({
+  loader: glob({
+    pattern: ['**/*.mdx', '**/*.md'],
+    base: './contents/pages',
+  }),
+  schema: z.object({
+    title: z.string(),
+    create_time: z.date().optional(),
+    update_time: z.date().optional(),
+  }),
+});
+
 const members = defineCollection({
   loader: file('./contents/members.json'),
   schema: z.object({
@@ -68,6 +80,7 @@ const group = defineCollection({
 export const collections = {
   blogs,
   docs,
+  pages,
   members,
   group,
 };
