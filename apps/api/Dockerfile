@@ -3,19 +3,10 @@ WORKDIR /workspace
 
 RUN corepack enable
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/api/package.json apps/api/package.json
-COPY packages/configs/package.json packages/configs/package.json
-COPY packages/db/package.json packages/db/package.json
-COPY packages/utils/package.json packages/utils/package.json
+COPY . .
 RUN pnpm install --frozen-lockfile
 
-COPY tsconfig.json ./
-COPY scripts scripts
-COPY apps/api apps/api
-COPY packages packages
-RUN pnpm --filter @zhblogs/db --filter @zhblogs/utils --if-present run build \
-  && pnpm -F @zhblogs/api run build
+RUN pnpm -F @zhblogs/api run build
 
 FROM node:24-trixie-slim AS runner
 WORKDIR /workspace

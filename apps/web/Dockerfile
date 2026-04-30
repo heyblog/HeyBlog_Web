@@ -3,14 +3,9 @@ WORKDIR /workspace
 
 RUN corepack enable
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/web/package.json apps/web/package.json
-COPY packages/configs/package.json packages/configs/package.json
+COPY . .
 RUN pnpm install --frozen-lockfile
 
-COPY tsconfig.json ./
-COPY apps/web apps/web
-COPY packages/configs packages/configs
 RUN pnpm -F @zhblogs/web run build
 
 FROM node:24-trixie-slim AS runner

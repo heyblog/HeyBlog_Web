@@ -1,10 +1,13 @@
 FROM golang:1.25.7-trixie AS builder
-WORKDIR /workspace/apps/worker
+WORKDIR /workspace
 
-COPY apps/worker/go.mod apps/worker/go.sum ./
+ARG GOPROXY=https://proxy.golang.org,direct
+ENV GOPROXY=${GOPROXY}
+
+COPY . .
+WORKDIR /workspace/apps/worker
 RUN go mod download
 
-COPY apps/worker ./
 RUN go build -o /out/worker ./
 
 FROM debian:trixie-slim AS runner

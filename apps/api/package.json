@@ -31,8 +31,7 @@
     "drizzle-orm": "^0.44.7",
     "fastify": "^5.7.4",
     "fastify-plugin": "^5.1.0",
-    "pino": "^9.9.5",
-    "zod": "^4.3.6"
+    "pino": "^9.9.5"
   },
   "devDependencies": {
     "pino-pretty": "^13.1.2"
