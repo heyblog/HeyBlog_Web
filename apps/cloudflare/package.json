@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@zhblogs/configs": "workspace:*",
-    "chanfana": "^2.6.3",
+    "chanfana": "^3.3.0",
     "hono": "^4.6.20"
   },
   "devDependencies": {
