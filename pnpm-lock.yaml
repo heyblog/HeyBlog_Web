@@ -11,6 +11,9 @@ importers:
       dotenv:
         specifier: ^17.4.2
         version: 17.4.2
+      zod:
+        specifier: ^4.4.1
+        version: 4.4.1
     devDependencies:
       '@commitlint/cli':
         specifier: ^20.5.2
@@ -129,6 +132,9 @@ importers:
       '@zhblogs/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      drizzle-orm:
+        specifier: ^0.44.7
+        version: 0.44.7(@cloudflare/workers-types@4.20260228.1)(@types/pg@8.18.0)(better-sqlite3@12.6.2)(pg@8.19.0)(postgres@3.4.8)
       fastify:
         specifier: ^5.7.4
         version: 5.7.4
@@ -138,6 +144,9 @@ importers:
       pino:
         specifier: ^9.9.5
         version: 9.14.0
+      zod:
+        specifier: ^4.3.6
+        version: 4.4.1
     devDependencies:
       pino-pretty:
         specifier: ^13.1.2
@@ -239,16 +248,13 @@ importers:
         version: 0.44.7(@cloudflare/workers-types@4.20260228.1)(@types/pg@8.18.0)(better-sqlite3@12.6.2)(pg@8.19.0)(postgres@3.4.8)
       drizzle-zod:
         specifier: ^0.8.3
-        version: 0.8.3(drizzle-orm@0.44.7(@cloudflare/workers-types@4.20260228.1)(@types/pg@8.18.0)(better-sqlite3@12.6.2)(pg@8.19.0)(postgres@3.4.8))(zod@4.3.6)
+        version: 0.8.3(drizzle-orm@0.44.7(@cloudflare/workers-types@4.20260228.1)(@types/pg@8.18.0)(better-sqlite3@12.6.2)(pg@8.19.0)(postgres@3.4.8))(zod@4.4.1)
       pg:
         specifier: ^8.16.3
         version: 8.19.0
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
-      zod:
-        specifier: ^4.1.11
-        version: 4.3.6
     devDependencies:
       '@types/pg':
         specifier: ^8.18.0
@@ -5366,8 +5372,8 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zod@4.3.6:
-    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
+  zod@4.4.1:
+    resolution: {integrity: sha512-a6ENMBBGZBsnlSebQ/eKCguSBeGKSf4O7BPnqVPmYGtpBYI7VSqoVqw+QcB7kPRjbqPwhYTpFbVj/RqNz/CT0Q==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -5492,7 +5498,7 @@ snapshots:
     dependencies:
       sitemap: 9.0.1
       stream-replace-string: 2.0.0
-      zod: 4.3.6
+      zod: 4.4.1
 
   '@astrojs/svelte@8.0.0(@types/node@25.4.0)(astro@6.0.2(@types/node@25.4.0)(jiti@2.6.1)(lightningcss@1.31.1)(rollup@4.59.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(jiti@2.6.1)(lightningcss@1.31.1)(svelte@5.53.10)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)':
     dependencies:
@@ -7263,7 +7269,7 @@ snapshots:
       vitefu: 1.1.2(vite@7.3.1(@types/node@25.4.0)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2))
       xxhash-wasm: 1.1.0
       yargs-parser: 22.0.0
-      zod: 4.3.6
+      zod: 4.4.1
     optionalDependencies:
       sharp: 0.34.5
     transitivePeerDependencies:
@@ -7610,10 +7616,10 @@ snapshots:
       pg: 8.19.0
       postgres: 3.4.8
 
-  drizzle-zod@0.8.3(drizzle-orm@0.44.7(@cloudflare/workers-types@4.20260228.1)(@types/pg@8.18.0)(better-sqlite3@12.6.2)(pg@8.19.0)(postgres@3.4.8))(zod@4.3.6):
+  drizzle-zod@0.8.3(drizzle-orm@0.44.7(@cloudflare/workers-types@4.20260228.1)(@types/pg@8.18.0)(better-sqlite3@12.6.2)(pg@8.19.0)(postgres@3.4.8))(zod@4.4.1):
     dependencies:
       drizzle-orm: 0.44.7(@cloudflare/workers-types@4.20260228.1)(@types/pg@8.18.0)(better-sqlite3@12.6.2)(pg@8.19.0)(postgres@3.4.8)
-      zod: 4.3.6
+      zod: 4.4.1
 
   dset@3.1.4: {}
 
@@ -10687,6 +10693,6 @@ snapshots:
 
   zod@3.25.76: {}
 
-  zod@4.3.6: {}
+  zod@4.4.1: {}
 
   zwitch@2.0.4: {}
