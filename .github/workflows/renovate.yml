@@ -1,0 +1,87 @@
+name: renovate
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-compatibility:
+    if: github.actor == 'renovate[bot]' || startsWith(github.head_ref, 'renovate/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/worker/go.mod
+          cache-dependency-path: |
+            apps/worker/go.sum
+            apps/deployer/go.sum
+
+      - name: Enable pnpm
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare env files
+        run: |
+          cp .env.example .env.dev
+          cp .env.example .env.prod
+          cp .env.example .env.test
+          sed -i 's/NODE_ENV=development/NODE_ENV=test/' .env.test
+          sed -i 's/NODE_ENV=development/NODE_ENV=production/' .env.prod
+
+      - name: Check format
+        run: pnpm run format:check
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Test
+        run: pnpm run test
+
+      - name: Build apps
+        run: pnpm run build
+
+      - name: Build Cloudflare worker
+        run: pnpm run build:cf
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: false
+
+      - name: Build web image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: false
+
+      - name: Build worker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/worker/Dockerfile
+          push: false

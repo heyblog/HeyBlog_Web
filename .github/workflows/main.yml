@@ -1,0 +1,102 @@
+name: main
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+env:
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  verify-build-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/worker/go.mod
+          cache-dependency-path: |
+            apps/worker/go.sum
+            apps/deployer/go.sum
+
+      - name: Enable pnpm
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare env files
+        run: |
+          cp .env.example .env.dev
+          cp .env.example .env.prod
+          cp .env.example .env.test
+          sed -i 's/NODE_ENV=development/NODE_ENV=test/' .env.test
+          sed -i 's/NODE_ENV=development/NODE_ENV=production/' .env.prod
+
+      - name: Check format
+        run: pnpm run format:check
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Test
+        run: pnpm run test
+
+      - name: Build apps
+        run: pnpm run build
+
+      - name: Build Cloudflare worker
+        run: pnpm run build:cf
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          tags: |
+            docker.io/${{ env.DOCKERHUB_USERNAME }}/zhblogs-api:${{ env.IMAGE_TAG }}
+            docker.io/${{ env.DOCKERHUB_USERNAME }}/zhblogs-api:main
+
+      - name: Build and push web image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: true
+          tags: |
+            docker.io/${{ env.DOCKERHUB_USERNAME }}/zhblogs-web:${{ env.IMAGE_TAG }}
+            docker.io/${{ env.DOCKERHUB_USERNAME }}/zhblogs-web:main
+
+      - name: Build and push worker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/worker/Dockerfile
+          push: true
+          tags: |
+            docker.io/${{ env.DOCKERHUB_USERNAME }}/zhblogs-worker:${{ env.IMAGE_TAG }}
+            docker.io/${{ env.DOCKERHUB_USERNAME }}/zhblogs-worker:main

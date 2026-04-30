@@ -71,7 +71,7 @@ const assertDatabaseUrl = (): void => {
   const value = process.env.DATABASE_URL?.trim();
   if (!value) {
     throw new Error(
-      'Missing DATABASE_URL. Run from the repo root with `pnpm run tasks:seed` or use `node --env-file=.env.dev --import tsx ...`.',
+      'Missing DATABASE_URL. Run from the repo root with `pnpm run tasks:seed` or `pnpm env:dev -- "node --import tsx ./apps/api/scripts/seed-task-schedules.ts"`.',
     );
   }
 };
