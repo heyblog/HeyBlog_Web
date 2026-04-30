@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24
-          cache: pnpm
+          cache: 'pnpm'
 
       - uses: actions/setup-go@v6
         with:
@@ -30,9 +30,6 @@ jobs:
           cache-dependency-path: |
             apps/worker/go.sum
             apps/deployer/go.sum
-
-      - name: Enable pnpm
-        run: corepack enable
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
