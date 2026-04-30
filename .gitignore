@@ -3,6 +3,8 @@ node_modules/
 
 # build outputs
 dist/
+**/.cache/
+**/bin/
 
 # logs
 logs/
@@ -29,3 +31,14 @@ playwright/.auth/
 
 # TypeScript
 *.tsbuildinfo
+
+# WakaTime
+.wakatime-project
+
+# Editor
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# AI Cli files
+.codex
