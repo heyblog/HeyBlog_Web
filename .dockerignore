@@ -1,0 +1,12 @@
+**/.cache
+**/.wrangler
+**/bin
+**/dist
+**/node_modules
+**/playwright-report
+**/test-results
+.codex
+.env
+.env.*
+.git
+.github
