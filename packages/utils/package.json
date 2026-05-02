@@ -5,11 +5,12 @@
   "private": true,
   "scripts": {
     "build": "tsdown",
-    "format": "prettier --config ./prettier.config.ts --write \"package.json\" \"*.ts\" \"src/**/*.ts\"",
-    "format:check": "prettier --config ./prettier.config.ts --check \"package.json\" \"*.ts\" \"src/**/*.ts\"",
-    "lint": "eslint --config ./eslint.config.ts \"src/**/*.ts\" \"*.ts\"",
-    "lint:fix": "eslint --config ./eslint.config.ts \"src/**/*.ts\" \"*.ts\" --fix",
+    "format": "prettier --config ./prettier.config.ts --write \"package.json\" \"*.ts\" \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format:check": "prettier --config ./prettier.config.ts --check \"package.json\" \"*.ts\" \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "lint": "eslint --config ./eslint.config.ts \"src/**/*.ts\" \"tests/**/*.ts\" \"*.ts\"",
+    "lint:fix": "eslint --config ./eslint.config.ts \"src/**/*.ts\" \"tests/**/*.ts\" \"*.ts\" --fix",
     "psl:update-rules": "tsx ./src/psl/update-rules.ts",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "exports": {

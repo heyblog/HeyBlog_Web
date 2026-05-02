@@ -17,6 +17,7 @@
     "stylelint:fix": "stylelint --config ./stylelint.config.ts --fix \"src/**/*.{css,astro,svelte}\"",
     "test": "pnpm test:unit",
     "test:e2e": "playwright test",
+    "test:e2e:all": "PLAYWRIGHT_ALL_BROWSERS=true playwright test",
     "test:unit": "vitest run tests/unit",
     "typecheck": "astro check"
   },
