@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.detect.outputs.node_packages_json) }}
+      matrix: ${{ fromJson(needs.detect.outputs.node_packages_json || '{"include":[{"id":"none","package":"__none__","path":"."}]}') }}
     steps:
       - uses: actions/checkout@v6
 
@@ -87,7 +87,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.detect.outputs.go_packages_json) }}
+      matrix: ${{ fromJson(needs.detect.outputs.go_packages_json || '{"include":[{"id":"none","package":"__none__","path":"."}]}') }}
     steps:
       - uses: actions/checkout@v6
 
