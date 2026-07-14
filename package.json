@@ -1,0 +1,37 @@
+{
+  "name": "heyblog-repo",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.33.2",
+  "scripts": {
+    "format": "pnpm -r --if-present run format",
+    "format:check": "pnpm -r --if-present run format:check",
+    "lint": "pnpm -r --if-present run lint",
+    "lint:fix": "pnpm -r --if-present run lint:fix",
+    "typecheck": "pnpm -r --if-present run typecheck"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.5.3",
+    "@commitlint/config-conventional": "^20.5.3",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.13.3",
+    "@typescript-eslint/eslint-plugin": "^8.64.0",
+    "@typescript-eslint/parser": "^8.64.0",
+    "astro-eslint-parser": "^1.4.0",
+    "eslint": "^10.7.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-astro": "^1.7.0",
+    "eslint-plugin-simple-import-sort": "^13.0.0",
+    "eslint-plugin-svelte": "^3.20.0",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "globals": "^17.7.0",
+    "postcss-html": "^1.8.1",
+    "prettier": "^3.9.5",
+    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-svelte": "^3.5.2",
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "stylelint": "^17.14.0",
+    "stylelint-config-standard": "^40.0.0",
+    "typescript": "^6.0.3"
+  }
+}

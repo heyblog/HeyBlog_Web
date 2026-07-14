@@ -1,0 +1,18 @@
+{
+  "name": "@heyblog/configs",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "format": "prettier --config ./prettier.config.ts --write \"package.json\" \"*.ts\" \"shared/**/*.ts\"",
+    "format:check": "prettier --config ./prettier.config.ts --check \"package.json\" \"*.ts\" \"shared/**/*.ts\"",
+    "lint": "eslint --config ./eslint.config.ts \"*.ts\" \"shared/**/*.ts\"",
+    "lint:fix": "eslint --config ./eslint.config.ts \"*.ts\" \"shared/**/*.ts\" --fix",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    "./shared/eslint": "./shared/eslint.ts",
+    "./shared/prettier": "./shared/prettier.ts",
+    "./shared/stylelint": "./shared/stylelint.ts"
+  }
+}
