@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+tasks:
+  apps:
+    desc: List app status under apps
+    silent: true
+    cmds:
+      - |
+        cat <<'EOF'
+        apps/api       The backend api server built with Gin
+        apps/web       The frontend web app built with Astro
+        EOF
+
+  install:
+    desc: Install repo dependencies and hooks
+    cmds:
+      - pnpm install
+      - task: api:install
+      - task: hooks:install
+
+  format:
+    desc: Format all active modules
+    aliases: [fmt]
+    cmds:
+      - pnpm run format
+      - task: api:format
+
+  format:check:
+    desc: Check formatting for all active modules
+    aliases: [fmt:check]
+    cmds:
+      - pnpm run format:check
+      - task: api:format:check
+
+  lint:
+    desc: Lint all active modules
+    cmds:
+      - pnpm run lint
+      - task: api:lint
+
+  lint:fix:
+    desc: Lint and fix all active modules
+    cmds:
+      - pnpm run lint:fix
+      - task: api:lint:fix
+
+  build:
+    desc: Build all active applications
+    cmds:
+      - task: api:build
+      - task: web:build
+
+  typecheck:
+    desc: Type-check all Node workspace modules
+    cmds:
+      - pnpm run typecheck
+
+  test:
+    desc: Run all configured tests
+    cmds:
+      - pnpm run test:hooks
+      - task: api:test
+
+  security:
+    desc: Run checks that require vulnerability database access
+    cmds:
+      - task: api:vulncheck
+
+  verify:
+    desc: Run all offline checks
+    cmds:
+      - task: format:check
+      - task: lint
+      - task: typecheck
+      - task: test
+      - task: build
+
+  verify:full:
+    desc: Run offline checks and vulnerability scanning
+    cmds:
+      - task: verify
+      - task: security

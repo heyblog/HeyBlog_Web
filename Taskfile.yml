@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+includes:
+  api:
+    taskfile: ./apps/api/Taskfile.yml
+    dir: ./apps/api
+  web:
+    taskfile: ./apps/web/Taskfile.yml
+    dir: ./apps/web
+  project:
+    taskfile: ./taskfiles/project.yml
+    flatten: true
+  hooks:
+    taskfile: ./taskfiles/hooks.yml
+    flatten: true
+
+tasks:
+  default:
+    silent: true
+    cmds:
+      - task --list-all
+
+  commit:lint:
+    desc: Lint the latest commit message
+    cmds:
+      - pnpm exec commitlint --config ./commitlint.config.cjs --last

@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+tasks:
+  install:
+    desc: Download API dependencies
+    cmds:
+      - go mod download
+
+  dev:
+    desc: Start API server
+    cmds:
+      - go run .
+
+  build:
+    desc: Build API
+    cmds:
+      - go build -o ./dist/ ./...
+
+  test:
+    desc: Test API
+    cmds:
+      - go test ./...
+
+  lint:
+    desc: Lint API Go files
+    cmds:
+      - golangci-lint run --config ../../.golangci.yml ./...
+
+  lint:fix:
+    desc: Lint and fix API Go files
+    cmds:
+      - golangci-lint run --config ../../.golangci.yml --fix ./...
+
+  format:
+    desc: Format API Go files and sort imports
+    aliases: [fmt]
+    cmds:
+      - golangci-lint fmt --config ../../.golangci.yml
+
+  format:check:
+    desc: Check API Go formatting and import sorting
+    aliases: [fmt:check]
+    cmds:
+      - golangci-lint fmt --config ../../.golangci.yml --diff
+
+  vulncheck:
+    desc: Check API Go vulnerabilities
+    cmds:
+      - govulncheck ./...
+
+  verify:
+    desc: Run offline checks for API
+    cmds:
+      - task: test
+      - task: format:check
+      - task: lint
+      - task: build

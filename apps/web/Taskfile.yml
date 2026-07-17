@@ -1,0 +1,54 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+tasks:
+  dev:
+    desc: Start Astro dev server
+    cmds:
+      - pnpm dev
+
+  build:
+    desc: Build Astro site
+    cmds:
+      - pnpm build
+
+  preview:
+    desc: Preview Astro build
+    cmds:
+      - pnpm preview
+
+  check:
+    desc: Run Astro check
+    cmds:
+      - pnpm run typecheck
+
+  lint:
+    desc: Lint web app
+    cmds:
+      - pnpm run lint
+
+  lint:fix:
+    desc: Lint and fix web app
+    cmds:
+      - pnpm run lint:fix
+
+  format:
+    desc: Format web app
+    aliases: [fmt]
+    cmds:
+      - pnpm run format
+
+  format:check:
+    desc: Check web app formatting
+    aliases: [fmt:check]
+    cmds:
+      - pnpm run format:check
+
+  verify:
+    desc: Run offline checks for web app
+    cmds:
+      - task: check
+      - task: lint
+      - task: format:check
+      - task: build
