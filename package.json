@@ -4,10 +4,14 @@
   "type": "module",
   "packageManager": "pnpm@10.33.2",
   "scripts": {
-    "format": "pnpm -r --if-present run format",
-    "format:check": "pnpm -r --if-present run format:check",
-    "lint": "pnpm -r --if-present run lint",
-    "lint:fix": "pnpm -r --if-present run lint:fix",
+    "format": "pnpm run format:root && pnpm -r --if-present run format",
+    "format:root": "prettier --config ./packages/node/configs/prettier.config.ts --write \".golangci.yml\" \"Taskfile.yml\" \"taskfiles/**/*.{yml,yaml}\" \"apps/*/Taskfile.{yml,yaml}\" \"commitlint.config.cjs\" \"package.json\" \"pnpm-workspace.yaml\" \"scripts/**/*.mjs\"",
+    "format:check": "pnpm run format:check:root && pnpm -r --if-present run format:check",
+    "format:check:root": "prettier --config ./packages/node/configs/prettier.config.ts --check \".golangci.yml\" \"Taskfile.yml\" \"taskfiles/**/*.{yml,yaml}\" \"apps/*/Taskfile.{yml,yaml}\" \"commitlint.config.cjs\" \"package.json\" \"pnpm-workspace.yaml\" \"scripts/**/*.mjs\"",
+    "lint": "pnpm run lint:root && pnpm -r --if-present run lint",
+    "lint:root": "eslint --config ./packages/node/configs/eslint.config.ts \"commitlint.config.cjs\" \"scripts/**/*.mjs\"",
+    "lint:fix": "pnpm run lint:fix:root && pnpm -r --if-present run lint:fix",
+    "lint:fix:root": "eslint --config ./packages/node/configs/eslint.config.ts \"commitlint.config.cjs\" \"scripts/**/*.mjs\" --fix",
     "typecheck": "pnpm -r --if-present run typecheck"
   },
   "devDependencies": {
@@ -15,6 +19,7 @@
     "@commitlint/config-conventional": "^20.5.3",
     "@eslint/js": "^10.0.1",
     "@types/node": "^24.13.3",
+    "cross-spawn": "^7.0.6",
     "@typescript-eslint/eslint-plugin": "^8.64.0",
     "@typescript-eslint/parser": "^8.64.0",
     "astro-eslint-parser": "^1.4.0",

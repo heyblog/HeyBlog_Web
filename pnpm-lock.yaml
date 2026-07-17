@@ -29,6 +29,9 @@ importers:
       astro-eslint-parser:
         specifier: ^1.4.0
         version: 1.4.0
+      cross-spawn:
+        specifier: ^7.0.6
+        version: 7.0.6
       eslint:
         specifier: ^10.7.0
         version: 10.7.0(jiti@2.7.0)
